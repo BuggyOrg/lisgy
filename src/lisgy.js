@@ -1,5 +1,50 @@
 var tokenizer = require('wsl-lisp-parser')
 
+export function parseAsTree (code, options) {
+  // var config = options || {}
+  var root = tokenizer.parseToAst(code, '')
+  var tree = {type: 'root', nodes: []}
+
+  function parse (root) {
+    var baseValue = root.data[0].value
+    var obj = {name: baseValue}
+    if (obj.name === 'lambda') {
+      // format: (lambda (vars) (fn))
+      obj.type = 'lambda'
+      obj.vars = []
+
+      var vars = root.data[1]
+      for (var i = 0; i < vars.data.length; i++) {
+        obj.vars.push(vars.data[i].value)
+      }
+      obj.nodes = parse(root.data[2])
+    } else {
+      // format: (fn (args) (more args) (...))
+      obj.type = 'fn'
+      obj.args = []
+      for (var j = 1; j < root.data.length; j++) {
+        var args = root.data[j]
+        switch (args.type) {
+          case 'AstAtom':
+          case 'AstNumber':
+          case 'AstString':
+            obj.args.push({name: args.value, type: 'atom'})
+            break
+          default:
+            obj.args.push(parse(args))
+            break
+        }
+      }
+    }
+    return obj
+  }
+
+  for (var i = 0; i < root.data.length; i++) {
+    tree.nodes.push(parse(root.data[i]))
+  }
+  return tree
+}
+
 export function parse (code, options) {
   var config = options || {addDepth: true, addCalls: true}
   var root = tokenizer.parseToAst(code, '')
@@ -84,4 +129,21 @@ export function parse (code, options) {
 
   parse(root.data[0], data, 0, 'root')
   return data
+}
+
+export function toJSON (parsed) {
+  var obj = {}
+  var lambda = parsed.nodes[0]
+
+  obj.meta = (lambda.name === 'lambda') ? 'lambda' : 'unknow'
+  // need to map OP to math/OP
+  // eg: + to math/add
+  //     - to math/sub
+  //   inc to math/inc
+  //    ++ to math/inc
+  obj.data = {'v': 'i need a cool name'}
+  var value = {'meta': 'math/inc'}
+  obj.data.value = value
+  console.log('lambda', lambda.data.edges)
+  return obj
 }
