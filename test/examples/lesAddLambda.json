@@ -1,0 +1,52 @@
+{
+  "code": "(lambda (a b) (math/less a (math/add b 3)))",
+  "meta": "lambda",
+  "v" : "lambda",
+  "data" : {
+    "name": "lambdaProcess",
+    "v" : "lambda",
+    "inputPorts": {
+      "a": "generic",
+      "b": "generic"
+    },
+    "outputPorts": {
+      "value": "generic"
+    },
+    "implementation": {
+      "nodes": [
+        {
+          "meta": "math/less",
+          "name" : "LESS"
+        },
+        {
+          "meta":"math/add",
+          "name" : "ADD",
+          "values": [
+            {
+              "value": 3,
+              "port": "add/s2"
+            }
+          ]
+        }
+      ],
+      "edges": [
+        {
+          "from": "a",
+          "to": "LESS:less/is"
+        },
+        {
+          "from": "ADD:add/sum",
+          "to": "LESS:less/then"
+        },
+        {
+          "from": "b",
+          "to": "ADD:add/s1"
+        }
+      ]
+    }
+  },
+  "inputPorts": {},
+  "outputPorts": {
+    "fn": "lambda"
+  }
+}

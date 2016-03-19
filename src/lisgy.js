@@ -1,4 +1,12 @@
+// import fs from 'fs'
 var tokenizer = require('wsl-lisp-parser')
+
+// var map = JSON.parse(fs.readFileSync('map.json'))
+// need to map OP to math/OP
+// eg: + to math/add
+//     - to math/sub
+//   inc to math/inc
+//    ++ to math/inc
 
 export function parseAsTree (code, options) {
   // var config = options || {}
@@ -131,19 +139,45 @@ export function parse (code, options) {
   return data
 }
 
-export function toJSON (parsed) {
-  var obj = {}
-  var lambda = parsed.nodes[0]
+function randomString () {
+  return Math.random().toString(36).substr(2, 5)
+}
 
-  obj.meta = (lambda.name === 'lambda') ? 'lambda' : 'unknow'
-  // need to map OP to math/OP
-  // eg: + to math/add
-  //     - to math/sub
-  //   inc to math/inc
-  //    ++ to math/inc
-  obj.data = {'v': 'i need a cool name'}
-  var value = {'meta': 'math/inc'}
-  obj.data.value = value
-  console.log('lambda', lambda.data.edges)
+export function toJSON (code) {
+  var obj = {}
+  var tree = parseAsTree(code)
+
+  if (tree.nodes.length < 1) {
+    var error = {message: 'tree has no nodes'}
+    throw error
+  }
+
+  // for now just use the first element from root
+  var base = tree.nodes[0]
+
+  console.log(tree.nodes)
+
+  obj.code = code
+  obj.meta = base.name
+
+  if (base.name === 'lambda') {
+    obj.inputPorts = {}
+    obj.outputPorts = {'fn': 'lambda'}
+  }
+
+  obj.data = {}
+  obj.data.v = 'TODO-' + randomString()
+  obj.data.namen = 'TODO-' + randomString()
+  obj.data.outputPorts = {'value': 'generic'}
+
+  obj.data.inputPorts = {}
+  base.vars.every((v) => {
+    obj.data.inputPorts[v] = 'generic'
+    return true
+  })
+
+  obj.data.implementation = {nodes: [], edges: []}
+  // TODO add nodes and edges
+
   return obj
 }

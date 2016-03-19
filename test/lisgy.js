@@ -41,10 +41,8 @@ describe('Parser', function () {
 
   it('has the correct edges', function () {
     expect(edges[0].to).to.have.property('name').to.equal('>')
-
     compare(edges, 1, '>', 'x')
     compare(edges, 2, '>', 'y')
-
   })
 })
 
@@ -84,32 +82,30 @@ describe('Parser', function () {
   })
 })
 
-describe('toJSON', function () {
-  var example = readParseExamples('lambda.json')
+describe('JSON', function () {
+  var example = readParseExamples('lesAddLambda.json')
   var code = example.code
+  var json = lisgy.toJSON(code)
 
-  var parsed
-  it('test', function () {
-    parsed = lisgy.parse(code, {addDepth: true, addCalls: true})
-    var json = lisgy.toJSON(parsed)
+  it('code, meta, inputPorts, outputPorts', function () {
+    expect(json.code).to.equal(example.code)
+    expect(json.meta).to.equal(example.meta)
+    expect(json.inputPorts).deep.equal(example.inputPorts)
+    expect(json.outputPorts).deep.equal(example.outputPorts)
+  })
 
-    console.log(json)
+  it('data ports', function () {
+    expect(json.data.inputPorts).deep.equal(example.data.inputPorts)
+    expect(json.data.outputPorts).deep.equal(example.data.outputPorts)
+  })
 
-    expect(example.data).to.equal(json.data)
-    expect(example.inputPorts).to.equal(json.inputPorts)
-    expect(example.outputPorts).to.equal(json.outputPorts)
+  it('data implementation nodes', function () {
+    // expect(json.data.implementation.nodes.length).to.equal(example.data.implementation.nodes.length)
+    expect(json.data.implementation.nodes).to.equal(example.data.implementation.nodes)
+    // TODO
+  })
+
+  it('data implementation edges', function () {
+    // TODO
   })
 })
-
-/*
-map + -> math/add
-
-(+ 2 3 4 5) = (+ 2 (+ 3 +(4 5)))
-
-(lambda (i) (< i 2))
-{
-  "data" : {
-  
-  }
-}
-*/

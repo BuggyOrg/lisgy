@@ -1,0 +1,67 @@
+{
+  "options": {
+    "directed": true,
+    "multigraph": true,
+    "compound": true
+  },
+  "code": "(+ 1 1 1)",
+  "inputPorts": {},
+  "outputPorts": {
+    "3": "number"
+  },
+  "implementation": {
+    "nodes": [
+      {
+        "meta": "math/add",
+        "name": "add1",
+        "values": [
+          {
+            "value": 1,
+            "port": "add/s1",
+          },
+          {
+            "value": 1,
+            "port": "add/s2"
+          }
+        ]
+      },
+      {
+        "meta": "math/add",
+        "name": "add2",
+        "values": [
+          {
+            "value": 1,
+            "port": "add/s2"
+          }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "from": "add1:add/sum",
+        "to": "add2:add/s1"
+      },
+      {
+        "from": "add2:add/sum",
+        "to": "3"
+      }
+    ]
+  }
+}
+
+/*
+
+{
+  "id": "math/add",
+  "version": "0.1.0",
+  "inputPorts": {
+    "add/s1": "int",
+    "add/s2": "int"
+  },
+  "outputPorts": {
+    "add/sum": "int"
+  },
+  "atomic": true
+}
+
+*/
