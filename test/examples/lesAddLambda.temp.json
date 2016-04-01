@@ -1,5 +1,7 @@
 {
+  "code0": "(lambda (a b) (less a (add b 3)))",
   "code": "(lambda (a b) (math/less a (math/add b 3)))",
+  "code2": "(deffun math/add (sum s1 s2)) (deffun math/less (value isLess than)) (lambda (a b) (math/less a (math/add b 3)))",
   "meta": "lambda",
   "v" : "lambda",
   "data" : {
@@ -24,7 +26,7 @@
           "values": [
             {
               "value": 3,
-              "port": "s2"
+              "port": "ARG_2"
             }
           ]
         }
@@ -32,15 +34,15 @@
       "edges": [
         {
           "from": "a",
-          "to": "less_0:isLess"
+          "to": "less_0:ARG_1"
         },
         {
-          "from": "add_0:sum",
-          "to": "less_0:than"
+          "from": "add_0:ARG_0",
+          "to": "less_0:ARG_2"
         },
         {
           "from": "b",
-          "to": "add_0:s1"
+          "to": "add_0:ARG_1"
         }
       ]
     }
@@ -49,4 +51,12 @@
   "outputPorts": {
     "fn": "lambda"
   }
+}
+
+["ARG_1", "ARG_2"]
+==
+["Z", "Y"]
+==
+{
+  input
 }

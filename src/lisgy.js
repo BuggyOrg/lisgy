@@ -1,5 +1,7 @@
 // import fs from 'fs'
+import libConnection from '@buggyorg/component-library'
 var tokenizer = require('wsl-lisp-parser')
+var componentApi = libConnection('quasar:9200')
 
 // var map = JSON.parse(fs.readFileSync('map.json'))
 // need to map OP to math/OP
@@ -25,7 +27,7 @@ export function parseAsTree (code, options) {
       for (var i = 0; i < vars.data.length; i++) {
         obj.vars.push(vars.data[i].value)
       }
-      obj.nodes = parse(root.data[2])
+      obj.node = parse(root.data[2])
     } else {
       // format: (fn (args) (more args) (...))
       obj.type = 'fn'
@@ -42,6 +44,10 @@ export function parseAsTree (code, options) {
             obj.args.push(parse(args))
             break
         }
+      }
+
+      if (obj.name === 'deffun') {
+        obj.type = 'deffun';
       }
     }
     return obj
@@ -100,38 +106,43 @@ export function parse (code, options) {
     var baseObj = newNode(baseValue, depth)
     newEdge(parrent, baseObj)
 
-    if (baseValue === 'lambda') {
-      baseObj.data = {nodes: [], edges: []}
-      var vars = root.data[1]
-      var lambdaVars = []
-      for (var i = 0; i < vars.data.length; i++) {
-        lambdaVars.push(vars.data[i].value)
-      }
-      baseObj.vars = lambdaVars
+    switch (baseValue) {
+      case 'lambda':
+        baseObj.data = {nodes: [], edges: []}
+        var vars = root.data[1]
+        var lambdaVars = []
+        for (var i = 0; i < vars.data.length; i++) {
+          lambdaVars.push(vars.data[i].value)
+        }
+        baseObj.vars = lambdaVars
 
-      var fnc = root.data[2]
-      baseObj.fnc = fnc
+        var fnc = root.data[2]
+        baseObj.fnc = fnc
 
-      if (fnc.type !== 'AstApply') {
-        console.log('Error')
-      }
+        if (fnc.type !== 'AstApply') {
+          console.log('Error')
+        }
 
-      parse(fnc, baseObj.data, nextDepth, 'lambda')
-      return
-    }
-
-    for (var j = 1; j < root.data.length; j++) {
-      var args = root.data[j]
-      switch (args.type) {
-        case 'AstAtom':
-        case 'AstNumber':
-        case 'AstString':
-          newEdge(baseObj, newNode(args.value, nextDepth))
-          break
-        default:
-          parse(args, data, nextDepth, baseObj)
-          break
-      }
+        parse(fnc, baseObj.data, nextDepth, 'lambda')
+        break
+      case 'deffun':
+        // TODO
+        break
+      default:
+        for (var j = 1; j < root.data.length; j++) {
+          var args = root.data[j]
+          switch (args.type) {
+            case 'AstAtom':
+            case 'AstNumber':
+            case 'AstString':
+              newEdge(baseObj, newNode(args.value, nextDepth))
+              break
+            default:
+              parse(args, data, nextDepth, baseObj)
+              break
+          }
+        }
+        break
     }
   }
 
@@ -141,6 +152,53 @@ export function parse (code, options) {
 
 function randomString () {
   return Math.random().toString(36).substr(2, 5)
+}
+
+export function addDefFunctions (tree) {
+  var functions = []
+
+  function walkAndFindFunctions (root) {
+    switch (root.type) {
+      case 'root':
+        for (var i = 0; i < root.nodes.length; i++) {
+          if (root.nodes[i].type !== 'deffun') {
+            walkAndFindFunctions(root.nodes[i])
+          }
+        }
+        break
+      case 'lambda':
+        walkAndFindFunctions(root.node)
+        break
+      case 'fn':
+        console.log('walked fn')
+        console.log(root)
+        functions.push(root.name)
+        for (var i = 0; i < root.args.length; i++) {
+          walkAndFindFunctions(root.args[i])
+        }
+        break
+      default:
+        // statements_def
+        break
+    }
+  }
+
+  walkAndFindFunctions(tree)
+
+  console.log('found this functions: ', functions)
+  console.log('looking them up now')
+  var names = functions.map((f) => componentApi.get(f, '0.1.0'))
+  console.log(names)
+  var stuff = Promise.all(names).then(arr => {
+    for (var i = 0; i < arr.length; i++) {
+      var node = arr[i]
+      console.log('found ', node)
+      console.log(node.inputPorts, node.outputPorts)
+    }
+  }).catch(err => console.log(err))
+
+  console.log('END')
+  return stuff
 }
 
 export function toJSON (code) {
@@ -177,6 +235,12 @@ export function toJSON (code) {
   })
 
   obj.data.implementation = {nodes: [], edges: []}
+
+  for (var i = 0; i < tree.nodes.length; i++) {
+    tree.nodes[i]
+  };
+
+  // console.log('HELLO WORLD')
   // TODO add nodes and edges
 
   return obj
