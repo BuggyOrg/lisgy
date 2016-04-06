@@ -175,29 +175,26 @@ export function jsonToNode (obj) {
 export function addMissingComponents (inTree) {
   var tree = JSON.parse(JSON.stringify(inTree))
   var functions = []
+  var definedComponents = []
 
   function walkAndFindFunctions (root) {
     switch (root.type) {
       case 'root':
         for (var i = 0; i < root.nodes.length; i++) {
-          if (root.nodes[i].type !== 'defco') {
-            walkAndFindFunctions(root.nodes[i])
-          }
+          walkAndFindFunctions(root.nodes[i])
         }
         break
       case 'lambda':
         walkAndFindFunctions(root.node)
         break
       case 'fn':
-        console.log('walked fn')
-        console.log(root)
         functions.push(root.name)
         for (var i = 0; i < root.args.length; i++) {
           walkAndFindFunctions(root.args[i])
         }
         break
       case 'defco':
-        // do nothing
+        definedComponents.push(root)
         break
       default:
         // statements_def
@@ -212,10 +209,17 @@ export function addMissingComponents (inTree) {
   var stuff = Promise.all(names).then(arr => {
     tree.functions = arr
     tree.nodes = arr.map((e) => jsonToNode(e))
+    // filter out all already defined components
+    //
+    tree.nodes = tree.nodes.filter(newDefine =>
+      !definedComponents.some(defined => defined.functionName === newDefine.functionName)
+    )
     tree.nodes = Array.concat(tree.nodes, inTree.nodes)
 
     return tree
-  }).catch(err => console.log(err))
+  }).catch(err => {
+    throw err
+  })
 
   return stuff
 }
@@ -231,8 +235,6 @@ export function toJSON (code) {
 
   // for now just use the first element from root
   var base = tree.nodes[0]
-
-  console.log(tree.nodes)
 
   obj.code = code
   obj.meta = base.name

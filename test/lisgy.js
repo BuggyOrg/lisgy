@@ -100,13 +100,13 @@ describe('JSON', function () {
     expect(json.data.outputPorts).deep.equal(example.data.outputPorts)
   })
 
-  it('data implementation nodes', function () {
+  it('data implementation nodes (WIP!!)', function () {
     // expect(json.data.implementation.nodes.length).to.equal(example.data.implementation.nodes.length)
     // expect(json.data.implementation.nodes).to.equal(example.data.implementation.nodes)
     // TODO
   })
 
-  it('data implementation edges', function () {
+  it('data implementation edges (WIP!!)', function () {
     // TODO
   })
 })
@@ -127,6 +127,21 @@ describe('defComponent', function () {
       functions.forEach((e, i, a) => {
         assert(e.id !== 'math/add' || e.id !== 'math/less', 'componentApi found a wrong function')
       })
+    })
+  })
+
+  it('missing compenent-libary function test', function () {
+    var code = '(lambda (a b) (math/is/awesome a (math/yeah b)))'
+    var oldTree = lisgy.parseAsTree(code)
+    var newTree = lisgy.addMissingComponents(oldTree)
+
+    return newTree.then((newTree) => {
+      console.error('this should never happen')
+
+      assert(oldTree.nodes.length === newTree.nodes.length, 'wrong number of nodes in new tree')
+      expect(oldTree.nodes).to.deep.equal(newTree.nodes)
+    }).catch(err => {
+      assert(err.status === 404, 'this should happen every time')
     })
   })
 
@@ -157,6 +172,23 @@ describe('defComponent', function () {
 
       expect(treeExpect.nodes).to.deep.equal(newTree.nodes)
     })
+  })
 
+  it('add component-libary nodes mixed', function () {
+    var code = '(defco math/add (s1 s2) (sum)) (lambda (a b) (math/less a (math/add b 3)))'
+    var codeExpect = '(defco math/less (isLess than) (value)) (defco math/add (s1 s2) (sum)) (lambda (a b) (math/less a (math/add b 3)))'
+
+    var treeExpect = lisgy.parseAsTree(codeExpect)
+    var oldTree = lisgy.parseAsTree(code)
+    assert(oldTree.nodes.length === 2, 'wrong number of nodes in old tree')
+    var newTree = lisgy.addMissingComponents(oldTree)
+
+    return newTree.then((newTree) => {
+      expect(newTree.nodes.length).to.equal(3)
+
+      assert(treeExpect.nodes.length === newTree.nodes.length, 'wrong number of nodes in new tree')
+
+      expect(treeExpect.nodes).to.deep.equal(newTree.nodes)
+    })
   })
 })
