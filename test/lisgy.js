@@ -149,12 +149,17 @@ describe('defComponent', function () {
     /*
     from:
       (lambda (a b) (math/less a (math/add b 3)))
-    note:
-      (lambda (a b) (math/less :isLess a :than (math/add :s1 b :s2 3)))
     to:
       (defco math/less (isLess than) (value))
       (defco math/add (s1 s2) (sum))
       (lambda (a b) (math/less a (math/add b 3)))
+
+    TODO: add port mappings
+      (defco math/less (isLess than) (value))
+      (defco math/add (s1 s2) (sum))
+      (lambda (a b) (math/less :isLess a :than (math/add :s1 b :s2 3)))
+      ;or
+      (lambda (a b) (math/less :than a :isLess (math/add :s2 b :s1 3)))
     */
     var code = '(lambda (a b) (math/less a (math/add b 3)))'
     var codeExpect = '(defco math/less (isLess than) (value)) (defco math/add (s1 s2) (sum)) (lambda (a b) (math/less a (math/add b 3)))'
