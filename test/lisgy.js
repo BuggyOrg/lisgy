@@ -3,6 +3,7 @@
 import fs from 'fs'
 
 var expect = require('chai').expect
+var assert = require('chai').assert
 var lisgy = require('../src/lisgy.js')
 
 var readParseExamples = (file) => {
@@ -110,7 +111,25 @@ describe('JSON', function () {
   })
 })
 
-describe('DEFFUN', function () {
+describe('defComponent', function () {
+
+  it('find functions with componentApi', function () {
+    var code = '(lambda (a b) (math/less a (math/add b 3)))'
+
+    var oldTree = lisgy.parseAsTree(code)
+    var newTree = lisgy.addMissingComponents(oldTree)
+
+    return newTree.then((tree) => {
+      var functions = tree.functions
+      expect(functions.length).to.equal(2)
+      expect(functions[0]).to.not.equal(functions[1])
+
+      functions.forEach((e, i, a) => {
+        assert(e.id !== 'math/add' || e.id !== 'math/less', 'componentApi found a wrong function')
+      })
+    })
+  })
+
   it('add component-library nodes', function () {
     /*
     from:
@@ -118,19 +137,26 @@ describe('DEFFUN', function () {
     note:
       (lambda (a b) (math/less :isLess a :than (math/add :s1 b :s2 3)))
     to:
-      (defun math/less (isLess than) (value))
-      (defun math/add (s1 s2) (sum))
+      (defco math/less (isLess than) (value))
+      (defco math/add (s1 s2) (sum))
       (lambda (a b) (math/less a (math/add b 3)))
     */
     var code = '(lambda (a b) (math/less a (math/add b 3)))'
-    var codeExpect = '(defun math/less (value isLess than)) (defun math/add (sum s1 s2)) (lambda (a b) (math/less a (math/add b 3)))'
+    var codeExpect = '(defco math/less (isLess than) (value)) (defco math/add (s1 s2) (sum)) (lambda (a b) (math/less a (math/add b 3)))'
 
     var oldTree = lisgy.parseAsTree(code)
-    var newTree = lisgy.addDefFunctions(oldTree)
-    return newTree
-    console.log(newTree.code)
-    console.log(newTree.tree)
-    var treeExpect = lisgy.parseAsTree(codeExpect)
-    console.log(treeExpect)
+    assert(oldTree.nodes.length === 1, 'wrong number of nodes in old tree')
+
+    var newTree = lisgy.addMissingComponents(oldTree)
+
+    return newTree.then((newTree) => {
+      expect(oldTree.nodes.length).to.equal(1)
+      expect(newTree.nodes.length).to.equal(3)
+      var treeExpect = lisgy.parseAsTree(codeExpect)
+      assert(treeExpect.nodes.length === newTree.nodes.length, 'wrong number of nodes in new tree')
+
+      expect(treeExpect.nodes).to.deep.equal(newTree.nodes)
+    })
+
   })
 })
