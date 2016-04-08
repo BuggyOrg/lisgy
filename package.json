@@ -7,7 +7,8 @@
     "lisgy": "./lib/cli.js"
   },
   "scripts": {
-    "test1": "node_modules/mocha/bin/mocha --compilers js:babel/register",
+    "mocha": "node_modules/mocha/bin/mocha --compilers js:babel/register",
+    "gulp": "node node_modules/standard/bin/cmd.js src/**/*.js && gulp",
     "test": "node node_modules/standard/bin/cmd.js src/**/*.js && gulp && node_modules/mocha/bin/mocha --compilers js:babel/register"
   },
   "author": "",
@@ -16,7 +17,9 @@
     "@buggyorg/component-library": "^0.3.2",
     "chalk": "^1.1.3",
     "commander": "^2.9.0",
+    "get-stdin": "^5.0.1",
     "lodash": "^4.8.2",
+    "tempfile": "^1.1.1",
     "wsl-lisp-parser": "^0.1.0"
   },
   "devDependencies": {
