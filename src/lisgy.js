@@ -1,5 +1,6 @@
 // import fs from 'fs'
 import libConnection from '@buggyorg/component-library'
+import _ from 'lodash'
 var tokenizer = require('wsl-lisp-parser')
 var componentApi = libConnection('quasar:9200')
 
@@ -11,9 +12,9 @@ var componentApi = libConnection('quasar:9200')
 //    ++ to math/inc
 
 export function parseAsTree (code, options) {
-  // var config = options || {}
+  // var config = options || { addComponents: false }
   var root = tokenizer.parseToAst(code, '')
-  var tree = {type: 'root', nodes: []}
+  var tree = {type: 'root', code: code, nodes: []}
 
   function parseArg (node) {
     switch (node.type) {
@@ -64,6 +65,11 @@ export function parseAsTree (code, options) {
   for (var i = 0; i < root.data.length; i++) {
     tree.nodes.push(parse(root.data[i]))
   }
+
+  // if (config.addComponents) {
+  //  tree = addMissingComponents(tree)
+  // }
+
   return tree
 }
 
@@ -129,7 +135,7 @@ export function parse (code, options) {
         baseObj.fnc = fnc
 
         if (fnc.type !== 'AstApply') {
-          console.log('Error')
+          console.error('Error')
         }
 
         parse(fnc, baseObj.data, nextDepth, 'lambda')
@@ -189,8 +195,8 @@ export function addMissingComponents (inTree) {
         break
       case 'fn':
         functions.push(root.name)
-        for (var i = 0; i < root.args.length; i++) {
-          walkAndFindFunctions(root.args[i])
+        for (var j = 0; j < root.args.length; j++) {
+          walkAndFindFunctions(root.args[j])
         }
         break
       case 'defco':
@@ -214,7 +220,7 @@ export function addMissingComponents (inTree) {
     tree.nodes = tree.nodes.filter(newDefine =>
       !definedComponents.some(defined => defined.functionName === newDefine.functionName)
     )
-    tree.nodes = Array.concat(tree.nodes, inTree.nodes)
+    tree.nodes = [].concat(tree.nodes, inTree.nodes)
 
     return tree
   }).catch(err => {
@@ -224,19 +230,18 @@ export function addMissingComponents (inTree) {
   return stuff
 }
 
-export function toJSON (code) {
+function toJSON_ (tree) {
   var obj = {}
-  var tree = parseAsTree(code)
 
   if (tree.nodes.length < 1) {
     var error = {message: 'tree has no nodes'}
     throw error
   }
 
-  // for now just use the first element from root
-  var base = tree.nodes[0]
+  // for now just use the last element from root
+  var base = tree.nodes[tree.nodes.length - 1]
 
-  obj.code = code
+  obj.code = tree.code
   obj.meta = base.name
 
   if (base.name === 'lambda') {
@@ -245,24 +250,84 @@ export function toJSON (code) {
   }
 
   obj.data = {}
-  obj.data.v = 'TODO-' + randomString()
-  obj.data.namen = 'TODO-' + randomString()
+  obj.data.v = base.name + '_' + randomString()
+  obj.data.namen = base.name + '_' + randomString()
   obj.data.outputPorts = {'value': 'generic'}
+
+  var inputPorts = []
 
   obj.data.inputPorts = {}
   base.vars.every((v) => {
     obj.data.inputPorts[v] = 'generic'
+    inputPorts.push(v)
     return true
   })
 
   obj.data.implementation = {nodes: [], edges: []}
 
+  var components = {}
+  var count = 0
+
+  function simplify (node) {
+    var name = node.name.split('/')
+    name = name.length > 1 ? name[1] : name[0]
+    name += '_' + count++
+    return {'meta': node.name, 'name': name}
+  }
+
+  function walk (root, parrent, port) {
+    switch (root.type) {
+      case 'fn':
+        var node = simplify(root)
+        var component = components[node.meta]
+
+        if (component.input.length !== root.args.length) {
+          console.error('WRON NUMBER OF ARGUMENTS @ NODE', node, ' WITH COMPONENT ', component)
+          return
+        }
+
+        obj.data.implementation.nodes.push(node)
+
+        for (var i = 0; i < root.args.length; i++) {
+          var arg = root.args[i]
+          if (arg.type === 'atom' && !_.includes(inputPorts, arg.name)) {
+            // add atoms to values from node
+            if (!node.values) node.values = []
+            node.values.push({'port': component.input[i].name, 'value': arg.name})
+          } else {
+            walk(arg, node.name, component.input[i].name)
+          }
+        }
+
+        // TODO: support multiple output ports!!!
+        var from = parrent + ':' + port
+        var to = node.name + ':' + component.output[0].name
+        obj.data.implementation.edges.push({'from': from, 'to': to})
+
+        break
+      case 'defco':
+        components[root.functionName] = root
+        break
+      case 'lambda':
+        walk(root.node)
+        break
+      default:
+        // statements_def
+        break
+    }
+  }
+
   for (var i = 0; i < tree.nodes.length; i++) {
-    tree.nodes[i]
+    walk(tree.nodes[i])
   };
-
-  // console.log('HELLO WORLD')
-  // TODO add nodes and edges
-
   return obj
+}
+
+export function toJSON (tree) {
+  var p = addMissingComponents(tree) // default should be Promise.resolve(tree)
+
+  return p.then(tree => {
+    var jsonObj = toJSON_(tree)
+    return jsonObj
+  })
 }

@@ -83,10 +83,16 @@ describe('Parser', function () {
   })
 })
 
-describe('JSON', function () {
-  var example = readParseExamples('lesAddLambda.json')
+describe('JSON addLambda', function () {
+  var example = readParseExamples('addLambda.json')
   var code = example.code
-  var json = lisgy.toJSON(code)
+  var json
+
+  before(function () {
+    return lisgy.toJSON(lisgy.parseAsTree(code)).then((jsonIn) => {
+      json = jsonIn
+    })
+  })
 
   it('code, meta, inputPorts, outputPorts', function () {
     expect(json.code).to.equal(example.code)
@@ -101,13 +107,43 @@ describe('JSON', function () {
   })
 
   it('data implementation nodes (WIP!!)', function () {
-    // expect(json.data.implementation.nodes.length).to.equal(example.data.implementation.nodes.length)
-    // expect(json.data.implementation.nodes).to.equal(example.data.implementation.nodes)
-    // TODO
+    expect(json.data.implementation.nodes).to.deep.equal(example.data.implementation.nodes)
   })
 
   it('data implementation edges (WIP!!)', function () {
-    // TODO
+    expect(json.data.implementation.edges).to.deep.equal(example.data.implementation.edges)
+  })
+})
+
+describe('JSON lessAddLambda', function () {
+  var example = readParseExamples('lesAddLambda.json')
+  var code = example.code
+  var json
+
+  before(function () {
+    return lisgy.toJSON(lisgy.parseAsTree(code)).then((jsonIn) => {
+      json = jsonIn
+    })
+  })
+
+  it('code, meta, inputPorts, outputPorts', function () {
+    expect(json.code).to.equal(example.code)
+    expect(json.meta).to.equal(example.meta)
+    expect(json.inputPorts).deep.equal(example.inputPorts)
+    expect(json.outputPorts).deep.equal(example.outputPorts)
+  })
+
+  it('data ports', function () {
+    expect(json.data.inputPorts).deep.equal(example.data.inputPorts)
+    expect(json.data.outputPorts).deep.equal(example.data.outputPorts)
+  })
+
+  it('data implementation nodes (WIP!!)', function () {
+    expect(json.data.implementation.nodes).to.deep.equal(example.data.implementation.nodes)
+  })
+
+  it('data implementation edges (WIP!!)', function () {
+    expect(json.data.implementation.edges).to.deep.equal(example.data.implementation.edges)
   })
 })
 

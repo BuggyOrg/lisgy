@@ -2,13 +2,21 @@
   "name": "lisgy",
   "version": "0.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/lisgy.js",
+  "bin": {
+    "lisgy": "./lib/cli.js"
+  },
   "scripts": {
-    "test": "node node_modules/standard/bin/cmd.js src/**/*.js && gulp && node_modules/mocha/bin/mocha --compilers js:babel/register"
+    "test": "node_modules/mocha/bin/mocha --compilers js:babel/register",
+    "test2": "node node_modules/standard/bin/cmd.js src/**/*.js && gulp && node_modules/mocha/bin/mocha --compilers js:babel/register"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@buggyorg/component-library": "^0.3.2",
+    "chalk": "^1.1.3",
+    "commander": "^2.9.0",
+    "lodash": "^4.8.2",
     "wsl-lisp-parser": "^0.1.0"
   },
   "devDependencies": {

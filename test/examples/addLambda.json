@@ -1,5 +1,5 @@
 {
-  "code": "(lambda (a b) (math/less a (math/add b 3)))",
+  "code": "(lambda (a b) (math/add a b))",
   "meta": "lambda",
   "v" : "lambda",
   "data" : {
@@ -15,32 +15,22 @@
     "implementation": {
       "nodes": [
         {
-          "meta": "math/less",
-          "name" : "less_0"
-        },
-        {
           "meta":"math/add",
-          "name" : "add_1",
-          "values": [
-            {
-              "value": 3,
-              "port": "s2"
-            }
-          ]
+          "name" : "add_0"
         }
       ],
       "edges": [
         {
-          "from": "a",
-          "to": "less_0:isLess"
+          "from": "add_0:sum",
+          "to": "value"
         },
         {
-          "from": "add_0:sum",
-          "to": "less_0:than"
+          "from": "a",
+          "to": "add_0:s1"
         },
         {
           "from": "b",
-          "to": "add_1:s1"
+          "to": "add_0:s2"
         }
       ]
     }
