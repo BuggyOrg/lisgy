@@ -243,6 +243,7 @@ function toJSON_ (tree) {
 
   obj.code = tree.code
   obj.meta = base.name
+  obj.v = base.name + '_' + randomString()
 
   if (base.name === 'lambda') {
     obj.inputPorts = {}
@@ -251,7 +252,7 @@ function toJSON_ (tree) {
 
   obj.data = {}
   obj.data.v = base.name + '_' + randomString()
-  obj.data.namen = base.name + '_' + randomString()
+  obj.data.name = base.name + '_' + randomString()
   obj.data.outputPorts = {'value': 'generic'}
 
   var inputPorts = []
@@ -276,6 +277,7 @@ function toJSON_ (tree) {
   }
 
   function walk (root, parrent, port) {
+    var from, to
     switch (root.type) {
       case 'fn':
         var node = simplify(root)
@@ -300,9 +302,14 @@ function toJSON_ (tree) {
         }
 
         // TODO: support multiple output ports!!!
-        var from = parrent + ':' + port
-        var to = node.name + ':' + component.output[0].name
-        obj.data.implementation.edges.push({'from': from, 'to': to})
+        to = parrent + ':' + port
+        from = node.name + ':' + component.output[0].name
+        if (parrent && port) {
+          obj.data.implementation.edges.push({'from': from, 'to': to})
+        } else {
+          // NOTE: value is hardcoed right now see obj.data.outputPorts
+          obj.data.implementation.edges.push({'from': from, 'to': 'value'})
+        }
 
         break
       case 'defco':
@@ -310,6 +317,11 @@ function toJSON_ (tree) {
         break
       case 'lambda':
         walk(root.node)
+        break
+      case 'atom':
+        from = root.name
+        to = parrent + ':' + port
+        obj.data.implementation.edges.push({'from': from, 'to': to})
         break
       default:
         // statements_def

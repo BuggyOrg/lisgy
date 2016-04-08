@@ -106,11 +106,11 @@ describe('JSON addLambda', function () {
     expect(json.data.outputPorts).deep.equal(example.data.outputPorts)
   })
 
-  it('data implementation nodes (WIP!!)', function () {
+  it('data implementation nodes', function () {
     expect(json.data.implementation.nodes).to.deep.equal(example.data.implementation.nodes)
   })
 
-  it('data implementation edges (WIP!!)', function () {
+  it('data implementation edges', function () {
     expect(json.data.implementation.edges).to.deep.equal(example.data.implementation.edges)
   })
 })
@@ -138,17 +138,16 @@ describe('JSON lessAddLambda', function () {
     expect(json.data.outputPorts).deep.equal(example.data.outputPorts)
   })
 
-  it('data implementation nodes (WIP!!)', function () {
+  it('data implementation nodes', function () {
     expect(json.data.implementation.nodes).to.deep.equal(example.data.implementation.nodes)
   })
 
-  it('data implementation edges (WIP!!)', function () {
+  it('data implementation edges', function () {
     expect(json.data.implementation.edges).to.deep.equal(example.data.implementation.edges)
   })
 })
 
 describe('defComponent', function () {
-
   it('find functions with componentApi', function () {
     var code = '(lambda (a b) (math/less a (math/add b 3)))'
 

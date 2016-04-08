@@ -35,12 +35,16 @@
           "to": "less_0:isLess"
         },
         {
-          "from": "add_0:sum",
+          "from": "b",
+          "to": "add_1:s1"
+        },
+        {
+          "from": "add_1:sum",
           "to": "less_0:than"
         },
         {
-          "from": "b",
-          "to": "add_1:s1"
+          "from": "less_0:value",
+          "to": "value"
         }
       ]
     }

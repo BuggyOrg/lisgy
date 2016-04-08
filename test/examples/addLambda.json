@@ -21,16 +21,16 @@
       ],
       "edges": [
         {
-          "from": "add_0:sum",
-          "to": "value"
-        },
-        {
           "from": "a",
           "to": "add_0:s1"
         },
         {
           "from": "b",
           "to": "add_0:s2"
+        },
+        {
+          "from": "add_0:sum",
+          "to": "value"
         }
       ]
     }

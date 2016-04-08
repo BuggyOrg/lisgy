@@ -7,8 +7,8 @@
     "lisgy": "./lib/cli.js"
   },
   "scripts": {
-    "test": "node_modules/mocha/bin/mocha --compilers js:babel/register",
-    "test2": "node node_modules/standard/bin/cmd.js src/**/*.js && gulp && node_modules/mocha/bin/mocha --compilers js:babel/register"
+    "test1": "node_modules/mocha/bin/mocha --compilers js:babel/register",
+    "test": "node node_modules/standard/bin/cmd.js src/**/*.js && gulp && node_modules/mocha/bin/mocha --compilers js:babel/register"
   },
   "author": "",
   "license": "MIT",
