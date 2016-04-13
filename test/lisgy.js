@@ -189,7 +189,7 @@ describe('JSON add', function () {
   })
 })
 
-describe('defComponent', function () {
+describe('define component ports: defcop', function () {
   it('find functions with componentApi', function () {
     var code = '(lambda (a b) (math/less a (math/add b 3)))'
 
@@ -227,19 +227,19 @@ describe('defComponent', function () {
     from:
       (lambda (a b) (math/less a (math/add b 3)))
     to:
-      (defco math/less (isLess than) (value))
-      (defco math/add (s1 s2) (sum))
+      (defcop math/less (isLess than) (value))
+      (defcop math/add (s1 s2) (sum))
       (lambda (a b) (math/less a (math/add b 3)))
 
     TODO: add port mappings
-      (defco math/less (isLess than) (value))
-      (defco math/add (s1 s2) (sum))
+      (defcop math/less (isLess than) (value))
+      (defcop math/add (s1 s2) (sum))
       (lambda (a b) (math/less :isLess a :than (math/add :s1 b :s2 3)))
       ;or
       (lambda (a b) (math/less :than a :isLess (math/add :s2 b :s1 3)))
     */
     var code = '(lambda (a b) (math/less a (math/add b 3)))'
-    var codeExpect = '(defco math/less (isLess than) (value)) (defco math/add (s1 s2) (sum)) (lambda (a b) (math/less a (math/add b 3)))'
+    var codeExpect = '(defcop math/less (isLess than) (value)) (defcop math/add (s1 s2) (sum)) (lambda (a b) (math/less a (math/add b 3)))'
 
     var oldTree = lisgy.parseAsTree(code)
     assert(oldTree.nodes.length === 1, 'wrong number of nodes in old tree')
@@ -257,8 +257,8 @@ describe('defComponent', function () {
   })
 
   it('add component-libary nodes mixed', function () {
-    var code = '(defco math/add (s1 s2) (sum)) (lambda (a b) (math/less a (math/add b 3)))'
-    var codeExpect = '(defco math/less (isLess than) (value)) (defco math/add (s1 s2) (sum)) (lambda (a b) (math/less a (math/add b 3)))'
+    var code = '(defcop math/add (s1 s2) (sum)) (lambda (a b) (math/less a (math/add b 3)))'
+    var codeExpect = '(defcop math/less (isLess than) (value)) (defcop math/add (s1 s2) (sum)) (lambda (a b) (math/less a (math/add b 3)))'
 
     var treeExpect = lisgy.parseAsTree(codeExpect)
     var oldTree = lisgy.parseAsTree(code)

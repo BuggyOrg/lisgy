@@ -52,9 +52,9 @@ export function parseAsTree (code, options) {
         obj.vars.push(vars.data[i].value)
       }
       obj.node = parse(root.data[2])
-    } else if (obj.name === 'defco') {
-      // format: (defco FUNCTION_NAME (INPUT_ARGS) (OUTPUT_ARGS))
-      obj.type = 'defco'
+    } else if (obj.name === 'defcop') {
+      // format: (defcop COMPONENT_NAME (INPUT_ARGS) (OUTPUT_ARGS))
+      obj.type = 'defcop'
       obj.functionName = root.data[1].value
       if (root.data[2].type === 'AstApply') {
         obj.input = root.data[2].data.map(parseArg)
@@ -152,7 +152,7 @@ export function parse (code, options) {
 
         parse(fnc, baseObj.data, nextDepth, 'lambda')
         break
-      case 'defco':
+      case 'defcop':
         // TODO
         break
       default:
@@ -182,7 +182,7 @@ function randomString () {
 }
 
 export function jsonToNode (obj) {
-  var out = {name: 'defco', type: 'defco', functionName: obj.id}
+  var out = {name: 'defcop', type: 'defcop', functionName: obj.id}
   var toObject = (e) => { return {name: e, type: 'atom'} }
   out.input = Object.getOwnPropertyNames(obj.inputPorts).map(toObject)
   out.output = Object.getOwnPropertyNames(obj.outputPorts).map(toObject)
@@ -211,7 +211,7 @@ export function addMissingComponents (inTree) {
           walkAndFindFunctions(root.args[j])
         }
         break
-      case 'defco':
+      case 'defcop':
         definedComponents.push(root)
         break
       default:
@@ -339,7 +339,7 @@ function toJSON_ (tree) {
         }
 
         break
-      case 'defco':
+      case 'defcop':
         components[root.functionName] = root
         break
       case 'lambda':
@@ -359,8 +359,13 @@ function toJSON_ (tree) {
   return obj
 }
 
-export function toJSON (tree) {
-  var p = addMissingComponents(tree) // default should be Promise.resolve(tree)
+export function toJSON (tree, options) {
+  var config = options || {'addMissingComponents': true}
+  var p = Promise.resolve(tree)
+
+  if (config.addMissingComponents) {
+    p = addMissingComponents(tree)
+  }
 
   return p.then(tree => {
     var jsonObj = toJSON_(tree)
