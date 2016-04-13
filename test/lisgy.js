@@ -85,6 +85,28 @@ describe('Parser', function () {
   })
 })
 
+describe('Parser as tree', function () {
+  var code = '(+ a (- c b))'
+  var tree
+
+  it('can parse ' + code, function () {
+    tree = lisgy.parseAsTree(code)
+  })
+
+  it('nodes match', function () {
+    expect(tree.nodes.length).to.equal(1)
+    expect(tree.nodes[0].args.length).to.equal(2)
+    expect(tree.nodes[0].args[1].args.length).to.equal(2)
+
+    expect(tree.nodes[0].name).to.equal('+')
+    expect(tree.nodes[0].args[0].name).to.equal('a')
+    expect(tree.nodes[0].args[1].name).to.equal('-')
+
+    expect(tree.nodes[0].args[1].args[0].name).to.equal('c')
+    expect(tree.nodes[0].args[1].args[1].name).to.equal('b')
+  })
+})
+
 describe('JSON addLambda', function () {
   var example = readParseExamples('addLambda.json')
   var code = example.code
@@ -146,6 +168,24 @@ describe('JSON lessAddLambda', function () {
 
   it('data implementation edges', function () {
     expect(json.data.implementation.edges).to.deep.equal(example.data.implementation.edges)
+  })
+})
+
+describe('JSON add', function () {
+  var example = readParseExamples('add.json')
+  var code = example.code
+  var json
+
+  before(function () {
+    var tree = lisgy.parseAsTree(code)
+    return lisgy.toJSON(tree).then((jsonIn) => {
+      json = jsonIn
+    })
+  })
+
+  it('code, implementation', function () {
+    expect(json.code).to.equal(example.code)
+    expect(json.implementation).deep.equal(example.implementation)
   })
 })
 

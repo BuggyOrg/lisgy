@@ -4,64 +4,47 @@
     "multigraph": true,
     "compound": true
   },
-  "code": "(+ 1 1 1)",
+  "code": "(math/add 1 (math/add 1 1))",
   "inputPorts": {},
   "outputPorts": {
-    "3": "number"
+    "value": "number"
   },
   "implementation": {
     "nodes": [
       {
         "meta": "math/add",
-        "name": "add1",
+        "name": "add_0",
         "values": [
           {
-            "value": 1,
-            "port": "add/s1",
-          },
-          {
-            "value": 1,
-            "port": "add/s2"
+            "port": "s1",
+            "value": 1
           }
         ]
       },
       {
         "meta": "math/add",
-        "name": "add2",
+        "name": "add_1",
         "values": [
           {
-            "value": 1,
-            "port": "add/s2"
+            "port": "s1",
+            "value": 1
+          },
+          {
+            "port": "s2",
+            "value": 1
           }
         ]
       }
     ],
     "edges": [
       {
-        "from": "add1:add/sum",
-        "to": "add2:add/s1"
+        "from": "add_1:sum",
+        "to": "add_0:s2"
       },
       {
-        "from": "add2:add/sum",
-        "to": "3"
+        "from": "add_0:sum",
+        "to": "value"
       }
     ]
   }
 }
-
-/*
-
-{
-  "id": "math/add",
-  "version": "0.1.0",
-  "inputPorts": {
-    "add/s1": "int",
-    "add/s2": "int"
-  },
-  "outputPorts": {
-    "add/sum": "int"
-  },
-  "atomic": true
-}
-
-*/

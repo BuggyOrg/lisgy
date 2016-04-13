@@ -244,7 +244,7 @@ export function addMissingComponents (inTree) {
 
 function toJSON_ (tree) {
   var obj = {}
-
+  var implementation
   if (tree.nodes.length < 1) {
     var error = {message: 'tree has no nodes'}
     throw error
@@ -257,29 +257,44 @@ function toJSON_ (tree) {
   obj.meta = base.name
   obj.v = base.name + '_' + randomString()
 
-  if (base.name === 'lambda') {
-    obj.inputPorts = {}
-    obj.outputPorts = {'fn': 'lambda'}
+  obj.inputPorts = {}
+
+  switch (base.name) {
+    case 'lambda':
+      obj.outputPorts = {'fn': 'lambda'}
+
+      obj.data = {}
+      obj.data.v = base.name + '_' + randomString()
+      obj.data.name = base.name + '_' + randomString()
+      obj.data.outputPorts = {'value': 'generic'}
+
+      var inputPorts = []
+
+      obj.data.inputPorts = {}
+      base.vars.every((v) => {
+        obj.data.inputPorts[v] = 'generic'
+        inputPorts.push(v)
+        return true
+      })
+
+      obj.data.implementation = {nodes: [], edges: []}
+
+      implementation = obj.data.implementation
+      break
+    default:
+      obj.outputPorts = {'value': 'generic'}
+      obj.implementation = {nodes: [], edges: []}
+      implementation = obj.implementation
+
+      break
   }
-
-  obj.data = {}
-  obj.data.v = base.name + '_' + randomString()
-  obj.data.name = base.name + '_' + randomString()
-  obj.data.outputPorts = {'value': 'generic'}
-
-  var inputPorts = []
-
-  obj.data.inputPorts = {}
-  base.vars.every((v) => {
-    obj.data.inputPorts[v] = 'generic'
-    inputPorts.push(v)
-    return true
-  })
-
-  obj.data.implementation = {nodes: [], edges: []}
 
   var components = {}
   var count = 0
+
+  for (var i = 0; i < tree.nodes.length; i++) {
+    walk(tree.nodes[i], implementation)
+  }
 
   function simplify (node) {
     var name = node.name.split('/')
@@ -288,7 +303,7 @@ function toJSON_ (tree) {
     return {'meta': node.name, 'name': name}
   }
 
-  function walk (root, parrent, port) {
+  function walk (root, implementation, parrent, port) {
     var from, to
     switch (root.type) {
       case 'fn':
@@ -300,7 +315,7 @@ function toJSON_ (tree) {
           return
         }
 
-        obj.data.implementation.nodes.push(node)
+        implementation.nodes.push(node)
 
         for (var i = 0; i < root.args.length; i++) {
           var arg = root.args[i]
@@ -309,7 +324,7 @@ function toJSON_ (tree) {
             if (!node.values) node.values = []
             node.values.push({'port': component.input[i].name, 'value': arg.name})
           } else {
-            walk(arg, node.name, component.input[i].name)
+            walk(arg, implementation, node.name, component.input[i].name)
           }
         }
 
@@ -317,10 +332,10 @@ function toJSON_ (tree) {
         to = parrent + ':' + port
         from = node.name + ':' + component.output[0].name
         if (parrent && port) {
-          obj.data.implementation.edges.push({'from': from, 'to': to})
+          implementation.edges.push({'from': from, 'to': to})
         } else {
           // NOTE: value is hardcoed right now see obj.data.outputPorts
-          obj.data.implementation.edges.push({'from': from, 'to': 'value'})
+          implementation.edges.push({'from': from, 'to': 'value'})
         }
 
         break
@@ -328,12 +343,12 @@ function toJSON_ (tree) {
         components[root.functionName] = root
         break
       case 'lambda':
-        walk(root.node)
+        walk(root.node, implementation)
         break
       case 'atom':
         from = root.name
         to = parrent + ':' + port
-        obj.data.implementation.edges.push({'from': from, 'to': to})
+        implementation.edges.push({'from': from, 'to': to})
         break
       default:
         // statements_def
@@ -341,9 +356,6 @@ function toJSON_ (tree) {
     }
   }
 
-  for (var i = 0; i < tree.nodes.length; i++) {
-    walk(tree.nodes[i])
-  };
   return obj
 }
 
