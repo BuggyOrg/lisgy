@@ -274,3 +274,48 @@ describe('define component ports: defcop', function () {
     })
   })
 })
+
+describe('define new component: defco', function () {
+
+  var example = readParseExamples('defcoLessAdd.json')
+  var code = example.code
+  var json
+
+  before(function () {
+    var tree = lisgy.parseAsTree(code)
+    return lisgy.toJSON(tree).then((jsonIn) => {
+      json = jsonIn
+    })
+  })
+
+  it('define a simple component', function () {
+    var code = '(defco newCo (a b) (:value (math/less a (math/add b 3))))'
+    // var code = '(math/less a (math/add b 3))'
+
+    var oldTree = lisgy.parseAsTree(code)
+
+    //console.log('OLDTREE', oldTree)
+
+    var newTreeP = lisgy.addMissingComponents(oldTree)
+    var newTree
+
+    return newTreeP
+    .then((tree) => {
+      //console.log('NEWTREE_0', tree)
+      newTree = tree
+      return lisgy.toJSON(tree, {'addMissingComponents': false})
+    }).then((json) => {
+      //console.log('NEWTREE_1', newTree)
+      //console.log('JSON', json)
+      //console.log(json.implementation.nodes)
+    })
+  })
+
+  it('code, implementation', function () {
+    expect(json.code).to.equal(example.code)
+    expect(json.id).to.equal(example.id)
+    expect(json.inputPorts).deep.equal(example.inputPorts)
+    expect(json.outputPorts).deep.equal(example.outputPorts)
+    expect(json.implementation).deep.equal(example.implementation)
+  })
+})

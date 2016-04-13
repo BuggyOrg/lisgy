@@ -39,38 +39,70 @@ export function parseAsTree (code, options) {
     }
   }
 
+  function parseOutput (out, input) {
+    if (input.length % 2 !== 0) {
+      console.error('THIS SHOULD NEVER HAPPEN, but im just using now the first input as a function for port :value')
+      out.push({port: 'value', fn: parse(input[0])})
+      return
+    }
+    for (var i = 0; i < input.length; i++) {
+      var outPort = input[i++].value
+      if (outPort[0] === ':') {
+        outPort = outPort.substr(1)
+      }
+      out.push({port: outPort, fn: parse(input[i])})
+    }
+  }
+
   function parse (root) {
     var baseValue = root.data[0].value
     var obj = {name: baseValue}
-    if (obj.name === 'lambda') {
-      // format: (lambda (vars) (fn))
-      obj.type = 'lambda'
-      obj.vars = []
+    switch (obj.name) {
+      case 'lambda':
+        // format: (lambda (vars) (fn))
+        obj.type = 'lambda'
+        obj.vars = []
 
-      var vars = root.data[1]
-      for (var i = 0; i < vars.data.length; i++) {
-        obj.vars.push(vars.data[i].value)
-      }
-      obj.node = parse(root.data[2])
-    } else if (obj.name === 'defcop') {
-      // format: (defcop COMPONENT_NAME (INPUT_ARGS) (OUTPUT_ARGS))
-      obj.type = 'defcop'
-      obj.functionName = root.data[1].value
-      if (root.data[2].type === 'AstApply') {
-        obj.input = root.data[2].data.map(parseArg)
-      }
-      if (root.data[3].type === 'AstApply') {
-        obj.output = root.data[3].data.map(parseArg)
-      }
-    } else {
-      // format: (fn (args) (more args) (...))
-      obj.type = 'fn'
-      obj.args = []
-      for (var j = 1; j < root.data.length; j++) {
-        var args = root.data[j]
-        obj.args.push(parseArg(args))
-      }
+        var vars = root.data[1]
+        for (var i = 0; i < vars.data.length; i++) {
+          obj.vars.push(vars.data[i].value)
+        }
+        obj.node = parse(root.data[2])
+        break
+      case 'defcop':
+        // format: (defcop COMPONENT_NAME (INPUT_ARGS) (OUTPUT_ARGS))
+        obj.type = 'defcop'
+        obj.functionName = root.data[1].value
+        if (root.data[2].type === 'AstApply') {
+          obj.input = root.data[2].data.map(parseArg)
+        }
+        if (root.data[3].type === 'AstApply') {
+          obj.output = root.data[3].data.map(parseArg)
+        }
+        break
+      case 'defco':
+        // format: (defco COMPONENT_NAME (INPUT_ARGS) (:OUTPUT_PORT_0 FN_0 :OUTPUT_PORT_1 FN_1 ...))
+        obj.type = 'defco'
+        obj.id = root.data[1].value
+        if (root.data[2].type === 'AstApply') {
+          obj.input = root.data[2].data.map(parseArg)
+        }
+        if (root.data[3].type === 'AstApply') {
+          obj.output = []
+          parseOutput(obj.output, root.data[3].data)
+        }
+        break
+      default:
+        // format: (fn (args) (more args) (...))
+        obj.type = 'fn'
+        obj.args = []
+        for (var j = 1; j < root.data.length; j++) {
+          var args = root.data[j]
+          obj.args.push(parseArg(args))
+        }
+        break;
     }
+
     return obj
   }
 
@@ -214,6 +246,12 @@ export function addMissingComponents (inTree) {
       case 'defcop':
         definedComponents.push(root)
         break
+      case 'defco':
+        for (var k = 0; k < root.output.length; k++) {
+          var output = root.output[k]
+          walkAndFindFunctions(output.fn)
+        }
+        break
       default:
         // statements_def
         break
@@ -244,6 +282,7 @@ export function addMissingComponents (inTree) {
 
 function toJSON_ (tree) {
   var obj = {}
+  var inputPorts = []
   var implementation
   if (tree.nodes.length < 1) {
     var error = {message: 'tree has no nodes'}
@@ -268,8 +307,6 @@ function toJSON_ (tree) {
       obj.data.name = base.name + '_' + randomString()
       obj.data.outputPorts = {'value': 'generic'}
 
-      var inputPorts = []
-
       obj.data.inputPorts = {}
       base.vars.every((v) => {
         obj.data.inputPorts[v] = 'generic'
@@ -280,6 +317,26 @@ function toJSON_ (tree) {
       obj.data.implementation = {nodes: [], edges: []}
 
       implementation = obj.data.implementation
+      break
+    case 'defco':
+      obj.id = base.id
+      obj.inputPorts = {}
+      obj.outputPorts = {}
+
+      base.input.every((v) => {
+        obj.inputPorts[v.name] = 'generic'
+        inputPorts.push(v.name)
+        return true
+      })
+
+      base.output.every((v) => {
+        obj.outputPorts[v.port] = 'generic'
+        return true
+      })
+
+      obj.implementation = {nodes: [], edges: []}
+      implementation = obj.implementation
+
       break
     default:
       obj.outputPorts = {'value': 'generic'}
@@ -334,13 +391,20 @@ function toJSON_ (tree) {
         if (parrent && port) {
           implementation.edges.push({'from': from, 'to': to})
         } else {
-          // NOTE: value is hardcoed right now see obj.data.outputPorts
-          implementation.edges.push({'from': from, 'to': 'value'})
+          to = root.port ? root.port : 'value'
+          implementation.edges.push({'from': from, 'to': to})
         }
 
         break
       case 'defcop':
         components[root.functionName] = root
+        break
+      case 'defco':
+        base.output.every((v) => {
+          v.fn.port = v.port // not clean
+          walk(v.fn, implementation)
+          return true
+        })
         break
       case 'lambda':
         walk(root.node, implementation)
