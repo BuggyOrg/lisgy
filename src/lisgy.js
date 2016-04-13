@@ -100,7 +100,7 @@ export function parseAsTree (code, options) {
           var args = root.data[j]
           obj.args.push(parseArg(args))
         }
-        break;
+        break
     }
 
     return obj
