@@ -2,7 +2,7 @@
 import libConnection from '@buggyorg/component-library'
 import _ from 'lodash'
 var tokenizer = require('wsl-lisp-parser')
-var componentApi = libConnection('quasar:9200')
+var componentApi
 
 // var map = JSON.parse(fs.readFileSync('map.json'))
 // need to map OP to math/OP
@@ -10,6 +10,18 @@ var componentApi = libConnection('quasar:9200')
 //     - to math/sub
 //   inc to math/inc
 //    ++ to math/inc
+
+export function connect (server) {
+  if (!server) {
+    if (process.env.BUGGY_COMPONENT_LIBRARY_HOST) {
+      server = process.env.BUGGY_COMPONENT_LIBRARY_HOST
+    } else {
+      server = 'http://localhost:9200'
+    }
+  }
+
+  componentApi = libConnection(server)
+}
 
 export function parseAsTree (code, options) {
   // var config = options || { addComponents: false }

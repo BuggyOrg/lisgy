@@ -8,6 +8,9 @@ import tempfile from 'tempfile'
 import getStdin from 'get-stdin'
 // import chalk from 'chalk'
 
+var server = ''
+var defaultElastic = ' Defaults to BUGGY_COMPONENT_LIBRARY_HOST'
+
 // COPY_PASTA_START FROM BuggyOrg/component-library/src/cli.js#ecd0bc555cc684cc5049f3760201c6969aa551aa
 
 const log = function (...args) {
@@ -70,12 +73,22 @@ var parseToJSON = (json) => {
   }
 }
 
+if (process.env.BUGGY_COMPONENT_LIBRARY_HOST) {
+  server = process.env.BUGGY_COMPONENT_LIBRARY_HOST
+  defaultElastic += '=' + server
+} else {
+  server = 'http://localhost:9200'
+  defaultElastic += ' or if not set to http://localhost:9200'
+}
+
 program
-  .version('0.0.1')
+  .version(JSON.parse(fs.readFileSync(__dirname + '/../package.json'))['version'])
+  .option('-e, --elastic <host>', 'The elastic server to connect to.' + defaultElastic, String, server)
   .option('-n, --nice', 'Pretty print all JSON output')
   .option('-s, --silent', 'Only print data no further information.')
   .command('parse [lisp_code]')
   .action(function (code) {
+    lisgy.connect(program.elastic)
     if (!code) {
       log('no input code using editor/stdin')
       stdinOrEdit('.lisp', (code) => lisgy.toJSON(lisgy.parseAsTree(code)))

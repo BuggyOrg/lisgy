@@ -6,6 +6,8 @@ var expect = require('chai').expect
 var assert = require('chai').assert
 var lisgy = require('../src/lisgy.js')
 
+lisgy.connect()
+
 var readParseExamples = (file) => {
   return JSON.parse(fs.readFileSync('test/examples/' + file))
 }
