@@ -5,6 +5,7 @@ import fs from 'fs'
 var expect = require('chai').expect
 var assert = require('chai').assert
 var lisgy = require('../src/lisgy.js')
+var _ = require('lodash')
 
 lisgy.connect()
 
@@ -301,13 +302,13 @@ describe('define new component: defco', function () {
 
     return newTreeP
     .then((tree) => {
-      //console.log('NEWTREE_0', tree)
+      // console.log('NEWTREE_0', tree)
       newTree = tree
       return lisgy.toJSON(tree, {'addMissingComponents': false})
     }).then((json) => {
-      //console.log('NEWTREE_1', newTree)
-      //console.log('JSON', json)
-      //console.log(json.implementation.nodes)
+      // console.log('NEWTREE_1', newTree)
+      // console.log('JSON', json)
+      // console.log(json.implementation.nodes)
     })
   })
 
@@ -317,5 +318,12 @@ describe('define new component: defco', function () {
     expect(json.inputPorts).deep.equal(example.inputPorts)
     expect(json.outputPorts).deep.equal(example.outputPorts)
     expect(json.implementation).deep.equal(example.implementation)
+  })
+})
+
+describe('jsedn', () => {
+  it('test', () => {
+    var json = lisgy.parse_to_json('(defcop math/less (isLess than) (value)) (defcop math/add (s1 s2) (sum)) (defco newCo (a b) (:value (math/less a (math/add b 3))))')
+    console.log(JSON.stringify(json, 1))
   })
 })
