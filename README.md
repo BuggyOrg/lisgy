@@ -1,16 +1,50 @@
 # lisgy
 create simple buggy graphs from lisp code
 
-**currently only lambdas are supported!**
+```clojure
+(defco newCoName [inputA inputB] 
+  {:output1 (math/less inputA inputB) 
+   :output2 (math/add inputA inputB)})
+```
+
+**API**
+```clojure
+; new component with just one output port (default name 'value')
+(defco name [inputs*] (exprs1))
+(defco name (inputs*) (exprs1))
+
+; new component with named output ports
+(defco name [inputs*] {:output (exprs1) ...})
+(defco name [inputs*] [:output (exprs1) ...])
+(defco name (inputs*) (:output (exprs1) ...))
+
+; Anonymous functions 
+(lambda (args) (...))
+(fn [args] (...))
+#(...) ; with %n for the nth arg (1-based)
+
+; Named functions
+(defn name [args] (...))
+
+; Define
+(def name value)
+
+; Intern
+; Define the ports of a extern component
+(defcop name [inputs*] [outputs*])
+```
 
 ```lisp
-(lambda (args) (fn))
-; eg
-(lambda (a b c) (math/less a (math/add b c)))
-; will be converted internaly to
-(defco math/less (isLess than) (value))
-(defco math/add (s1 s2) (sum))
-(lambda (a b c) (math/less a (math/add b c)))
+; full example
+(defcop math/less (isLess than) (value))
+(defcop math/add (s1 s2) (sum))
+(def + math/add)
+(def < math/less)
+
+(defco test (a b) (:add (+ a b) 
+                   :less (< a b) 
+                   :fn (fn [c d] (< (+ a c) 
+                                    (+ b d)))))
 
 ```
 
