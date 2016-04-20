@@ -5,13 +5,6 @@ import * as edn from 'jsedn'
 var tokenizer = require('wsl-lisp-parser')
 var componentApi
 
-// var map = JSON.parse(fs.readFileSync('map.json'))
-// need to map OP to math/OP
-// eg: + to math/add
-//     - to math/sub
-//   inc to math/inc
-//    ++ to math/inc
-
 export function connect (server) {
   if (!server) {
     if (process.env.BUGGY_COMPONENT_LIBRARY_HOST) {
@@ -120,13 +113,29 @@ function parse_edn_to_json (ednObj, inputCode) {
 
   function defcop (ednObj) {
     var obj = {}
-    obj.functionName = ednObj.val[1].val
+    obj.id = ednObj.val[1].val
     obj.input = ednObj.val[2].map((v) => {
       return v.val
     }).val
     obj.output = ednObj.val[3].map((v) => {
       return v.val
     }).val
+    return obj
+  }
+
+  function defco (ednObj) {
+    var obj = {}
+    obj.id = ednObj.val[1].val
+    obj.input = ednObj.val[2].map((v) => {
+      return v.val
+    }).val
+    obj.output = ednObj.val[3].map((v) => {
+      return v.val
+    }).val.filter((v) => {
+      return !(v instanceof Array)
+    }).map((v) => {
+      return cleanPort(v)
+    })
     return obj
   }
 
@@ -141,7 +150,10 @@ function parse_edn_to_json (ednObj, inputCode) {
       switch (name) {
         case 'defco':
           // (defco NAME (INPUT*) (:OUTPUT1 (FN1) :OUTPUT2 (FN2) ...))
-          var outputs = baseObj.val[3].val
+          component = defco(root)
+          components[component.id] = component
+
+          var outputs = data[3].val
           for (var i = 0; i < outputs.length; i++) {
             if (outputs[i] instanceof edn.Keyword) {
               var key = outputs[i++]
@@ -153,7 +165,7 @@ function parse_edn_to_json (ednObj, inputCode) {
           break
         case 'defcop':
           component = defcop(root)
-          components[component.functionName] = component
+          components[component.id] = component
           break
         case 'lambda':
         case 'fn':
@@ -277,6 +289,11 @@ export function edn_add_components (edn) {
   _.each(edn.val, (vElement) => {
     walkAndFindFunctions(vElement.val)
   })
+
+  // filter out already defined components
+  functions = functions.filter(newDefine =>
+    !definedComponents.some(defined => defined === newDefine)
+  )
 
   function walkAndFindFunctions (root) {
     var name
