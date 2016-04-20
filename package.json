@@ -9,7 +9,7 @@
   "scripts": {
     "mocha": "node node_modules/mocha/bin/mocha --compilers js:babel/register",
     "gulp": "node node_modules/standard/bin/cmd.js src/**/*.js && gulp",
-    "test": "node node_modules/standard/bin/cmd.js src/**/*.js && gulp && node_modules/mocha/bin/mocha --compilers js:babel/register"
+    "test": "node node_modules/standard/bin/cmd.js src/**/*.js && gulp && node node_modules/mocha/bin/mocha --compilers js:babel/register"
   },
   "author": "",
   "license": "MIT",
