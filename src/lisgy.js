@@ -30,9 +30,26 @@ export function parse_edn (inputCode) {
   return ednObj
 }
 
-export function parse_to_json (inputCode) {
+export function parse_to_json (inputCode, addMissingComponents) {
   var ednObj = parse_edn(inputCode)
-  var json = {}
+
+  var p = Promise.resolve(ednObj)
+
+  if (addMissingComponents) {
+    p = edn_add_components(ednObj)
+  } else {
+    // NOTE: cleanup
+    return parse_edn_to_json(ednObj, inputCode)
+  }
+
+  return p.then(edn => {
+    var jsonObj = parse_edn_to_json(edn, inputCode)
+    return jsonObj
+  })
+}
+
+function parse_edn_to_json (ednObj, inputCode) {
+  var json = {code: inputCode}
 
   var inputPorts = []
   var implementation
@@ -78,7 +95,7 @@ export function parse_to_json (inputCode) {
 
       baseObj.val[3].val.every((output) => {
         if (output instanceof edn.Keyword) {
-          json.outputPorts[output.name] = 'generic'
+          json.outputPorts[cleanPort(output.name)] = 'generic'
         }
         return true
       })
@@ -88,9 +105,17 @@ export function parse_to_json (inputCode) {
       break
   }
 
+  function error (message) {
+    json = {code: inputCode, error: message}
+  }
+
   function simplify (node) {
     var name = node.name + '_' + count++
     return {'meta': node.val, 'name': name}
+  }
+
+  function cleanPort (port) {
+    return (port[0] === ':') ? port.slice(1) : port
   }
 
   function defcop (ednObj) {
@@ -105,81 +130,128 @@ export function parse_to_json (inputCode) {
     return obj
   }
 
-  function walk (root, implementation, parrent, port) {
+  function walk (root, implementation, inputPorts, parrent, port) {
     var from, to
-    var component
-    console.log('waling on ', root)
-    if (root instanceof edn.List) {
-      var name = root.val[0].name
+    var node, component
+    // console.log('walk on ', root)
+    var data = root.val
+    if (root instanceof edn.List || root instanceof edn.Vector ||
+        root instanceof edn.Map || root instanceof edn.Set) {
+      var name = data[0].name
       switch (name) {
         case 'defco':
           // (defco NAME (INPUT*) (:OUTPUT1 (FN1) :OUTPUT2 (FN2) ...))
-          console.log('DEFCO')
           var outputs = baseObj.val[3].val
           for (var i = 0; i < outputs.length; i++) {
             if (outputs[i] instanceof edn.Keyword) {
               var key = outputs[i++]
               var next = outputs[i]
-              next.port = key.name
-              walk(next, implementation)
+              next.port = cleanPort(key.name)
+              walk(next, implementation, inputPorts)
             }
           }
           break
         case 'defcop':
-          console.log('DEFCOP', name)
           component = defcop(root)
           components[component.functionName] = component
           break
+        case 'lambda':
+        case 'fn':
+          // TODO: this forbids nested lambdas
+          json.outputPorts[root.port] = 'lambda'
+          node = {meta: 'lambda'}
+          node.name = 'lambda_' + count++
+          node.inputPorts = {}
+          node.outputPorts = {'fn': 'lambda'}
+
+          implementation.nodes.push(node)
+          from = node.name + ':fn'
+          implementation.edges.push({'from': from, 'to': root.port})
+
+          node.data = {}
+          node.data.v = node.name + '_' + randomString()
+          node.data.name = node.name + '_' + randomString()
+          // NOTE: anonymous functions have one output port right now
+          node.data.outputPorts = {'value_0': 'generic'}
+
+          node.data.inputPorts = {}
+
+          var fnInputPorts = []
+
+          data[1].val.every((v) => {
+            node.data.inputPorts[v.name] = 'generic'
+            fnInputPorts.push(v.name)
+            return true
+          })
+
+          node.data.implementation = {nodes: [], edges: []}
+
+          walk(data[2], node.data.implementation, fnInputPorts, 'lambda', 'value_0')
+          break
         default:
           // (FN ARG*)
-          console.log('DEFAULT')
-          var node = simplify(root.val[0])
+          node = simplify(data[0])
           component = components[node.meta]
 
+          implementation.nodes.push(node)
+
           if (!component) {
-            console.log('UNABLE TO FIND COMPONENT ', node.meta)
+            error('The input/output ports for component "' + node.meta +
+                  '" are not defined via (defcop ' + node.meta + ' [...] [...])')
             return
           }
-          for (var j = 1; j < root.val.length; j++) {
-            var arg = root.val[j]
-            if (arg instanceof edn.Symbol) {
-              if (!_.includes(inputPorts, arg.name)) {
-                console.log('WOAH UNKNOW SYMBOL ', arg.name)
-                if (!node.values) node.values = []
-                node.values.push({'port': component.input[i], 'value': arg.name})
-              }
+          for (var j = 1; j < data.length; j++) {
+            var arg = data[j]
+            var argPort = component.input[j - 1]
+            if (arg instanceof edn.List ||
+                arg instanceof edn.Vector ||
+                arg instanceof edn.Map ||
+                arg instanceof edn.Set ||
+                _.includes(inputPorts, arg.name)) {
+              walk(arg, implementation, inputPorts, node.name, argPort)
+            } else if (arg instanceof edn.Symbol) {
+              if (!node.values) node.values = []
+              node.values.push({'port': argPort, 'value': arg.name})
             } else {
-              console.log('WALKING WITH PORT', component, node)
-              walk(arg, implementation, node.name, component.input[i])
+              if (!node.values) node.values = []
+              node.values.push({'port': argPort, 'value': arg})
             }
           }
-          implementation.nodes.push(node)
 
           to = parrent + ':' + port
           from = node.name + ':' + component.output[0]
-          console.log('EDGE b ', to, ':', from)
           if (parrent && port) {
+            if (parrent === 'lambda') {
+              // NOTE: I hope we never have a component with the name 'lambda'
+              to = port
+            }
             implementation.edges.push({'from': from, 'to': to})
           } else {
             to = root.port ? root.port : 'value'
+            to = cleanPort(to)
             implementation.edges.push({'from': from, 'to': to})
           }
-          console.log('EDGE a ', to, ':', from)
           break
       }
+    } else if (root instanceof edn.Symbol) {
+      from = root.name
+      to = parrent + ':' + port
+      implementation.edges.push({'from': from, 'to': to})
     } else {
-      console.log('unkown', root.val)
+      error('Unkown walk class "' + root)
+      return
     }
   }
-  console.log('PORTS', inputPorts)
+
   _.each(ednObj.val, (vElement) => {
-    walk(vElement, implementation)
+    walk(vElement, implementation, inputPorts)
   })
 
   return json
 }
 
 export function parse_to_edn (json) {
+  // TODO: implement
   return new edn.List([edn.sym('a'), edn.sym('b'), new edn.List([edn.sym('c'), edn.sym('d')])])
 }
 
@@ -187,6 +259,75 @@ export function encode_edn (ednObj) {
   var code = edn.encode(ednObj)
   code = code.slice(1, code.length - 1) // remove []
   return code
+}
+
+export function jsonToEdn (obj) {
+  var toObject = (e) => { return edn.sym(e) }
+  var input = Object.getOwnPropertyNames(obj.inputPorts).map(toObject)
+  var output = Object.getOwnPropertyNames(obj.outputPorts).map(toObject)
+  var list = new edn.List([edn.sym('defcop'), edn.sym(obj.id), new edn.Vector(input), new edn.Vector(output)])
+  list.id = obj.id
+  return list
+}
+
+export function edn_add_components (edn) {
+  var functions = []
+  var definedComponents = []
+
+  _.each(edn.val, (vElement) => {
+    walkAndFindFunctions(vElement.val)
+  })
+
+  function walkAndFindFunctions (root) {
+    var name
+
+    if (root instanceof Array) {
+      name = root[0].val
+    } else {
+      return // output port name
+    }
+
+    switch (name) {
+      case 'defcop':
+        definedComponents.push(root[1].val)
+        break
+      case 'defco':
+        definedComponents.push(root[1].val)
+        for (var k = 0; k < root[3].val.length; k++) {
+          walkAndFindFunctions(root[3].val[k].val)
+        }
+        break
+      case 'fn':
+      case 'lambda':
+        walkAndFindFunctions(root[2].val)
+        break
+      default:
+        functions.push(root[0].val)
+        for (var j = 1; j < root.length; j++) {
+          walkAndFindFunctions(root[j].val)
+        }
+        break
+    }
+  }
+
+  if (!componentApi) {
+    connect()
+  }
+
+  // TODO: remove version number to get the latest version
+  var names = functions.map((f) => componentApi.get(f, '0.1.1'))
+  var stuff = Promise.all(names).then(arr => {
+    var newComponents = arr.map((e) => jsonToEdn(e))
+    // filter out all already defined components
+    newComponents = newComponents.filter(newDefine =>
+      !definedComponents.some(defined => defined === newDefine.val[1].val)
+    )
+    edn.val = [].concat(newComponents, edn.val)
+    return edn
+  }).catch(err => {
+    throw err
+  })
+  return stuff
 }
 
 export function parseAsTree (code, options) {

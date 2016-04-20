@@ -1,0 +1,76 @@
+{
+  "code": "(defco newCo [a] [:test (fn [b] (math/less a (math/add a b)))])",
+  "id": "newCo",
+  "inputPorts": {
+    "a": "generic"
+  },
+  "outputPorts": {
+    "test": "lambda"
+  },
+  "implementation": {
+    "nodes": [
+      {
+        "meta": "lambda",
+        "name": "lambda_0",
+        "inputPorts": {},
+        "outputPorts": {
+          "fn": "lambda"
+        },
+        "data": {
+          "v": "lambda_0_n27lp",
+          "name": "lambda_0_y85jn",
+          "outputPorts": {
+            "value_0": "generic"
+          },
+          "inputPorts": {
+            "b": "generic"
+          },
+          "implementation": {
+            "nodes": [
+              {
+                "meta": "math/less",
+                "name": "less_1",
+                "values": [
+                  {
+                    "port": "isLess",
+                    "value": "a"
+                  }
+                ]
+              },
+              {
+                "meta": "math/add",
+                "name": "add_2",
+                "values": [
+                  {
+                    "port": "s1",
+                    "value": "a"
+                  }
+                ]
+              }
+            ],
+            "edges": [
+              {
+                "from": "b",
+                "to": "add_2:s2"
+              },
+              {
+                "from": "add_2:sum",
+                "to": "less_1:than"
+              },
+              {
+                "from": "less_1:value",
+                "to": "value_0"
+              }
+            ]
+          }
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "lambda_0:fn",
+        "to": "test"
+      }
+    ]
+  }
+}

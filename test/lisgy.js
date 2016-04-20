@@ -320,10 +320,3 @@ describe('define new component: defco', function () {
     expect(json.implementation).deep.equal(example.implementation)
   })
 })
-
-describe('jsedn', () => {
-  it('test', () => {
-    var json = lisgy.parse_to_json('(defcop math/less (isLess than) (value)) (defcop math/add (s1 s2) (sum)) (defco newCo (a b) (:value (math/less a (math/add b 3))))')
-    console.log(JSON.stringify(json, 1))
-  })
-})
