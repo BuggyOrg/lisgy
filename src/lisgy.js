@@ -140,6 +140,23 @@ function parse_edn_to_json (ednObj, inputCode) {
     return obj
   }
 
+  function gEdge (from, to) {
+    return {'from': from, 'to': to}
+    /*
+    var obj = {} // old {'from': from, 'to': to}
+    from = from.split(':')
+    to = to.split(':')
+    obj.v = from[0]
+    obj.w = to[0]
+    obj.value = {'outPort': from[1], 'inPort': to[1]}
+    return obj
+    */
+  }
+
+  function gNode (node) {
+    return node // {'v': node.name, 'value': node}
+  }
+
   function walk (root, implementation, inputPorts, parrent, port) {
     var from, to
     var node, component
@@ -183,9 +200,9 @@ function parse_edn_to_json (ednObj, inputCode) {
           node.inputPorts = {}
           node.outputPorts = {'fn': 'lambda'}
 
-          implementation.nodes.push(node)
+          implementation.nodes.push(gNode(node))
           from = node.name + ':fn'
-          implementation.edges.push({'from': from, 'to': root.port})
+          implementation.edges.push(gEdge(from, root.port))
 
           node.data = {}
           node.data.v = node.name + '_' + randomString()
@@ -214,7 +231,7 @@ function parse_edn_to_json (ednObj, inputCode) {
           node.meta = defines[node.meta] ? defines[node.meta] : node.meta
           component = components[node.meta]
 
-          implementation.nodes.push(node)
+          implementation.nodes.push(gNode(node))
 
           if (!component) {
             error('The input/output ports for component "' + node.meta +
@@ -246,18 +263,18 @@ function parse_edn_to_json (ednObj, inputCode) {
               // NOTE: I hope we never have a component with the name 'lambda'
               to = port
             }
-            implementation.edges.push({'from': from, 'to': to})
+            implementation.edges.push(gEdge(from, to))
           } else {
             to = root.port ? root.port : 'value'
             to = cleanPort(to)
-            implementation.edges.push({'from': from, 'to': to})
+            implementation.edges.push(gEdge(from, to))
           }
           break
       }
     } else if (root instanceof edn.Symbol) {
       from = root.name
       to = parrent + ':' + port
-      implementation.edges.push({'from': from, 'to': to})
+      implementation.edges.push(gEdge(from, to))
     } else {
       error('Unkown walk class "' + root)
       return
