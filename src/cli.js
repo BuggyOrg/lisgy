@@ -91,10 +91,10 @@ program
     lisgy.connect(program.elastic)
     if (!code) {
       log('no input code using editor/stdin')
-      stdinOrEdit('.lisp', (code) => lisgy.toJSON(lisgy.parseAsTree(code)))
+      stdinOrEdit('.lisp', (code) => lisgy.parse_to_json(code, true))
         .then(parseToJSON).catch((error) => console.error(error))
     } else {
-      lisgy.toJSON(lisgy.parseAsTree(code))
+      lisgy.parse_to_json(code, true)
         .then(parseToJSON).catch((error) => console.error(error))
     }
   })
