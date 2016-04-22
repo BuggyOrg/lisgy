@@ -48,6 +48,7 @@ function parse_edn_to_json (ednObj, inputCode) {
   var implementation
 
   var components = {}
+  var defines = {}
   var count = 0
 
   var baseObj = ednObj.val[ednObj.val.length - 1]
@@ -148,6 +149,12 @@ function parse_edn_to_json (ednObj, inputCode) {
         root instanceof edn.Map || root instanceof edn.Set) {
       var name = data[0].name
       switch (name) {
+        case 'def':
+          // (def NAME OLD_NAME)
+          var new_name = data[1].val
+          var old_name = data[2].val
+          defines[new_name] = old_name
+          break
         case 'defco':
           // (defco NAME (INPUT*) (:OUTPUT1 (FN1) :OUTPUT2 (FN2) ...))
           component = defco(root)
@@ -203,6 +210,8 @@ function parse_edn_to_json (ednObj, inputCode) {
         default:
           // (FN ARG*)
           node = simplify(data[0])
+          // map
+          node.meta = defines[node.meta] ? defines[node.meta] : node.meta
           component = components[node.meta]
 
           implementation.nodes.push(node)
@@ -285,6 +294,7 @@ export function jsonToEdn (obj) {
 export function edn_add_components (edn) {
   var functions = []
   var definedComponents = []
+  var defines = {}
 
   _.each(edn.val, (vElement) => {
     walkAndFindFunctions(vElement.val)
@@ -293,6 +303,9 @@ export function edn_add_components (edn) {
   // filter out already defined components
   functions = functions.filter(newDefine =>
     !definedComponents.some(defined => defined === newDefine)
+  ).map((e) =>
+    // map them to defines
+    defines[e] ? defines[e] : e
   )
 
   function walkAndFindFunctions (root) {
@@ -305,6 +318,12 @@ export function edn_add_components (edn) {
     }
 
     switch (name) {
+      case 'def':
+        // (def NAME OLD_NAME)
+        var new_name = root[1].val
+        var old_name = root[2].val
+        defines[new_name] = old_name
+        break
       case 'defcop':
         definedComponents.push(root[1].val)
         break
