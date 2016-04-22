@@ -32,6 +32,20 @@ describe('edn', () => {
     var json = lisgy.parse_to_json(code)
     // console.log(JSON.stringify(json, null, 2))
   })
+
+  it('(def name old_name)', () => {
+    var code = '(defcop math/less [isLess than] [value])(defcop math/add [s1 s2] [sum])(def le math/less)(def + math/add)(defco test (a b c) (:out (le a (+ b c))))'
+    var json = lisgy.parse_to_json(code)
+    expect(json.implementation.nodes[0]).to.deep.equal({'meta': 'math/less', 'name': 'le_0'})
+    expect(json.implementation.nodes[1]).to.deep.equal({'meta': 'math/add', 'name': '+_1'})
+  })
+
+  it('simple rec example', () => {
+    var example = readParseExamples('rec.json')
+    var json = lisgy.parse_to_json(example.code)
+    expect(example.implementation).to.deep.equal(json.implementation)
+  })
+
 /*
   it('fac', () => {
     var code = '(defco math/faculty (n) [:fac \
@@ -60,6 +74,15 @@ describe('edn', () => {
             expect(example.implementation.nodes[0].implementation).to.deep.equal(json.implementation.nodes[0].implementation)
             expect(example.implementation.nodes[1]).to.deep.equal(json.implementation.nodes[1])
             expect(example.implementation.edges).to.deep.equal(json.implementation.edges)
+        })
+    })
+
+    it('rec2', () => {
+        var code = '(defco test (n) (:out (test (math/add n 1)) :n n))'
+
+        return lisgy.parse_to_json(code, true)
+        .then((json) => {
+            console.log(JSON.stringify(json, null, 2))
         })
     })
 
