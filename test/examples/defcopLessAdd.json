@@ -17,13 +17,7 @@
       },
       {
         "meta":"math/add",
-        "name" : "add_1",
-        "values": [
-          {
-            "value": 3,
-            "port": "s2"
-          }
-        ]
+        "name" : "add_1"
       },
       {
         "meta": "math/add",
