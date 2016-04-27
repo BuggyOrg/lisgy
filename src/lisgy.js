@@ -54,52 +54,104 @@ function parse_edn_to_json (ednObj, inputCode) {
   var defines = {}
   var count = 0
 
-  var baseObj = ednObj.val[ednObj.val.length - 1]
-  var baseName = baseObj.val[0].name
+  var graphlibFormat = false
 
-  switch (baseName) {
-    case 'lambda':
-      json.outputPorts = {'fn': 'lambda'}
+  if (ednObj.val.some((v) => v.val[0].name === 'parse')) {
+    // found one (parse ...) so we should output in graphlibFormat
+    graphlibFormat = true
+    json.nodes = []
+    json.edges = []
+    implementation = json
+  } else {
+    // just export the last component/lambda as a node
+    var baseObj = ednObj.val[ednObj.val.length - 1]
+    var baseName = baseObj.val[0].name
+    switch (baseName) {
+      case 'lambda':
+        json = createLambda(baseObj)
+        break
+      case 'defco':
+        json = createComponent(baseObj)
+        break
+    }
+  }
 
-      json.data = {}
-      json.data.v = baseName + '_' + randomString()
-      json.data.name = baseName + '_' + randomString()
-      json.data.outputPorts = {'value': 'generic'}
+  _.each(ednObj.val, (vElement) => {
+    walk(vElement, implementation, inputPorts)
+  })
 
-      json.data.inputPorts = {}
-
-      baseObj.val[1].val.every((v) => {
-        json.data.inputPorts[v.name] = 'generic'
-        inputPorts.push(v.name)
-        return true
-      })
-
-      json.data.implementation = {nodes: [], edges: []}
-
-      implementation = json.data.implementation
-      break
-    case 'defco':
-      // (defco NAME (INPUT*) (:OUTPUT (FN) :OUTPUT2 (FN2) ...))
-      json.id = baseObj.val[1].name
-      json.inputPorts = {}
-      json.outputPorts = {}
-
-      baseObj.val[2].val.every((input) => {
-        json.inputPorts[input.name] = 'generic'
-        inputPorts.push(input.name)
-        return true
-      })
-
-      baseObj.val[3].val.every((output) => {
-        if (output instanceof edn.Keyword) {
-          json.outputPorts[cleanPort(output.name)] = 'generic'
+  if (graphlibFormat) {
+    implementation.nodes = _.map(implementation.nodes, (node) => {
+      return {'v': node.name, 'value': node}
+    })
+    implementation.edges = _.map(implementation.edges, (edge) => {
+      var from = edge.from.split(':')
+      var to = edge.to.split(':')
+      if (to.length < 2 || from.length < 2) {
+        return {'error': 'port error with ' + edge.from + ' & ' + edge.to}
+      }
+      return {
+        'v': from[0],
+        'w': to[0],
+        'value': {
+          'outPort': from[1],
+          'inPort': to[1]
         }
-        return true
-      })
+      }
+    })
+  }
 
-      json.implementation = {nodes: [], edges: []}
-      implementation = json.implementation
-      break
+  function createLambda (baseObj) {
+    var json = {}
+
+    var baseName = baseObj.val[0].name
+
+    json.outputPorts = {'fn': 'lambda'}
+
+    json.data = {}
+    json.data.v = baseName + '_' + randomString()
+    json.data.name = baseName + '_' + randomString()
+    json.data.outputPorts = {'value': 'generic'}
+
+    json.data.inputPorts = {}
+
+    baseObj.val[1].val.every((v) => {
+      json.data.inputPorts[v.name] = 'generic'
+      inputPorts.push(v.name)
+      return true
+    })
+
+    json.data.implementation = {nodes: [], edges: []}
+
+    implementation = json.data.implementation
+    // walk
+    return json
+  }
+
+  function createComponent (baseObj) {
+    // (defco NAME (INPUT*) (:OUTPUT (FN) :OUTPUT2 (FN2) ...))
+    var json = {}
+    json.id = baseObj.val[1].name
+    json.inputPorts = {}
+    json.outputPorts = {}
+
+    baseObj.val[2].val.every((input) => {
+      json.inputPorts[input.name] = 'generic'
+      inputPorts.push(input.name)
+      return true
+    })
+
+    baseObj.val[3].val.every((output) => {
+      if (output instanceof edn.Keyword) {
+        json.outputPorts[cleanPort(output.name)] = 'generic'
+      }
+      return true
+    })
+
+    json.implementation = {nodes: [], edges: []}
+    implementation = json.implementation
+    // walk
+    return json
   }
 
   function error (message) {
@@ -196,16 +248,23 @@ function parse_edn_to_json (ednObj, inputCode) {
           break
         case 'lambda':
         case 'fn':
-          // TODO: this forbids nested lambdas
-          json.outputPorts[root.port] = 'lambda'
           node = {meta: 'lambda'}
           node.name = 'lambda_' + count++
           node.inputPorts = {}
           node.outputPorts = {'fn': 'lambda'}
 
           implementation.nodes.push(gNode(node))
+
           from = node.name + ':fn'
-          implementation.edges.push(gEdge(from, root.port))
+          to = root.port
+          if (json.outputPorts) {
+            // TODO: this forbids nested lambdas
+            json.outputPorts[root.port] = 'lambda'
+          } else {
+            // to = node.name + ':' + to
+          }
+
+          implementation.edges.push(gEdge(from, to))
 
           node.data = {}
           node.data.v = node.name + '_' + randomString()
@@ -227,6 +286,10 @@ function parse_edn_to_json (ednObj, inputCode) {
 
           walk(data[2], node.data.implementation, fnInputPorts, 'lambda', 'value_0')
           break
+        case 'parse':
+          // (parse (FN))
+          walk(data[1], implementation, inputPorts)
+          break
         default:
           // (FN ARG*)
           node = simplify(data[0])
@@ -241,6 +304,7 @@ function parse_edn_to_json (ednObj, inputCode) {
                   '" are not defined via (defcop ' + node.meta + ' [...] [...])')
             return
           }
+
           for (var j = 1; j < data.length; j++) {
             var arg = data[j]
             var argPort = component.input[j - 1]
@@ -250,12 +314,15 @@ function parse_edn_to_json (ednObj, inputCode) {
                 arg instanceof edn.Set ||
                 _.includes(inputPorts, arg.name)) {
               walk(arg, implementation, inputPorts, node.name, argPort)
-            } else if (arg instanceof edn.Symbol) {
+            } else if (arg instanceof edn.Symbol && false) {
               if (!node.values) node.values = []
               node.values.push({'port': argPort, 'value': arg.name})
             } else {
-              if (!node.values) node.values = []
-              node.values.push({'port': argPort, 'value': arg})
+              // if (!node.values) node.values = []
+              // node.values.push({'port': argPort, 'value': arg})
+              from = arg.name ? arg.name : arg
+              to = node.name + ':' + argPort
+              // implementation.edges.push(gEdge(from, to))
             }
           }
 
@@ -283,10 +350,6 @@ function parse_edn_to_json (ednObj, inputCode) {
       return
     }
   }
-
-  _.each(ednObj.val, (vElement) => {
-    walk(vElement, implementation, inputPorts)
-  })
 
   return json
 }
@@ -356,6 +419,9 @@ export function edn_add_components (edn) {
       case 'fn':
       case 'lambda':
         walkAndFindFunctions(root[2].val)
+        break
+      case 'parse':
+        walkAndFindFunctions(root[1].val)
         break
       default:
         functions.push(root[0].val)
