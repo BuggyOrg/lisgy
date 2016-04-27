@@ -1,0 +1,28 @@
+{
+  "code":"(def in io/stdin)(def out io/stdout)(parse (out (in)))",
+  "options": {
+    "directed": true,
+    "multigraph": true,
+    "compound": true
+  },
+  "nodes": [
+    {
+      "v": "in",
+      "value": {"meta": "io/stdin", "version": "0.2.0"}
+    },
+    {
+      "v": "out",
+      "value": {"meta": "io/stdout", "version": "0.2.0", "name": "out"}
+    }
+  ],
+  "edges": [
+    {
+      "v": "in",
+      "w": "out",
+      "value": {
+        "outPort": "output",
+        "inPort": "input"
+      }
+    }
+  ]
+}
