@@ -38,7 +38,7 @@ export function parse_to_json (inputCode, addMissingComponents) {
     return parse_edn_to_json(ednObj, inputCode)
   }
 
-  return p.then(edn => {
+  return p.then((edn) => {
     var jsonObj = parse_edn_to_json(edn, inputCode)
     return jsonObj
   })
@@ -321,8 +321,8 @@ export function edn_add_components (edn) {
   })
 
   // filter out already defined components
-  functions = functions.filter(newDefine =>
-    !definedComponents.some(defined => defined === newDefine)
+  functions = functions.filter((newDefine) =>
+    !definedComponents.some((defined) => defined === newDefine)
   ).map((e) =>
     // map them to defines
     defines[e] ? defines[e] : e
@@ -371,16 +371,20 @@ export function edn_add_components (edn) {
   }
 
   // TODO: remove version number to get the latest version
-  var names = functions.map((f) => componentApi.get(f, '0.1.1'))
-  var stuff = Promise.all(names).then(arr => {
+  var names = functions.map((f) => componentApi.get(f))
+  var stuff = Promise.all(names).then((arr) => {
     var newComponents = arr.map((e) => jsonToEdn(e))
     // filter out all already defined components
-    newComponents = newComponents.filter(newDefine =>
-      !definedComponents.some(defined => defined === newDefine.val[1].val)
+    newComponents = newComponents.filter((newDefine) =>
+      !definedComponents.some((defined) => defined === newDefine.val[1].val)
     )
     edn.val = [].concat(newComponents, edn.val)
     return edn
-  }).catch(err => {
+  }).catch((err) => {
+    console.error('edn_add_components error')
+    console.error('functions:', functions)
+    console.error('definedComponents:', definedComponents)
+    console.error('defines:', defines)
     throw err
   })
   return stuff
