@@ -1,0 +1,146 @@
+{
+  "code":"(def in io/stdin)(def strToNum translator/string_to_number)(def apply functional/apply)(def numToStr translator/number_to_string)(def out io/stdout)(def inc_lambda math/inc)(defco lambda_inc [] [:fn (fn [i] (inc_lambda i))])(parse (out (numToStr (apply lambda_inc (strToNum (in))))))",
+  "options": {
+    "directed": true,
+    "multigraph": true,
+    "compound": true
+  },
+  "nodes": [
+    {
+      "v": "lambda_inc_0",
+      "value": {
+        "code": "(def inc_lambda math/inc)(defco lambda_inc [] [:fn (fn [i] (inc_lambda i))])",
+        "name": "lambda_inc_0",
+        "id": "lambda_inc",
+        "inputPorts": {},
+        "outputPorts": {
+          "fn": "lambda"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "meta": "lambda",
+              "name": "lambda_1",
+              "inputPorts": {},
+              "outputPorts": {
+                "fn": "lambda"
+              },
+              "data": {
+                "v": "lambda_1_r8548",
+                "name": "lambda_1_x7v4w",
+                "outputPorts": {
+                  "value_0": "generic"
+                },
+                "inputPorts": {
+                  "i": "generic"
+                },
+                "implementation": {
+                  "nodes": [
+                    {
+                      "meta": "math/inc",
+                      "name": "inc_lambda_2"
+                    }
+                  ],
+                  "edges": [
+                    {
+                      "from": "i",
+                      "to": "inc_lambda_2:i"
+                    },
+                    {
+                      "from": "inc_lambda_2:inc",
+                      "to": "value_0"
+                    }
+                  ]
+
+                }
+              }
+            }
+          ],
+          "edges": [
+            {
+              "from": "lambda_1:fn",
+              "to": "fn"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "v": "out_3",
+      "value": {
+        "meta": "io/stdout",
+        "name": "out_3"
+      }
+    },
+    {
+      "v": "numToStr_4",
+      "value": {
+        "meta": "translator/number_to_string",
+        "name": "numToStr_4"
+      }
+    },
+    {
+      "v": "apply_5",
+      "value": {
+        "meta": "functional/apply",
+        "name": "apply_5"
+      }
+    },
+    {
+      "v": "strToNum_6",
+      "value": {
+        "meta": "translator/string_to_number",
+        "name": "strToNum_6"
+      }
+    },
+    {
+      "v": "in_7",
+      "value": {
+        "meta": "io/stdin",
+        "name": "in_7"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "v": "in_7",
+      "w": "strToNum_6",
+      "value": {
+        "outPort": "output",
+        "inPort": "input"
+      }
+    },
+    {
+      "v": "strToNum_6",
+      "w": "apply_5",
+      "value": {
+        "outPort": "output",
+        "inPort": "value"
+      }
+    },
+    {
+      "v": "lambda_inc_0",
+      "w": "apply_5",
+      "value": {
+        "outPort": "fn",
+        "inPort": "fn"
+      }
+    },
+    {
+      "v": "apply_5",
+      "w": "numToStr_4",
+      "value": {
+        "outPort": "result",
+        "inPort": "input"
+      }
+    },
+    {
+      "v": "numToStr_4",
+      "w": "out_3",
+      "value": {
+        "outPort": "output",
+        "inPort": "input"
+      }
+    }
+  ]
+}
