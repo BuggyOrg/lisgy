@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // import * from './lisgy'
 var lisgy = require('./lisgy')
+var path = require('path')
 import program from 'commander'
 import fs from 'fs'
 import {spawn} from 'child_process'
@@ -82,7 +83,7 @@ if (process.env.BUGGY_COMPONENT_LIBRARY_HOST) {
 }
 
 program
-  .version(JSON.parse(fs.readFileSync(__dirname + '/../package.json'))['version'])
+  .version(JSON.parse(fs.readFileSync(path.join(__dirname, '/../package.json')))['version'])
   .option('-e, --elastic <host>', 'The elastic server to connect to.' + defaultElastic, String, server)
   .option('-n, --nice', 'Pretty print all JSON output')
   .option('-s, --silent', 'Only print data no further information.')
@@ -91,10 +92,10 @@ program
     lisgy.connect(program.elastic)
     if (!code) {
       log('no input code using editor/stdin')
-      stdinOrEdit('.lisp', (code) => lisgy.toJSON(lisgy.parseAsTree(code)))
+      stdinOrEdit('.lisp', (code) => lisgy.parse_to_json(code, true))
         .then(parseToJSON).catch((error) => console.error(error))
     } else {
-      lisgy.toJSON(lisgy.parseAsTree(code))
+      lisgy.parse_to_json(code, true)
         .then(parseToJSON).catch((error) => console.error(error))
     }
   })

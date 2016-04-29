@@ -1,0 +1,91 @@
+{
+  "code": "(defcop math/add [s1 s2] [sum])(defco newCo [a] [:test (fn [b] (math/less a (math/add b b))) :other (math/add a a)])",
+  "id": "newCo",
+  "inputPorts": {
+    "a": "generic"
+  },
+  "outputPorts": {
+    "test": "lambda",
+    "other": "generic"
+  },
+  "implementation": {
+    "nodes": [
+      {
+        "meta": "lambda",
+        "name": "lambda_0",
+        "inputPorts": {},
+        "outputPorts": {
+          "fn": "lambda"
+        },
+        "data": {
+          "v": "lambda_0_xjoya",
+          "name": "lambda_0_ehjsn",
+          "outputPorts": {
+            "value_0": "generic"
+          },
+          "inputPorts": {
+            "b": "generic"
+          },
+          "implementation": {
+            "nodes": [
+              {
+                "meta": "math/less",
+                "name": "less_1",
+                "values": [
+                  {
+                    "port": "isLess",
+                    "value": "a"
+                  }
+                ]
+              },
+              {
+                "meta": "math/add",
+                "name": "add_2"
+              }
+            ],
+            "edges": [
+              {
+                "from": "b",
+                "to": "add_2:s1"
+              },
+              {
+                "from": "b",
+                "to": "add_2:s2"
+              },
+              {
+                "from": "add_2:sum",
+                "to": "less_1:than"
+              },
+              {
+                "from": "less_1:value",
+                "to": "value_0"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "meta": "math/add",
+        "name": "add_3"
+      }
+    ],
+    "edges": [
+      {
+        "from": "lambda_0:fn",
+        "to": "test"
+      },
+      {
+        "from": "a",
+        "to": "add_3:s1"
+      },
+      {
+        "from": "a",
+        "to": "add_3:s2"
+      },
+      {
+        "from": "add_3:sum",
+        "to": "other"
+      }
+    ]
+  }
+}

@@ -9,15 +9,17 @@
   "scripts": {
     "mocha": "node node_modules/mocha/bin/mocha --compilers js:babel/register",
     "gulp": "node node_modules/standard/bin/cmd.js src/**/*.js && gulp",
-    "test": "node node_modules/standard/bin/cmd.js src/**/*.js && gulp && node_modules/mocha/bin/mocha --compilers js:babel/register"
+    "test": "node node_modules/standard/bin/cmd.js src/**/*.js && gulp && node node_modules/mocha/bin/mocha --compilers js:babel/register"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@buggyorg/component-library": "^0.3.2",
+    "@buggyorg/component-library": "^0.3.4",
     "chalk": "^1.1.3",
     "commander": "^2.9.0",
     "get-stdin": "^5.0.1",
+    "gulp": "^3.9.1",
+    "jsedn": "^0.3.5",
     "lodash": "^4.8.2",
     "tempfile": "^1.1.1",
     "wsl-lisp-parser": "^0.1.0"
@@ -26,9 +28,8 @@
     "babel": "^5.8.29",
     "babel-eslint": "^4.1.3",
     "chai": "^3.4.0",
-    "gulp": "^3.9.0",
     "gulp-babel": "^5.3.0",
     "mocha": "^2.3.3",
-    "standard": "^5.4.1"
+    "standard": "^6.0.8"
   }
 }
