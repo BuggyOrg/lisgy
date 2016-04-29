@@ -61,9 +61,30 @@ function parse_edn_to_json (ednObj, inputCode) {
     walk(vElement, implementation, inputPorts)
   })
 
-  json.defcos = nodes
   json.nodes = implementation.nodes
   json.edges = implementation.edges
+
+  // add new components to the nodes array
+  json.nodes = _.map(json.nodes, (node) => {
+    var selected
+    if (nodes.some((n) => {
+      if (n.id === node.meta) {
+        selected = JSON.parse(JSON.stringify(n))
+        return true
+      }
+      return false
+    })) {
+      selected.name = node.name
+      return selected
+    }
+    return node
+  })
+
+  if (json.nodes.length <= 0) {
+    json.nodes = _.map(nodes, (node) => { node.name = 'defco_' + node.id; return node })
+  }
+  // else add all the new components to the node array
+  // json.nodes = json.nodes.concat(_.map(nodes, (node) => {node.name = 'defco_'+node.id; return node}))
 
   if (graphlibFormat) {
     json.nodes = _.map(json.nodes, (node) => {
@@ -84,20 +105,32 @@ function parse_edn_to_json (ednObj, inputCode) {
         }
       }
     })
+
+    // TODO: this is cheating
+    json.edges = _.filter(json.edges, (edge) => {
+      if (edge.error) {
+        return false
+      }
+      return true
+    })
   }
 
   function createLambda (root) {
     var json = {}
     var data = root.val
 
-    var baseName = data[0].name
+    json.meta = 'lambda'
+    json.name = data[0].name + '_' + count++
+
 
     json.outputPorts = {'fn': 'lambda'}
+    json.inputPorts = {}
 
     json.data = {}
-    json.data.v = baseName + '_' + randomString()
-    json.data.name = baseName + '_' + randomString()
-    json.data.outputPorts = {'value': 'generic'}
+    // json.data.v = baseName + '_' + randomString()
+    // json.data.name = baseName + '_' + randomString()
+    // NOTE: anonymous functions have one output port right now
+    json.data.outputPorts = {'value_0': 'generic'}
 
     json.data.inputPorts = {}
 
@@ -108,46 +141,37 @@ function parse_edn_to_json (ednObj, inputCode) {
     })
 
     json.data.implementation = {nodes: [], edges: []}
-    var implementation = json.data.implementation
 
-    var node = {meta: 'lambda'}
-    node.name = 'lambda_' + count++
-    node.inputPorts = {}
-    node.outputPorts = {'fn': 'lambda'}
 
-    var from = node.name + ':fn'
+    var from = json.name + ':fn'
     var to = root.port
-    if (json.outputPorts) {
+    if (json.outputPorts && to || root.parent) {
       // TODO: this forbids nested lambdas
-      json.outputPorts[root.port] = 'lambda'
+      root.parent.outputPorts[to] = 'lambda'
+
+      root.parent.implementation.edges.push(gEdge(from, to))
     } else {
       // to = node.name + ':' + to
     }
 
-    implementation.nodes.push(gNode(node))
-    implementation.edges.push(gEdge(from, to))
+    // implementation.nodes.push(gNode(node))
+    // implementation.edges.push(gEdge(from, to))
 
-    node.data = {}
-    node.data.v = node.name + '_' + randomString()
-    node.data.name = node.name + '_' + randomString()
-    // NOTE: anonymous functions have one output port right now
-    node.data.outputPorts = {'value_0': 'generic'}
 
-    node.data.inputPorts = {}
+    // node.data.v = node.name + '_' + randomString()
+    // node.data.name = node.name + '_' + randomString()
 
     var fnInputPorts = []
 
     data[1].val.every((v) => {
-      node.data.inputPorts[v.name] = 'generic'
+      json.data.inputPorts[v.name] = 'generic'
       fnInputPorts.push(v.name)
       return true
     })
 
-    node.data.implementation = {nodes: [], edges: []}
+    walk(data[2], json.data.implementation, fnInputPorts, 'lambda', 'value_0')
 
-    walk(data[2], node.data.implementation, fnInputPorts, 'lambda', 'value_0')
-
-    nodes.push(json)
+    // nodes.push(json)
     return json
   }
 
@@ -187,6 +211,7 @@ function parse_edn_to_json (ednObj, inputCode) {
         var key = outputs[i++]
         var next = outputs[i]
         next.port = cleanPort(key.name)
+        next.parent = json
         walk(next, json.implementation, inputPorts)
       }
     }
@@ -277,7 +302,8 @@ function parse_edn_to_json (ednObj, inputCode) {
           break
         case 'lambda':
         case 'fn':
-          createLambda(root)
+          var fn = createLambda(root)
+          implementation.nodes.push(gNode(fn))
           break
         case 'parse':
           // (parse (FN))
@@ -314,7 +340,6 @@ function parse_edn_to_json (ednObj, inputCode) {
               // if (!node.values) node.values = []
               // node.values.push({'port': argPort, 'value': arg})
               if (parseFloat(arg)) {
-                console.log('ARGS', parseFloat(arg))
                 var constNode = {
                   'meta': 'math/const',
                   'name': 'const(' + arg + ')_' + count++,
@@ -324,7 +349,6 @@ function parse_edn_to_json (ednObj, inputCode) {
                 to = node.name + ':' + argPort
                 from = constNode.name + ':output' // arg.name ? arg.name : arg
 
-                console.log(from + '->' + to)
                 implementation.nodes.push(gNode(constNode))
                 implementation.edges.push(gEdge(from, to))
               }

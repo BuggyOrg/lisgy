@@ -1,58 +1,78 @@
 {
   "code": "(defcop math/less [isLess than] [value])(defcop math/add [s1 s2] [sum])(defco newCo (a b) (:out1 (math/less a (math/add b 3)) :out2 (math/add a b)))",
-  "id": "newCo",
-  "inputPorts": {
-    "a": "generic",
-    "b": "generic"
-  },
-  "outputPorts": {
-    "out1": "generic",
-    "out2": "generic"
-  },
-  "implementation": {
-    "nodes": [
-      {
-        "meta": "math/less",
-        "name" : "less_0"
-      },
-      {
-        "meta":"math/add",
-        "name" : "add_1"
-      },
-      {
-        "meta": "math/add",
-        "name" : "add_2"
+  "nodes": [
+    {
+      "v": "defco_newCo",
+      "value": {
+        "id": "newCo",
+        "inputPorts": {
+          "a": "generic",
+          "b": "generic"
+        },
+        "outputPorts": {
+          "out1": "generic",
+          "out2": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "meta": "math/less",
+              "name": "less_0"
+            },
+            {
+              "meta": "math/add",
+              "name": "add_1"
+            },
+            {
+              "meta": "math/const",
+              "name": "const(3)_2",
+              "params": {
+                "value": 3
+              }
+            },
+            {
+              "meta": "math/add",
+              "name": "add_3"
+            }
+          ],
+          "edges": [
+            {
+              "from": "a",
+              "to": "less_0:isLess"
+            },
+            {
+              "from": "b",
+              "to": "add_1:s1"
+            },
+            {
+              "from": "const(3)_2:output",
+              "to": "add_1:s2"
+            },
+            {
+              "from": "add_1:sum",
+              "to": "less_0:than"
+            },
+            {
+              "from": "less_0:value",
+              "to": "out1"
+            },
+            {
+              "from": "a",
+              "to": "add_3:s1"
+            },
+            {
+              "from": "b",
+              "to": "add_3:s2"
+            },
+            {
+              "from": "add_3:sum",
+              "to": "out2"
+            }
+          ]
+        },
+        "name": "defco_newCo"
       }
-    ],
-    "edges": [
-      {
-        "from": "a",
-        "to": "less_0:isLess"
-      },
-      {
-        "from": "b",
-        "to": "add_1:s1"
-      },
-      {
-        "from": "add_1:sum",
-        "to": "less_0:than"
-      },
-      {
-        "from": "less_0:value",
-        "to": "out1"
-      },
-      {
-        "from": "a",
-        "to": "add_2:s1"
-      },
-      {
-        "from": "b",
-        "to": "add_2:s2"
-      },
-      {
-        "from": "add_2:sum",
-        "to": "out2"
-      }
-    ]
-  }
+    }
+  ],
+  "edges": []
 }
