@@ -15,11 +15,11 @@ export function connect (server) {
 
   componentApi = libConnection(server)
 }
-
+/*
 function randomString () {
   return Math.random().toString(36).substr(2, 5)
 }
-
+*/
 export function parse_edn (inputCode) {
   var code = '[' + inputCode + ']' // add []
   var ednObj = edn.parse(code)
@@ -122,7 +122,6 @@ function parse_edn_to_json (ednObj, inputCode) {
     json.meta = 'lambda'
     json.name = data[0].name + '_' + count++
 
-
     json.outputPorts = {'fn': 'lambda'}
     json.inputPorts = {}
 
@@ -142,7 +141,6 @@ function parse_edn_to_json (ednObj, inputCode) {
 
     json.data.implementation = {nodes: [], edges: []}
 
-
     var from = json.name + ':fn'
     var to = root.port
     if (json.outputPorts && to || root.parent) {
@@ -156,7 +154,6 @@ function parse_edn_to_json (ednObj, inputCode) {
 
     // implementation.nodes.push(gNode(node))
     // implementation.edges.push(gEdge(from, to))
-
 
     // node.data.v = node.name + '_' + randomString()
     // node.data.name = node.name + '_' + randomString()
