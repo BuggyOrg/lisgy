@@ -94,8 +94,11 @@ program
       log('no input code using editor/stdin')
       stdinOrEdit('.lisp', (code) => lisgy.parse_to_json(code, true))
         .then(parseToJSON).catch((error) => console.error(error))
-    } else {
+    } else if (code.indexOf('(') > -1) {
       lisgy.parse_to_json(code, true)
+        .then(parseToJSON).catch((error) => console.error(error))
+    } else {
+      lisgy.parse_to_json(fs.readFileSync(code, 'utf8'), true)
         .then(parseToJSON).catch((error) => console.error(error))
     }
   })
