@@ -23,7 +23,78 @@ function randomString () {
 export function parse_edn (inputCode) {
   var code = '[' + inputCode + ']' // add []
   var ednObj = edn.parse(code)
+
+  var vars = []
+
+  var newObjs = []
+
+  ednObj = _.map(ednObj.val, (obj) => {
+    return walk(obj, newObjs)
+  })
+
+  ednObj = ednObj.concat(newObjs)
+
+  ednObj = new edn.Vector(ednObj)
+
   return ednObj
+
+  function replace (obj) {
+    var newReplacedObjs = []
+    obj = _.map(obj.val, (obj) => {
+      if (obj instanceof edn.Symbol) {
+        if (obj.val === 'let') {
+          return walk(obj, newReplacedObjs)
+        }
+        for (var i = vars.length - 1; i >= 0; i--) {
+          var mapTo = _.find(vars[i], (v) => { return v.name === obj.val })
+          if (mapTo) {
+            return mapTo.val
+          }
+        }
+      } else {
+        return walk(obj, newReplacedObjs)
+      }
+      return obj
+    })
+
+    obj = obj.concat(newReplacedObjs)
+
+    return obj
+  }
+
+  function mapVars (ednVars) {
+    if (ednVars.val.length % 2 !== 0) {
+      // error
+    }
+
+    var vars = []
+    for (var i = 0; i < ednVars.val.length;) {
+      vars.push({'name': ednVars.val[i++].val,
+                 'val': ednVars.val[i++]})
+    }
+    return vars
+  }
+
+  function walk (obj, parrent) {
+    if (obj instanceof edn.List || obj instanceof edn.Vector ||
+        obj instanceof edn.Map || obj instanceof edn.Set) {
+      var first = obj.val[0]
+      if (first instanceof edn.Symbol && first.val === 'let') {
+        vars.push(mapVars(obj.val[1]))
+        var newObj = new edn.List(replace(obj.val[2]))
+
+        for (var i = 3; i < obj.val.length; i++) {
+          var oldObj = obj.val[i++]
+          var newObj2 = new edn.List(replace(oldObj))
+          parrent.push(newObj2)
+        }
+
+        obj = newObj
+        vars.pop()
+      }
+    }
+    return obj
+  }
 }
 
 export function parse_to_json (inputCode, addMissingComponents) {

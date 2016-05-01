@@ -162,6 +162,60 @@ describe('edn', () => {
     // expect(json.implementation.nodes[0]).to.deep.equal({'meta': 'math/less', 'name': 'le_0'})
     // expect(json.implementation.nodes[1]).to.deep.equal({'meta': 'math/add', 'name': '+_1'})
   })
+
+  describe('let', () => {
+    it('simple let', () => {
+        var code1 = '(defcop add [s1 s2] [sum])(let [a (add 1 2) b 3] (add a b))'
+        var code2 = '(defcop add [s1 s2] [sum])(add (add 1 2) 3)'
+        var json1 = lisgy.parse_to_json(code1)
+        var json2 = lisgy.parse_to_json(code2)
+        expect(json1.error || "").to.equal("")
+        expect(json2.error || "").to.equal("")
+
+        // console.log(JSON.stringify(json1, null, 2))
+        // console.log(JSON.stringify(json2, null, 2))
+
+        expect(json1.edges).to.deep.equal(json2.edges)
+        expect(json1.nodes).to.deep.equal(json2.nodes)
+    })
+
+    it('multiple let FNs', () => {
+        var code1 = '(defcop add [s1 s2] [sum])(let [a (add 1 2) b 3] (add a b) (add a a))'
+        var code2 = '(defcop add [s1 s2] [sum])(add (add 1 2) 3) (add (add 1 2) (add 1 2))'
+        var json1 = lisgy.parse_to_json(code1)
+        var json2 = lisgy.parse_to_json(code2)
+        expect(json1.error || "").to.equal("")
+        expect(json2.error || "").to.equal("")
+
+        // console.log(JSON.stringify(json1, null, 2))
+        // console.log(JSON.stringify(json2, null, 2))
+
+        expect(json1.edges).to.deep.equal(json2.edges)
+        expect(json1.nodes).to.deep.equal(json2.nodes)
+    })
+    /*
+    it('multiple lets', () => {
+        var code1 = '(defcop add [s1 s2] [sum])(let [a (add 1 2) b 3] (let [a 2] (add a b)))'
+        var code2 = '(defcop add [s1 s2] [sum])(add 2 3)'
+        var json2 = lisgy.parse_to_json(code2)
+        var json1 = lisgy.parse_to_json(code1)
+        expect(json1.error || "").to.equal("")
+        expect(json2.error || "").to.equal("")
+
+        // console.log(JSON.stringify(json1, null, 2))
+        // console.log(JSON.stringify(json2, null, 2))
+
+        expect(json1.edges).to.deep.equal(json2.edges)
+        expect(json1.nodes).to.deep.equal(json2.nodes)
+    })
+    */
+    /*
+
+        var code1 = '(defcop add [s1 s2] [sum])(let [a (add 1 2) b 3] (let [a 2] (add a b)) (add a a))'
+        var code2 = '(defcop add [s1 s2] [sum])(add 2 3) (add (add 1 2) (add 1 2))'
+    */
+  })
+
 /*
   it('(def name old_name)', () => {
     var code = '(defcop math/less [isLess than] [value])(defcop math/add [s1 s2] [sum])(def le math/less)(def + math/add)(defco newCo3 (a b c) (:out (le a (+ b c))))'
