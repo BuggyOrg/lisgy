@@ -193,7 +193,7 @@ describe('edn', () => {
         expect(json1.edges).to.deep.equal(json2.edges)
         expect(json1.nodes).to.deep.equal(json2.nodes)
     })
-    /*
+
     it('multiple lets', () => {
         var code1 = '(defcop add [s1 s2] [sum])(let [a (add 1 2) b 3] (let [a 2] (add a b)))'
         var code2 = '(defcop add [s1 s2] [sum])(add 2 3)'
@@ -208,12 +208,21 @@ describe('edn', () => {
         expect(json1.edges).to.deep.equal(json2.edges)
         expect(json1.nodes).to.deep.equal(json2.nodes)
     })
-    */
-    /*
 
-        var code1 = '(defcop add [s1 s2] [sum])(let [a (add 1 2) b 3] (let [a 2] (add a b)) (add a a))'
-        var code2 = '(defcop add [s1 s2] [sum])(add 2 3) (add (add 1 2) (add 1 2))'
-    */
+    it('multiple lets with multiple FNs', () => {
+        var code1 = '(defcop add [s1 s2] [sum])(let [a (add 1 2) b 3] (let [a 2] (add a b) (add b b)) (add a b))'
+        var code2 = '(defcop add [s1 s2] [sum])(add 2 3)(add 3 3)(add (add 1 2) 3)'
+        var json2 = lisgy.parse_to_json(code2)
+        var json1 = lisgy.parse_to_json(code1)
+        expect(json1.error || "").to.equal("")
+        expect(json2.error || "").to.equal("")
+
+        // console.log(JSON.stringify(json1, null, 2))
+        // console.log(JSON.stringify(json2, null, 2))
+
+        expect(json1.edges).to.deep.equal(json2.edges)
+        expect(json1.nodes).to.deep.equal(json2.nodes)
+    })
   })
 
 /*
