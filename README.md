@@ -98,73 +98,14 @@ alias lisgy='PATH TO LISGY FOLDER/lib/cli.js'
 ### examples
 
 ```bash
-lisgy parse -n '(lambda (a b) (math/add a b))'
+lisgy parse -n '(lambda (a b) (math/add a b))' > parsed.json
 
 # with stdin
-echo '(lambda (a b) (math/add a b))' | lisgy parse -n
+echo '(lambda (a b) (math/add a b))' | lisgy parse -n > parsed.json
 
 # open an editor (default nano)
-lisgy parse -n
-```
+lisgy parse -n > parsed.json
 
-
-### output for (lambda (a b c) (math/less a (math/add b c)))
-
-```json
-{
-  "code": "(lambda (a b c) (math/less a (math/add b c)))",
-  "meta": "lambda",
-  "v": "lambda_6qhdl",
-  "inputPorts": {},
-  "outputPorts": {
-    "fn": "lambda"
-  },
-  "data": {
-    "v": "lambda_byphj",
-    "name": "lambda_svjjj",
-    "outputPorts": {
-      "value": "generic"
-    },
-    "inputPorts": {
-      "a": "generic",
-      "b": "generic",
-      "c": "generic"
-    },
-    "implementation": {
-      "nodes": [
-        {
-          "meta": "math/less",
-          "name": "less_0"
-        },
-        {
-          "meta": "math/add",
-          "name": "add_1"
-        }
-      ],
-      "edges": [
-        {
-          "from": "a",
-          "to": "less_0:isLess"
-        },
-        {
-          "from": "b",
-          "to": "add_1:s1"
-        },
-        {
-          "from": "c",
-          "to": "add_1:s2"
-        },
-        {
-          "from": "add_1:sum",
-          "to": "less_0:than"
-        },
-        {
-          "from": "less_0:value",
-          "to": "value"
-        }
-      ]
-    }
-  }
-}
-
+# use a input file
+lisgy parse code.lisp -n > parsed.json
 ```
