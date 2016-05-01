@@ -280,7 +280,7 @@ function parse_edn_to_json (ednObj, inputCode) {
     return node // {'v': node.name, 'value': node}
   }
 
-  function walk (root, implementation, inputPorts, parrent, port) {
+  function walk (root, implementation, inputPorts, parrent, inPort, outPort) {
     var from, to
     var node, component
     // console.log('walk on ', root)
@@ -311,6 +311,11 @@ function parse_edn_to_json (ednObj, inputCode) {
           // (parse (FN))
           walk(data[1], implementation, inputPorts)
           break
+        case 'port':
+          // (port :outPort (FN))
+          var newOutPort = cleanPort(data[1].val)
+          walk(data[2], implementation, inputPorts, parrent, inPort, newOutPort)
+          break
         default:
           // (FN ARG*)
           // or
@@ -325,6 +330,11 @@ function parse_edn_to_json (ednObj, inputCode) {
           if (!component) {
             error('The input/output ports for component ' + node.meta +
                   ' are not defined via (defcop ' + node.meta + ' [...] [...])')
+            return
+          }
+
+          if (outPort && !_.find(component.output, (id) => { return id === outPort })) {
+            error('Used unkown output port ' + outPort + ' for ' + component.id + '. Use: ' + component.output)
             return
           }
 
@@ -395,12 +405,19 @@ function parse_edn_to_json (ednObj, inputCode) {
             }
           }
 
-          to = parrent + ':' + port
-          from = node.name + ':' + component.output[0]
-          if (parrent && port) {
+          to = parrent + ':' + inPort
+          from = node.name + ':'
+
+          if (outPort) {
+            from += outPort
+          } else {
+            from += component.output[0]
+          }
+
+          if (parrent && inPort) {
             if (parrent === 'lambda') {
               // NOTE: I hope we never have a component with the name 'lambda'
-              to = port
+              to = inPort
             }
             implementation.edges.push(gEdge(from, to))
           } else {
@@ -412,7 +429,7 @@ function parse_edn_to_json (ednObj, inputCode) {
       }
     } else if (root instanceof edn.Symbol) {
       from = root.name
-      to = parrent + ':' + port
+      to = parrent + ':' + inPort
       implementation.edges.push(gEdge(from, to))
     } else {
       error('Unkown walk class ' + root)

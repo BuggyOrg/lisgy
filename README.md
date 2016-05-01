@@ -9,7 +9,7 @@ create simple buggy graphs from lisp code
 
 **TODO**
 - [x] set a specific input port e.g. `(FN :portB (exprs1) :portA (exprs2))`
-- [ ] get a specific output port with `(port :outputPort node)`
+- [x] get a specific output port with `(port :outputPort node)`
 - [ ] let
 - [ ] support for new components with just one default output port
 - [ ] Anonymous functions `#(...)`

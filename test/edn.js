@@ -91,14 +91,14 @@ describe('edn', () => {
     it('wrong number of args for (add 2 3 4)', () => {
         var code = '(defcop math/add [s1 s2] [sum])(math/add 2 3 4)'
         var json = lisgy.parse_to_json(code)
-        expect(json.error)
+        expect(json.error || "none").to.equal(json.error)
     })
 
     it('(add :s1 2 :s2 1)', () => {
         var code = '(defcop math/add [s1 s2] [sum])(math/add :s1 2 :s2 1)'
         var json = lisgy.parse_to_json(code)
         // console.log(JSON.stringify(json, null, 2))
-        expect(!json.error)
+        expect(json.error || "none").to.equal("none")
 
         expect(json.edges[0].v).to.equal('const(2)_1')
         expect(json.edges[0].w).to.equal('add_0')
@@ -113,7 +113,7 @@ describe('edn', () => {
         var code = '(defcop math/add [s1 s2] [sum])(math/add :s2 2 :s1 1)'
         var json = lisgy.parse_to_json(code)
         // console.log(JSON.stringify(json, null, 2))
-        expect(!json.error)
+        expect(json.error || "none").to.equal("none")
 
         expect(json.edges[0].v).to.equal('const(2)_1')
         expect(json.edges[0].w).to.equal('add_0')
@@ -128,15 +128,32 @@ describe('edn', () => {
         var code = '(defcop math/add [s1 s2] [sum])(math/add :s2 2 1)'
         var json = lisgy.parse_to_json(code)
         // console.log(JSON.stringify(json, null, 2))
-        expect(json.error)
+        expect(json.error || "none").to.equal(json.error)
 
         code = '(defcop math/add [s1 s2] [sum])(math/add 2 :s2 1)'
         json = lisgy.parse_to_json(code)
         // console.log(JSON.stringify(json, null, 2))
-        expect(json.error)
+        expect(json.error || "none").to.equal(json.error)
     })
   })
 
+  describe('(port :name (FN))',() => {
+    it('wrong output port names', () => {
+        var code = '(defcop test [s1 s2] [o1 o2 o3]) (test 1 (port :randomwrongname (test 1 2)))'
+        var json = lisgy.parse_to_json(code)
+        // console.log(JSON.stringify(json, null, 2))
+        expect(json.error || "none").to.equal(json.error)
+        // TODO: Add check for o2 -> s1 and o3 -> s2
+    })
+
+    it('right output ports', () => {
+        var code = '(defcop test [s1 s2] [o1 o2 o3]) (test (port :o2 (test 1 2)) (port :o3 (test 1 2)))'
+        var json = lisgy.parse_to_json(code)
+        // console.log(JSON.stringify(json, null, 2))
+        expect(json.error || "none").to.equal("none")
+        // TODO: Add check for o2 -> s1 and o3 -> s2
+    })
+  })
 
   it('defco with lambda (wip)', () => {
     var code = '(defcop math/add [s1 s2] [sum])(defco test [a b c] [:a (math/add (math/add a b ) c) :d (fn [d] (math/add c d))]) (test 1 2 3)'
