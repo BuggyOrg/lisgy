@@ -7,12 +7,15 @@ create simple buggy graphs from lisp code
    :output2 (math/add inputA inputB)})
 ```
 
+**TODO**
+- [x] set a specific input port e.g. `(FN :portB (exprs1) :portA (exprs2))`
+- [ ] get a specific output port with `(port :outputPort node)`
+- [ ] let
+- [ ] support for new components with just one default output port
+- [ ] Anonymous functions `#(...)`
+
 **API**
 ```clojure
-; new component with just one output port (default name 'value')
-(defco name [inputs*] (exprs1))
-(defco name (inputs*) (exprs1))
-
 ; new component with named output ports
 (defco name [inputs*] {:output (exprs1) ...})
 (defco name [inputs*] [:output (exprs1) ...])
@@ -21,7 +24,6 @@ create simple buggy graphs from lisp code
 ; Anonymous functions 
 (lambda (args) (...))
 (fn [args] (...))
-#(...) ; with %n for the nth arg (1-based)
 
 ; Named functions
 (defn name [args] (...))
@@ -32,6 +34,17 @@ create simple buggy graphs from lisp code
 ; Intern
 ; Define the ports of a extern component
 (defcop name [inputs*] [outputs*])
+
+; TODO / NYI (Not yet implemented)
+; Let
+(let [var1 (exprs1) var2 (exprs2) ...]
+     ... ; use new variables
+     )
+; new component with just one output port (default name 'value')
+(defco name [inputs*] (exprs1))
+(defco name (inputs*) (exprs1))
+; Anonymous functions 
+#(...) ; with %n for the nth arg (1-based)
 ```
 
 ```lisp
