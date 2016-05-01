@@ -85,9 +85,66 @@ describe('edn', () => {
     expect(node.outputPorts).to.deep.equal({'fn': 'lambda'})
     expect(node.data.inputPorts).to.deep.equal({'b': 'generic'})
     expect(node.data.outputPorts).to.deep.equal({'value_0': 'generic'})
-
   })
 
+  describe('(FN ARG ...) or (FN :PORT ARG ...)',() => {
+    it('wrong number of args for (add 2 3 4)', () => {
+        var code = '(defcop math/add [s1 s2] [sum])(math/add 2 3 4)'
+        var json = lisgy.parse_to_json(code)
+        expect(json.error)
+    })
+
+    it('(add :s1 2 :s2 1)', () => {
+        var code = '(defcop math/add [s1 s2] [sum])(math/add :s1 2 :s2 1)'
+        var json = lisgy.parse_to_json(code)
+        // console.log(JSON.stringify(json, null, 2))
+        expect(!json.error)
+
+        expect(json.edges[0].v).to.equal('const(2)_1')
+        expect(json.edges[0].w).to.equal('add_0')
+        expect(json.edges[0].value).to.deep.equal({ 'outPort': 'output', 'inPort': 's1' })
+
+        expect(json.edges[1].v).to.equal('const(1)_2')
+        expect(json.edges[1].w).to.equal('add_0')
+        expect(json.edges[1].value).to.deep.equal({ 'outPort': 'output', 'inPort': 's2' })
+    })
+
+    it('(add :s2 2 :s1 1)', () => {
+        var code = '(defcop math/add [s1 s2] [sum])(math/add :s2 2 :s1 1)'
+        var json = lisgy.parse_to_json(code)
+        // console.log(JSON.stringify(json, null, 2))
+        expect(!json.error)
+
+        expect(json.edges[0].v).to.equal('const(2)_1')
+        expect(json.edges[0].w).to.equal('add_0')
+        expect(json.edges[0].value).to.deep.equal({ 'outPort': 'output', 'inPort': 's2' })
+
+        expect(json.edges[1].v).to.equal('const(1)_2')
+        expect(json.edges[1].w).to.equal('add_0')
+        expect(json.edges[1].value).to.deep.equal({ 'outPort': 'output', 'inPort': 's1' })
+    })
+
+    it('wrong mixed port syntax for (add :s2 2 1) or (add 2 :s2 1)', () => {
+        var code = '(defcop math/add [s1 s2] [sum])(math/add :s2 2 1)'
+        var json = lisgy.parse_to_json(code)
+        // console.log(JSON.stringify(json, null, 2))
+        expect(json.error)
+
+        code = '(defcop math/add [s1 s2] [sum])(math/add 2 :s2 1)'
+        json = lisgy.parse_to_json(code)
+        // console.log(JSON.stringify(json, null, 2))
+        expect(json.error)
+    })
+  })
+
+
+  it('defco with lambda (wip)', () => {
+    var code = '(defcop math/add [s1 s2] [sum])(defco test [a b c] [:a (math/add (math/add a b ) c) :d (fn [d] (math/add c d))]) (test 1 2 3)'
+    var json = lisgy.parse_to_json(code)
+    // console.log(JSON.stringify(json, null, 2))
+    // expect(json.implementation.nodes[0]).to.deep.equal({'meta': 'math/less', 'name': 'le_0'})
+    // expect(json.implementation.nodes[1]).to.deep.equal({'meta': 'math/add', 'name': '+_1'})
+  })
 /*
   it('(def name old_name)', () => {
     var code = '(defcop math/less [isLess than] [value])(defcop math/add [s1 s2] [sum])(def le math/less)(def + math/add)(defco newCo3 (a b c) (:out (le a (+ b c))))'

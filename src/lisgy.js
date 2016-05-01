@@ -61,6 +61,10 @@ function parse_edn_to_json (ednObj, inputCode) {
     walk(vElement, implementation, inputPorts)
   })
 
+  if (json.error) {
+    return json
+  }
+
   json.nodes = implementation.nodes
   json.edges = implementation.edges
 
@@ -218,6 +222,7 @@ function parse_edn_to_json (ednObj, inputCode) {
   }
 
   function error (message) {
+    // console.error(message)
     json = {code: inputCode, error: message}
   }
 
@@ -308,6 +313,8 @@ function parse_edn_to_json (ednObj, inputCode) {
           break
         default:
           // (FN ARG*)
+          // or
+          // (FN :port ARG :port2 ARG2 ...)
           node = simplify(data[0])
           // map
           node.meta = defines[node.meta] ? defines[node.meta] : node.meta
@@ -316,14 +323,50 @@ function parse_edn_to_json (ednObj, inputCode) {
           implementation.nodes.push(gNode(node))
 
           if (!component) {
-            error('The input/output ports for component "' + node.meta +
-                  '" are not defined via (defcop ' + node.meta + ' [...] [...])')
+            error('The input/output ports for component ' + node.meta +
+                  ' are not defined via (defcop ' + node.meta + ' [...] [...])')
+            return
+          }
+
+          // check mixed Syntax
+          var oddNumber = (data.length % 2 === 1)
+          var portArgs
+          for (var k = 1; k < data.length;) {
+            var _port = data[k++]
+            portArgs = _port.val && _port.val[0] === ':'
+            var _portData = data[k++]
+
+            if (portArgs && !oddNumber || _portData && _portData.val && _portData.val[0] === ':') {
+              error('Mixed port syntax, use only (FN ARG ...) or (FN :port ARG ...)')
+              return
+            }
+          }
+
+          var numInputs = data.length - 1
+          if (portArgs) {
+            numInputs /= 2
+          }
+
+          if (numInputs !== component.input.length) {
+            error('Wrong number of input ports for ' + component.id + ', got ' + numInputs + ' expected ' + component.input.length)
             return
           }
 
           for (var j = 1; j < data.length; j++) {
             var arg = data[j]
             var argPort = component.input[j - 1]
+
+            if (arg.val && arg.val[0] === ':') {
+              // (FN :port ARG :port2 ARG2 ...) Syntax
+              argPort = cleanPort(arg.val)
+              arg = data[++j]
+
+              if (!_.find(component.input, (id) => { return id === argPort })) {
+                error('Used unkown input port ' + argPort + ' for ' + component.id + '. Use: ' + component.input)
+                return
+              }
+            }
+
             if (arg instanceof edn.List ||
                 arg instanceof edn.Vector ||
                 arg instanceof edn.Map ||
@@ -372,7 +415,7 @@ function parse_edn_to_json (ednObj, inputCode) {
       to = parrent + ':' + port
       implementation.edges.push(gEdge(from, to))
     } else {
-      error('Unkown walk class "' + root)
+      error('Unkown walk class ' + root)
       return
     }
   }
