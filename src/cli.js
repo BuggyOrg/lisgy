@@ -96,6 +96,7 @@ function parse (code, client) {
           .catch((error) => console.error(error))
       } else if (program.resolve) {
         resolve(graphlib.json.read(json), client.get)
+          .then((res) => graphlib.json.write(res))
           .then(parseToJSON)
           .catch((error) => console.error(error))
       } else {
