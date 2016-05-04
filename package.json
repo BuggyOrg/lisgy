@@ -15,9 +15,12 @@
   "license": "MIT",
   "dependencies": {
     "@buggyorg/component-library": "^0.3.4",
+    "@buggyorg/graphlib2kgraph": "^0.1.6",
+    "@buggyorg/resolve": "^0.1.12",
     "chalk": "^1.1.3",
     "commander": "^2.9.0",
     "get-stdin": "^5.0.1",
+    "graphlib": "^2.1.0",
     "gulp": "^3.9.1",
     "jsedn": "^0.3.5",
     "lodash": "^4.8.2",

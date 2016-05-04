@@ -7,6 +7,10 @@ import fs from 'fs'
 import {spawn} from 'child_process'
 import tempfile from 'tempfile'
 import getStdin from 'get-stdin'
+import graphlib from 'graphlib'
+import lib from '@buggyorg/component-library'
+import {resolve} from '@buggyorg/resolve'
+import {convertGraph} from '@buggyorg/graphlib2kgraph'
 // import chalk from 'chalk'
 
 var server = ''
@@ -82,24 +86,37 @@ if (process.env.BUGGY_COMPONENT_LIBRARY_HOST) {
   defaultElastic += ' or if not set to http://localhost:9200'
 }
 
+function parse (code, client) {
+  return lisgy.parse_to_json(code, true)
+    .then((json) => {
+      if (program.kgraph) {
+        resolve(graphlib.json.read(json), client.get)
+          .then((res) => convertGraph(res))
+          .then(parseToJSON)
+          .catch((error) => console.error(error))
+      } else {
+        parseToJSON(json)
+      }
+    }).catch((error) => console.error(error))
+}
+
 program
   .version(JSON.parse(fs.readFileSync(path.join(__dirname, '/../package.json')))['version'])
   .option('-e, --elastic <host>', 'The elastic server to connect to.' + defaultElastic, String, server)
   .option('-n, --nice', 'Pretty print all JSON output')
+  .option('-k, --kgraph', 'Print the graph in kgraph format')
   .option('-s, --silent', 'Only print data no further information.')
   .command('parse [lisp_code]')
   .action(function (code) {
+    var client = lib(program.elastic)
     lisgy.connect(program.elastic)
     if (!code) {
       log('no input code using editor/stdin')
-      stdinOrEdit('.lisp', (code) => lisgy.parse_to_json(code, true))
-        .then(parseToJSON).catch((error) => console.error(error))
+      stdinOrEdit('.lisp', (code) => parse(code, client))
     } else if (code.indexOf('(') > -1) {
-      lisgy.parse_to_json(code, true)
-        .then(parseToJSON).catch((error) => console.error(error))
+      parse(code, client)
     } else {
-      lisgy.parse_to_json(fs.readFileSync(code, 'utf8'), true)
-        .then(parseToJSON).catch((error) => console.error(error))
+      parse(fs.readFileSync(code, 'utf8'), client)
     }
   })
 
