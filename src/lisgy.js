@@ -86,6 +86,7 @@ export function parse_edn (inputCode) {
   }
 
   function walk (obj, parrent) {
+    var i
     if (obj instanceof edn.List || obj instanceof edn.Vector ||
         obj instanceof edn.Map || obj instanceof edn.Set) {
       var first = obj.val[0]
@@ -94,7 +95,7 @@ export function parse_edn (inputCode) {
 
         var newObj = new edn.List(replaceLet(obj.val[2], parrent))
 
-        for (var i = 3; i < obj.val.length; i++) {
+        for (i = 3; i < obj.val.length; i++) {
           var oldObj = obj.val[i++]
           var newObj2 = new edn.List(replaceLet(oldObj, parrent))
           parrent.push(newObj2)
@@ -102,6 +103,10 @@ export function parse_edn (inputCode) {
 
         obj = newObj
         vars.pop()
+      } else {
+        for (i = 0; i < obj.val.length; i++) {
+          obj.val[i] = walk(obj.val[i], parrent)
+        }
       }
     }
     return obj
@@ -410,8 +415,12 @@ function parse_edn_to_json (ednObj, inputCode) {
           implementation.nodes.push(gNode(node))
 
           if (!component) {
+            var componentNames = []
+            for (name in components) {
+              componentNames.push(name)
+            }
             error('The input/output ports for component ' + node.meta +
-                  ' are not defined via (defcop ' + node.meta + ' [...] [...])')
+                  ' are not defined via (defcop ' + node.meta + ' [...] [...]), only for ' + componentNames)
             return
           }
 
@@ -590,6 +599,9 @@ export function edn_add_components (edn) {
         break
       case 'parse':
         walkAndFindFunctions(root[1].val)
+        break
+      case 'port':
+        walkAndFindFunctions(root[2].val)
         break
       default:
         functions.push(root[0].val)
