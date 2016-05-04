@@ -58,12 +58,12 @@ export function parse_edn (inputCode) {
     }
     obj = _.map(obj.val, (obj) => {
       if (obj instanceof edn.Symbol) {
-        for (var i = vars.length - 1; i >= 0; i--) {
-          var mapTo = _.find(vars[i], (v) => { return v.name === obj.val })
-          if (mapTo) {
-            return mapTo.val
-          }
+        // for (var i = vars.length - 1; i >= 0; i--) {
+        var mapTo = _.findLast(getAllVars(), (v) => { return v.name === obj.val })
+        if (mapTo) {
+          return mapTo.val
         }
+        // }
       } else {
         return walk(obj, parrent)
       }
@@ -72,17 +72,53 @@ export function parse_edn (inputCode) {
     return obj
   }
 
+  function replaceVars (obj, vars) {
+    if (!obj.val) {
+      return obj
+    }
+    for (var i = 0; i < obj.val.length; i++) {
+      var data = obj.val[i]
+      var mapTo
+      if (data instanceof edn.Symbol) {
+        mapTo = _.findLast(vars, (v) => { return v.name === data.val })
+        if (mapTo) {
+          obj.val[i] = mapTo.val
+        }
+      } else {
+        mapTo = replaceVars(data, vars)
+        if (obj.val[i] !== mapTo) {
+          obj.val[i] = mapTo
+        }
+      }
+    }
+    return obj
+  }
+
+  function getAllVars () {
+    var allVars = []
+
+    _.map(vars, (vars) => {
+      allVars = _.concat(allVars, vars)
+    })
+
+    return allVars
+  }
+
   function mapVars (ednVars) {
     if (ednVars.val.length % 2 !== 0) {
       // error
     }
 
-    var vars = []
+    var newVars = []
     for (var i = 0; i < ednVars.val.length;) {
-      vars.push({'name': ednVars.val[i++].val,
-                 'val': ednVars.val[i++]})
+      var name = ednVars.val[i++].val
+      var val = ednVars.val[i++]
+      val = replaceVars(val, _.concat(getAllVars(), newVars))
+      newVars.push({'name': name,
+                 'val': val})
     }
-    return vars
+
+    return newVars
   }
 
   function walk (obj, parrent) {
