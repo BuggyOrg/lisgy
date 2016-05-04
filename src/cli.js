@@ -94,6 +94,10 @@ function parse (code, client) {
           .then((res) => convertGraph(res))
           .then(parseToJSON)
           .catch((error) => console.error(error))
+      } else if (program.resolve) {
+        resolve(graphlib.json.read(json), client.get)
+          .then(parseToJSON)
+          .catch((error) => console.error(error))
       } else {
         parseToJSON(json)
       }
@@ -105,6 +109,7 @@ program
   .option('-e, --elastic <host>', 'The elastic server to connect to.' + defaultElastic, String, server)
   .option('-n, --nice', 'Pretty print all JSON output')
   .option('-k, --kgraph', 'Print the graph in kgraph format')
+  .option('-r, --resolve', 'Print the resolved json')
   .option('-s, --silent', 'Only print data no further information.')
   .command('parse [lisp_code]')
   .action(function (code) {
