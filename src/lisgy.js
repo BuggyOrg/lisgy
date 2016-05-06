@@ -516,7 +516,7 @@ function parse_edn_to_json (ednObj, inputCode) {
             } else {
               // if (!node.values) node.values = []
               // node.values.push({'port': argPort, 'value': arg})
-              if (parseFloat(arg)) {
+              if (!_.isNaN(parseInt(arg))) { // check for NaN, because 0 is a number, too - see issue #1
                 var constNode = {
                   'meta': 'math/const',
                   'name': 'const(' + arg + ')_' + count++,

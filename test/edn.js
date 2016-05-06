@@ -135,6 +135,12 @@ describe('edn', () => {
         // console.log(JSON.stringify(json, null, 2))
         expect(json.error || "none").to.equal(json.error)
     })
+
+    it('does not drop zeros', () => {
+      var code = '(defcop math/add [s1 s2] [sum])(math/add 0 0)'
+      var json = lisgy.parse_to_json(code)
+      expect(json.nodes.filter((n) => n.value.meta === 'math/const').length).to.equal(2)
+    })
   })
 
   describe('(port :name (FN))',() => {
