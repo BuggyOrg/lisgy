@@ -246,7 +246,7 @@ function parse_edn_to_json (ednObj, inputCode) {
     var json = {}
     var data = root.val
 
-    json.meta = 'lambda'
+    json.meta = 'functional/lambda'
     json.name = data[0].name + '_' + count++
 
     json.outputPorts = {'fn': 'lambda'}
@@ -329,17 +329,25 @@ function parse_edn_to_json (ednObj, inputCode) {
     json.implementation = {nodes: [], edges: []}
 
     // walk
-    var outputs = data[3].val
-    for (var i = 0; i < outputs.length; i++) {
-      if (outputs[i] instanceof edn.Keyword) {
-        var key = outputs[i++]
-        var next = outputs[i]
-        next.port = cleanPort(key.name)
-        next.parent = json
-        walk(next, json.implementation, inputPorts)
+    var next = data[3].val[0]
+    if (next.val[0] !== ':') {
+      next = data[3]
+      json.outputPorts['value'] = 'generic'
+      next.port = 'value'
+      next.parent = json
+      walk(next, json.implementation, inputPorts)
+    } else {
+      var outputs = data[3].val
+      for (var i = 0; i < outputs.length; i++) {
+        if (outputs[i] instanceof edn.Keyword) {
+          var key = outputs[i++]
+          next = outputs[i]
+          next.port = cleanPort(key.name)
+          next.parent = json
+          walk(next, json.implementation, inputPorts)
+        }
       }
     }
-
     nodes.push(json)
     return {'json': json, 'component': component}
   }
@@ -381,8 +389,15 @@ function parse_edn_to_json (ednObj, inputCode) {
     }).val.filter((v) => {
       return !(v instanceof Array)
     }).map((v) => {
-      return cleanPort(v)
-    })
+      if (v[0] === ':') {
+        return cleanPort(v)
+      }
+      return ':'
+    }).filter((v) => v !== ':')
+
+    if (obj.output.length === 0) {
+      obj.output.push('value')
+    }
     return obj
   }
 

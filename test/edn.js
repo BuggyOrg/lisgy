@@ -37,7 +37,7 @@ describe('edn', () => {
     expect(json.edges.length).to.equal(0)
     expect(json.nodes.length).to.equal(1) // create one lambda node
     var node = json.nodes[0].value
-    expect(node.meta).to.equal('lambda')
+    expect(node.meta).to.equal('functional/lambda')
     expect(node.outputPorts).to.deep.equal({'fn': 'lambda'})
     expect(node.inputPorts).to.deep.equal({})
 
@@ -59,32 +59,92 @@ describe('edn', () => {
     expect(edges[2].to).to.equal('value_0')
   })
 
-  it('lambda inside defco', () => {
-    var code = '(defcop math/less [isLess than] [value]) (defco newCo2 [a] [:test (fn [b] (math/less a b))])'
-    var json = lisgy.parse_to_json(code)
-    // console.log(JSON.stringify(json, null, 2))
-    expect(json.edges.length).to.equal(0) // no nodes
-    expect(json.nodes.length).to.equal(1) // create one defco node
+  describe('(defco [INPUTS] (FN)) or (defco [INPUTS] [:OUT (FN) ...])',() => {
+    it('multiple output ports', () => {
+        var code = '(defcop add [s1 s2] [sum])(defco mathAdd [a b] [:a2 (add a 2) :b3 (add b 3)])'
+        var json = lisgy.parse_to_json(code)
+        expect(json.error || "none").to.equal("none")
+        // console.log(JSON.stringify(json, null, 2))
 
-    var node = json.nodes[0].value
-    expect(node.id).to.equal('newCo2')
-    expect(node.inputPorts).to.deep.equal({'a': 'generic'})
-    expect(node.outputPorts).to.deep.equal({'test': 'lambda'})
+        expect(json.edges.length).to.equal(0) // no edges
+        expect(json.nodes.length).to.equal(1) // create one defco node
 
-    var nodes = node.implementation.nodes
-    var edges = node.implementation.edges
+        var node = json.nodes[0].value
+        expect(node.id).to.equal('mathAdd')
+        expect(node.inputPorts).to.deep.equal({'a': 'generic', 'b': 'generic'})
+        expect(node.outputPorts).to.deep.equal({'a2': 'generic', 'b3': 'generic'})
 
-    expect(edges.length).to.equal(1)
-    expect(edges[0].from).to.equal('fn_0:fn')
-    expect(edges[0].to).to.equal('test')
+        var nodes = node.implementation.nodes
+        var edges = node.implementation.edges
 
-    expect(nodes.length).to.equal(1)
-    node = nodes[0]
-    expect(node.meta).to.equal('lambda')
-    expect(node.inputPorts).to.deep.equal({})
-    expect(node.outputPorts).to.deep.equal({'fn': 'lambda'})
-    expect(node.data.inputPorts).to.deep.equal({'b': 'generic'})
-    expect(node.data.outputPorts).to.deep.equal({'value_0': 'generic'})
+        expect(nodes.length).to.equal(4)
+        expect(edges.length).to.equal(6)
+    })
+
+    it('default output port', () => {
+        var code = '(defcop math/add [s1 s2] [sum])\
+                    (defco mathAdd [a b] (math/add a b))'
+        var json = lisgy.parse_to_json(code)
+        expect(json.error || "none").to.equal("none")
+        // console.log(JSON.stringify(json, null, 2))
+
+        expect(json.edges.length).to.equal(0) // no edges
+        expect(json.nodes.length).to.equal(1) // create one defco node
+
+        var node = json.nodes[0].value
+        expect(node.id).to.equal('mathAdd')
+        expect(node.inputPorts).to.deep.equal({'a': 'generic', 'b': 'generic'})
+        expect(node.outputPorts).to.deep.equal({'value': 'generic'})
+
+        var nodes = node.implementation.nodes
+        var edges = node.implementation.edges
+
+        expect(nodes.length).to.equal(1)
+        expect(edges.length).to.equal(3)
+    })
+
+    it('default output port lambda', () => {
+        var code = '(defcop add [s1 s2] [sum])(defco mathAdd [a b] (fn [a] (add a b)))'
+        var json = lisgy.parse_to_json(code)
+        expect(json.error || "none").to.equal("none")
+        // console.log(JSON.stringify(json, null, 2))
+
+        expect(json.edges.length).to.equal(0) // no edges
+        expect(json.nodes.length).to.equal(1) // create one defco node
+
+        var node = json.nodes[0].value
+        expect(node.id).to.equal('mathAdd')
+        expect(node.inputPorts).to.deep.equal({'a': 'generic', 'b': 'generic'})
+        expect(node.outputPorts).to.deep.equal({'value': 'lambda'})
+    })
+
+    it('named output port lambda', () => {
+        var code = '(defcop math/less [isLess than] [value]) (defco newCo2 [a] [:test (fn [b] (math/less a b))])'
+        var json = lisgy.parse_to_json(code)
+        // console.log(JSON.stringify(json, null, 2))
+        expect(json.edges.length).to.equal(0) // no edges
+        expect(json.nodes.length).to.equal(1) // create one defco node
+
+        var node = json.nodes[0].value
+        expect(node.id).to.equal('newCo2')
+        expect(node.inputPorts).to.deep.equal({'a': 'generic'})
+        expect(node.outputPorts).to.deep.equal({'test': 'lambda'})
+
+        var nodes = node.implementation.nodes
+        var edges = node.implementation.edges
+
+        expect(edges.length).to.equal(1)
+        expect(edges[0].from).to.equal('fn_0:fn')
+        expect(edges[0].to).to.equal('test')
+
+        expect(nodes.length).to.equal(1)
+        node = nodes[0]
+        expect(node.meta).to.equal('functional/lambda')
+        expect(node.inputPorts).to.deep.equal({})
+        expect(node.outputPorts).to.deep.equal({'fn': 'lambda'})
+        expect(node.data.inputPorts).to.deep.equal({'b': 'generic'})
+        expect(node.data.outputPorts).to.deep.equal({'value_0': 'generic'})
+    })
   })
 
   describe('(FN ARG ...) or (FN :PORT ARG ...)',() => {
@@ -278,7 +338,7 @@ describe('edn', () => {
         expect(json1.edges).to.deep.equal(json2.edges)
         expect(json1.nodes).to.deep.equal(json2.nodes)
     })
-    
+
     it('let mixed vars with multiple lets', () => {
         var code1 = '(defcop add [s1 s2] [sum])(let [a (add 1 2)] (let [b (add a 3)] (add b 4)))'
         var code2 = '(defcop add [s1 s2] [sum])(add (add (add 1 2) 3) 4)'
