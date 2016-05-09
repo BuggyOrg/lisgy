@@ -389,7 +389,7 @@ function parse_edn_to_json (ednObj, inputCode) {
     }).val.filter((v) => {
       return !(v instanceof Array)
     }).map((v) => {
-      if (v[0] === ':') {
+      if (v && v[0] === ':') {
         return cleanPort(v)
       }
       return ':'
