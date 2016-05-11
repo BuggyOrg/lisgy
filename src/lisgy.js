@@ -185,6 +185,19 @@ function parse_edn_to_json (ednObj, inputCode) {
 
   var graphlibFormat = true
 
+  // NOTE: hardcoded -> BAD
+  components['logic/demux'] = {
+    id: 'logic/demux',
+    input: ['input', 'control'],
+    output: ['outTrue', 'outFalse']
+  }
+
+  components['control/join'] = {
+    id: 'control/join',
+    input: ['in1', 'in2'],
+    output: ['to']
+  }
+
   _.each(ednObj.val, (vElement) => {
     walk(vElement, implementation, inputPorts)
   })
@@ -214,10 +227,13 @@ function parse_edn_to_json (ednObj, inputCode) {
 
   if (json.nodes.length <= 0) {
     json.nodes = _.map(nodes, (node) => { node.name = 'defco_' + node.id; return node })
-  } else if (false) {
+  } else if (true) {
     // else add all the new components to the node array
-    console.error('adding new nodes', nodes)
-    json.nodes = json.nodes.concat(_.map(nodes, (node) => { node.name = 'defco_' + node.id; return node }))
+    // console.error('adding new nodes', nodes)
+    var filtered = _.filter(nodes, (node) => _.find(json.nodes, (nodeJ) => { nodeJ.id === node.id }))
+    // console.error('FILTERED', nodes)
+
+    json.nodes = json.nodes.concat(_.map(filtered, (node) => { node.name = 'defco_' + node.id; return node }))
   }
 
   if (graphlibFormat) {
@@ -461,6 +477,61 @@ function parse_edn_to_json (ednObj, inputCode) {
           var newOutPort = cleanPort(data[1].val)
           walk(data[2], implementation, inputPorts, parrent, inPort, newOutPort)
           break
+        case 'if':
+          // NOTE: needs cleanup
+          var check = data[1]
+          var variable = 'n' // TODO: get true variable from check
+          var trueExp = data[2]
+          var falseExp = data[3]
+
+          var demuxC = components['logic/demux']
+          var joinC = components['control/join']
+
+          var demux = {'meta': demuxC.id, 'name': 'demux_' + count++}
+          var join = {'meta': joinC.id, 'name': 'join_' + count++}
+
+          implementation.nodes.push(gNode(demux))
+          implementation.nodes.push(gNode(join))
+
+          implementation.edges.push(gEdge(variable, demux.name + ':' + demuxC.input[0]))
+
+          check.port = demux.name + ':' + demuxC.input[1]
+          walk(check, implementation, [variable])
+
+          var trueImp = {nodes: [], edges: []}
+          var falseImp = {nodes: [], edges: []}
+
+          walk(trueExp, trueImp, [variable])
+          walk(falseExp, falseImp, [variable])
+
+          var updateEdges = function (id) {
+            return (e) => {
+              if (e.from === variable) {
+                e.from = demux.name + ':' + demuxC.output[id]
+              }
+              if (e.to === 'undefined:undefined' || e.to === 'value') {
+                e.to = join.name + ':' + joinC.input[id]
+              }
+              return e
+            }
+          }
+
+          trueImp.edges = _.map(trueImp.edges, updateEdges(0))
+          falseImp.edges = _.map(falseImp.edges, updateEdges(1))
+
+          // console.error(trueImp)
+          // console.error(falseImp)
+
+          var concatArrays = function (name, to, fromA, fromB) {
+            to[name] = _.concat(to[name], fromA[name])
+            to[name] = _.concat(to[name], fromB[name])
+          }
+
+          concatArrays('edges', implementation, trueImp, falseImp)
+          concatArrays('nodes', implementation, trueImp, falseImp)
+
+          implementation.edges.push(gEdge(variable, demux.name + ':' + demuxC.input[0]))
+          break
         default:
           // (FN ARG*)
           // or
@@ -484,7 +555,7 @@ function parse_edn_to_json (ednObj, inputCode) {
 
           var newComponent = _.find(nodes, (n) => n.id === node.meta)
 
-          if (newComponent) {
+          if (newComponent && false /* do -not- add the component */) {
             delete node.meta
             node.id = newComponent.id
             node.inputPorts = newComponent.inputPorts
@@ -657,9 +728,16 @@ export function edn_add_components (edn) {
         break
       case 'defco':
         definedComponents.push(root[1].val)
-        for (var k = 0; k < root[3].val.length; k++) {
-          walkAndFindFunctions(root[3].val[k].val)
+        if (root[3].val[0].val[0] === ':') {
+          // multiple out ports
+          for (var k = 0; k < root[3].val.length; k++) {
+            walkAndFindFunctions(root[3].val[k].val)
+          }
+        } else {
+          // one out port
+          walkAndFindFunctions(root[3].val)
         }
+
         break
       case 'fn':
       case 'lambda':
@@ -670,6 +748,11 @@ export function edn_add_components (edn) {
         break
       case 'port':
         walkAndFindFunctions(root[2].val)
+        break
+      case 'if':
+        walkAndFindFunctions(root[1].val)
+        walkAndFindFunctions(root[2].val)
+        walkAndFindFunctions(root[3].val)
         break
       default:
         functions.push(root[0].val)

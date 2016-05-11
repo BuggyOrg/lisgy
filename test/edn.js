@@ -370,7 +370,16 @@ describe('edn', () => {
         expect(json1.edges).to.deep.equal(json2.edges)
         expect(json1.nodes).to.deep.equal(json2.nodes)
     })
-
+  })
+  
+  describe('if', () => {
+    it('simple if', () => {
+        var code1 = '(defcop less [s1 s2] [sum])(defcop add [s1 s2] [sum])'+
+                    '(defco test [n] (if (less n 10) (add n 1) n))'
+        var json1 = lisgy.parse_to_json(code1)
+        // console.log(JSON.stringify(json1, null, 2))
+        expect(json1.error || "").to.equal("")
+    })
   })
 
 /*
