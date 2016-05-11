@@ -144,6 +144,11 @@ export function parse_edn (inputCode) {
           obj.val[i] = walk(obj.val[i], parrent)
         }
       }
+    } else if (obj instanceof edn.Symbol) {
+      var mapTo = _.findLast(getAllVars(), (v) => { return v.name === obj.val })
+      if (mapTo) {
+        obj = mapTo.val
+      }
     }
     return obj
   }

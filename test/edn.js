@@ -355,6 +355,22 @@ describe('edn', () => {
         expect(json1.nodes).to.deep.equal(json2.nodes)
     })
 
+    it('let with multiple out ports', () => {
+        var code1 = '(defcop mul [s1 s2] [sum])(defcop add [s1 s2] [sum])(defco letPorts [a] (let [* mul m6 (* 2 3) a5 (* a 5)] [:o1 m6 :o2 (add 4 m6) :o3 a5 :o4 (* 6 7)]))'
+        var code2 = '(defcop mul [s1 s2] [sum])(defcop add [s1 s2] [sum])(defco letPorts [a] [:o1 (mul 2 3) :o2 (add 4 (mul 2 3)) (add 4) without m6 :o3 (mul a 5) :o4 (mul 6 7)])'
+
+        var json2 = lisgy.parse_to_json(code2)
+        var json1 = lisgy.parse_to_json(code1)
+        expect(json1.error || "").to.equal("")
+        expect(json2.error || "").to.equal("")
+
+        // console.log(JSON.stringify(json1, null, 2))
+        // console.log(JSON.stringify(json2, null, 2))
+
+        expect(json1.edges).to.deep.equal(json2.edges)
+        expect(json1.nodes).to.deep.equal(json2.nodes)
+    })
+
   })
 
 /*
