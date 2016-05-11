@@ -16,7 +16,7 @@
   "dependencies": {
     "@buggyorg/component-library": "^0.3.4",
     "@buggyorg/graphlib2kgraph": "^0.1.6",
-    "@buggyorg/resolve": "^0.1.12",
+    "@buggyorg/resolve": "^0.1.15",
     "chalk": "^1.1.3",
     "commander": "^2.9.0",
     "get-stdin": "^5.0.1",
