@@ -214,9 +214,11 @@ function parse_edn_to_json (ednObj, inputCode) {
 
   if (json.nodes.length <= 0) {
     json.nodes = _.map(nodes, (node) => { node.name = 'defco_' + node.id; return node })
+  } else if (false) {
+    // else add all the new components to the node array
+    console.error('adding new nodes', nodes)
+    json.nodes = json.nodes.concat(_.map(nodes, (node) => { node.name = 'defco_' + node.id; return node }))
   }
-  // else add all the new components to the node array
-  // json.nodes = json.nodes.concat(_.map(nodes, (node) => {node.name = 'defco_'+node.id; return node}))
 
   if (graphlibFormat) {
     json.nodes = _.map(json.nodes, (node) => {
@@ -478,6 +480,16 @@ function parse_edn_to_json (ednObj, inputCode) {
             error('The input/output ports for component ' + node.meta +
                   ' are not defined via (defcop ' + node.meta + ' [...] [...]), only for ' + componentNames)
             return
+          }
+
+          var newComponent = _.find(nodes, (n) => n.id === node.meta)
+
+          if (newComponent) {
+            delete node.meta
+            node.id = newComponent.id
+            node.inputPorts = newComponent.inputPorts
+            node.outputPorts = newComponent.outputPorts
+            node.implementation = newComponent.implementation
           }
 
           if (outPort && !_.find(component.output, (id) => { return id === outPort })) {
