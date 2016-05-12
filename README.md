@@ -104,10 +104,15 @@ create simple buggy graphs from lisp code
 
   Options:
 
-    -h, --help     output usage information
-    -V, --version  output the version number
-    -n, --nice     Pretty print all JSON output
-    -s, --silent   Only print data no further information.
+    -h, --help             output usage information
+    -V, --version          output the version number
+    -e, --elastic <host>   The elastic server to connect to. Defaults to BUGGY_COMPONENT_LIBRARY_HOST or if not set to http://localhost:9200
+    -n, --nice             Pretty print all JSON output
+    -k, --kgraph           Print the graph in kgraph format
+    -r, --resolve          Print the resolved json
+    -v, --verbose [depth]  Print further information.
+    --nocolor              Disable color output
+
 ```
 
 ### installation
