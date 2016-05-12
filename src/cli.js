@@ -19,7 +19,7 @@ var defaultElastic = ' Defaults to BUGGY_COMPONENT_LIBRARY_HOST'
 // COPY_PASTA_START FROM BuggyOrg/component-library/src/cli.js#ecd0bc555cc684cc5049f3760201c6969aa551aa
 
 const log = function (...args) {
-  if (!program.silent) {
+  if (program.verbose) {
     console.log.call(console.log, ...args)
   }
 }
@@ -111,7 +111,7 @@ program
   .option('-n, --nice', 'Pretty print all JSON output')
   .option('-k, --kgraph', 'Print the graph in kgraph format')
   .option('-r, --resolve', 'Print the resolved json')
-  .option('-s, --silent', 'Only print data no further information.')
+  .option('-v, --verbose', 'Print further information.')
   .command('parse [lisp_code]')
   .action(function (code) {
     var client = lib(program.elastic)
