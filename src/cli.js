@@ -111,11 +111,13 @@ program
   .option('-n, --nice', 'Pretty print all JSON output')
   .option('-k, --kgraph', 'Print the graph in kgraph format')
   .option('-r, --resolve', 'Print the resolved json')
-  .option('-v, --verbose', 'Print further information.')
+  .option('-v, --verbose [depth]', 'Print further information.')
+  .option('--nocolor', 'Disable color output')
   .command('parse [lisp_code]')
   .action(function (code) {
     var client = lib(program.elastic)
     lisgy.connect(program.elastic)
+    lisgy.setLog(program.verbose, !program.nocolor)
     if (!code) {
       log('no input code using editor/stdin')
       stdinOrEdit('.lisp', (code) => parse(code, client))

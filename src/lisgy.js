@@ -2,7 +2,12 @@
 import libConnection from '@buggyorg/component-library'
 import _ from 'lodash'
 import * as edn from 'jsedn'
+import chalk from 'chalk'
+
 var componentApi
+var log, errorsWithColor
+
+setLog(false, false)
 
 export function connect (server) {
   if (!server) {
@@ -15,12 +20,34 @@ export function connect (server) {
 
   componentApi = libConnection(server)
 }
+
+function logError (...args) {
+  if (errorsWithColor) {
+    args[0] = chalk.bold.red(args[0])
+  }
+  console.error.call(console.error, ...args)
+}
+
+export function setLog (verbose, enableColor) {
+  errorsWithColor = enableColor
+  log = function (...args) {
+    if (verbose && verbose >= args[0]) {
+      if (args[0] === 0 && enableColor) {
+        args[1] = chalk.bold.yellow(args[1])
+      }
+      args[0] = ''
+      console.log.call(console.log, ...args)
+    }
+  }
+}
+
 /*
 function randomString () {
   return Math.random().toString(36).substr(2, 5)
 }
 */
 export function parse_edn (inputCode) {
+  log(0, '# parse to edn')
   var code = '[' + inputCode + ']' // add []
   var ednObj = edn.parse(code)
 
@@ -173,6 +200,7 @@ export function parse_to_json (inputCode, addMissingComponents) {
 }
 
 function parse_edn_to_json (ednObj, inputCode) {
+  log(0, '# parsing to json')
   var json = {code: inputCode}
   var nodes = []
 
@@ -349,6 +377,8 @@ function parse_edn_to_json (ednObj, inputCode) {
       return true
     })
 
+    log(1, 'defco ' + json.id)
+
     json.implementation = {nodes: [], edges: []}
 
     // walk
@@ -371,12 +401,14 @@ function parse_edn_to_json (ednObj, inputCode) {
         }
       }
     }
+    log(1, json.id + ' inputPorts', json.inputPorts)
+    log(1, json.id + ' outputPorts', json.outputPorts)
     nodes.push(json)
     return {'json': json, 'component': component}
   }
 
   function error (message) {
-    // console.error(message)
+    logError(message)
     json = {code: inputCode, error: message}
   }
 
@@ -455,6 +487,7 @@ function parse_edn_to_json (ednObj, inputCode) {
           var new_name = data[1].val
           var old_name = data[2].val
           defines[new_name] = old_name
+          log(1, 'def map from ' + old_name + ' to ' + new_name)
           break
         case 'defco':
           createComponent(root)
@@ -462,23 +495,30 @@ function parse_edn_to_json (ednObj, inputCode) {
         case 'defcop':
           component = defcop(root)
           components[component.id] = component
+          log(1, 'defcop ' + component.id)
+          log(1, '- inputPorts', component.input)
+          log(1, '- outputPorts', component.output)
           break
         case 'lambda':
         case 'fn':
+          log(1, 'lambda fn')
           var fn = createLambda(root)
           implementation.nodes.push(gNode(fn))
           break
         case 'parse':
           // (parse (FN))
+          log(1, 'parse')
           walk(data[1], implementation, inputPorts)
           break
         case 'port':
           // (port :outPort (FN))
           var newOutPort = cleanPort(data[1].val)
+          log(1, 'port ' + newOutPort)
           walk(data[2], implementation, inputPorts, parrent, inPort, newOutPort)
           break
         case 'if':
           // NOTE: needs cleanup
+          log(1, 'if')
           var check = data[1]
           var variable = 'n' // TODO: get true variable from check
           var trueExp = data[2]
@@ -537,6 +577,7 @@ function parse_edn_to_json (ednObj, inputCode) {
           // or
           // (FN :port ARG :port2 ARG2 ...)
           node = simplify(data[0])
+          log(1, 'FN ' + node.meta)
           // map
           node.meta = defines[node.meta] ? defines[node.meta] : node.meta
           component = components[node.meta]
@@ -672,10 +713,12 @@ function parse_edn_to_json (ednObj, inputCode) {
 
 export function parse_to_edn (json) {
   // TODO: implement
+  log(0, '# parsing to edn')
   return new edn.List([edn.sym('a'), edn.sym('b'), new edn.List([edn.sym('c'), edn.sym('d')])])
 }
 
 export function encode_edn (ednObj) {
+  log(0, '# encode to edn')
   var code = edn.encode(ednObj)
   code = code.slice(1, code.length - 1) // remove []
   return code
@@ -691,6 +734,7 @@ export function jsonToEdn (obj) {
 }
 
 export function edn_add_components (edn) {
+  log(0, '# adding components')
   var functions = []
   var definedComponents = []
   var defines = {}
@@ -722,12 +766,15 @@ export function edn_add_components (edn) {
         var new_name = root[1].val
         var old_name = root[2].val
         defines[new_name] = old_name
+        log(1, 'def map from ' + old_name + ' to ' + new_name)
         break
       case 'defcop':
         definedComponents.push(root[1].val)
+        log(1, 'defcop ' + root[1].val)
         break
       case 'defco':
         definedComponents.push(root[1].val)
+        log(1, 'defco ' + root[1].val)
         if (root[3].val[0].val[0] === ':') {
           // multiple out ports
           for (var k = 0; k < root[3].val.length; k++) {
@@ -755,6 +802,7 @@ export function edn_add_components (edn) {
         walkAndFindFunctions(root[3].val)
         break
       default:
+        log(1, 'used ' + root[0].val)
         functions.push(root[0].val)
         for (var j = 1; j < root.length; j++) {
           walkAndFindFunctions(root[j].val)
@@ -767,6 +815,10 @@ export function edn_add_components (edn) {
     connect()
   }
 
+  functions = _.uniq(functions)
+
+  log(0, '## getting the components', functions)
+
   // TODO: remove version number to get the latest version
   var names = functions.map((f) => componentApi.get(f))
   var stuff = Promise.all(names).then((arr) => {
@@ -778,10 +830,7 @@ export function edn_add_components (edn) {
     edn.val = [].concat(newComponents, edn.val)
     return edn
   }).catch((err) => {
-    console.error('edn_add_components error')
-    console.error('functions:', functions)
-    console.error('definedComponents:', definedComponents)
-    console.error('defines:', defines)
+    logError('failed to load one component from server', functions)
     throw err
   })
   return stuff
