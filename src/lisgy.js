@@ -257,11 +257,8 @@ function parse_edn_to_json (ednObj, inputCode) {
     json.nodes = _.map(nodes, (node) => { node.name = 'defco_' + node.id; return node })
   } else if (true) {
     // else add all the new components to the node array
-    // console.error('adding new nodes', nodes)
-    var filtered = _.filter(nodes, (node) => _.find(json.nodes, (nodeJ) => { nodeJ.id === node.id }))
-    // console.error('FILTERED', nodes)
-
-    json.nodes = json.nodes.concat(_.map(filtered, (node) => { node.name = 'defco_' + node.id; return node }))
+    var filtered = _.filter(nodes, (node) => _.find(json.nodes, (nodeJ) => { return nodeJ.id && nodeJ.id !== node.id }))
+    json.nodes = _.concat(_.map(filtered, (node) => { node.name = 'defco_' + node.id; return node }), json.nodes)
   }
 
   if (graphlibFormat) {
@@ -516,9 +513,9 @@ function parse_edn_to_json (ednObj, inputCode) {
           log(1, 'port ' + newOutPort)
           walk(data[2], implementation, inputPorts, parrent, inPort, newOutPort)
           break
-        case 'if':
+        case 'ifOLD':
           // NOTE: needs cleanup
-          log(1, 'if')
+          log(1, 'ifOLD')
           var check = data[1]
           var variable = 'n' // TODO: get true variable from check
           var trueExp = data[2]
@@ -796,7 +793,7 @@ export function edn_add_components (edn) {
       case 'port':
         walkAndFindFunctions(root[2].val)
         break
-      case 'if':
+      case 'ifOLD':
         walkAndFindFunctions(root[1].val)
         walkAndFindFunctions(root[2].val)
         walkAndFindFunctions(root[3].val)
