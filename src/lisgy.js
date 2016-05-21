@@ -304,8 +304,6 @@ function parse_edn_to_json (ednObj, inputCode) {
     json.inputPorts = {}
 
     json.data = {}
-    // json.data.v = baseName + '_' + randomString()
-    // json.data.name = baseName + '_' + randomString()
     // NOTE: anonymous functions have one output port right now
     json.data.outputPorts = {'value_0': 'generic'}
 
@@ -319,22 +317,11 @@ function parse_edn_to_json (ednObj, inputCode) {
 
     json.data.implementation = {nodes: [], edges: []}
 
-    var from = json.name + ':fn'
     var to = root.port
     if (json.outputPorts && to || root.parent) {
       // TODO: this forbids nested lambdas
       root.parent.outputPorts[to] = 'lambda'
-
-      root.parent.implementation.edges.push(gEdge(from, to))
-    } else {
-      // to = node.name + ':' + to
     }
-
-    // implementation.nodes.push(gNode(node))
-    // implementation.edges.push(gEdge(from, to))
-
-    // node.data.v = node.name + '_' + randomString()
-    // node.data.name = node.name + '_' + randomString()
 
     var fnInputPorts = []
 
@@ -344,8 +331,8 @@ function parse_edn_to_json (ednObj, inputCode) {
       return true
     })
 
-    walk(data[2], json.data.implementation, fnInputPorts, 'lambda', 'value_0')
-
+    let node = walk(data[2], json.data.implementation, fnInputPorts, 'lambda', 'value_0')
+    addEdge(json.data.implementation, node, 'value_0')
     // nodes.push(json)
     return json
   }
@@ -381,23 +368,28 @@ function parse_edn_to_json (ednObj, inputCode) {
 
     json.implementation = {nodes: [], edges: []}
 
+    let node
     // walk
     var next = data[3].val[0]
     if (next.val[0] !== ':') {
       next = data[3]
-      json.outputPorts['value'] = 'generic'
-      next.port = 'value'
+      let port = cleanPort('value')
+      json.outputPorts[port] = 'generic'
+      next.port = port
       next.parent = json
-      walk(next, json.implementation, inputPorts)
+      node = walk(next, json.implementation, inputPorts)
+      addEdge(json.implementation, node, port)
     } else {
       var outputs = data[3].val
       for (var i = 0; i < outputs.length; i++) {
         if (outputs[i] instanceof edn.Keyword) {
           var key = outputs[i++]
+          let port = cleanPort(key.name)
           next = outputs[i]
-          next.port = cleanPort(key.name)
+          next.port = port
           next.parent = json
-          walk(next, json.implementation, inputPorts)
+          node = walk(next, json.implementation, inputPorts)
+          addEdge(json.implementation, node, port)
         }
       }
     }
@@ -461,24 +453,29 @@ function parse_edn_to_json (ednObj, inputCode) {
 
   function gEdge (from, to) {
     return {'from': from, 'to': to}
-    /*
-    var obj = {} // old {'from': from, 'to': to}
-    from = from.split(':')
-    to = to.split(':')
-    obj.v = from[0]
-    obj.w = to[0]
-    obj.value = {'outPort': from[1], 'inPort': to[1]}
-    return obj
-    */
+  }
+
+  function addEdge (implementation, fromNode, toPort) {
+    if (fromNode) {
+      let fromPort
+      if (fromNode.name) {
+        fromPort = fromNode.name + ':' + fromNode.port
+      } else {
+        fromPort = fromNode.port
+      }
+      implementation.edges.push(gEdge(fromPort, toPort))
+    }
   }
 
   function gNode (node) {
     return node // {'v': node.name, 'value': node}
   }
 
+  /**
+   * walk over each edn object and return the created objs name and out-ports
+   */
   function walk (root, implementation, inputPorts, parrent, inPort, outPort) {
-    var from, to
-    var node, component
+    var component
     // console.log('walk on ', root)
     var data = root.val
     if (root instanceof edn.List || root instanceof edn.Vector ||
@@ -491,38 +488,42 @@ function parse_edn_to_json (ednObj, inputCode) {
           var old_name = data[2].val
           defines[new_name] = old_name
           log(1, 'def map from ' + old_name + ' to ' + new_name)
-          break
+          return
         case 'defco':
           createComponent(root)
-          break
+          return
         case 'defcop':
           component = defcop(root)
           components[component.id] = component
           log(1, 'defcop ' + component.id)
           log(1, '- inputPorts', component.input)
           log(1, '- outputPorts', component.output)
-          break
+          return
         case 'lambda':
         case 'fn':
           log(1, 'lambda fn')
-          var fn = createLambda(root)
-          implementation.nodes.push(gNode(fn))
-          break
+          var fn = gNode(createLambda(root))
+          implementation.nodes.push(fn)
+          return {name: fn.name, outputPorts: ['fn'], port: 'fn'}
         case 'parse':
+          // old
           // (parse (FN))
           log(1, 'parse')
-          walk(data[1], implementation, inputPorts)
-          break
+          return walk(data[1], implementation, inputPorts)
         case 'port':
           // (port :outPort (FN))
           var newOutPort = cleanPort(data[1].val)
           log(1, 'port ' + newOutPort)
-          walk(data[2], implementation, inputPorts, parrent, inPort, newOutPort)
-          break
+          let node = walk(data[2], implementation, inputPorts, parrent, inPort, newOutPort)
+          if (node) {
+            node.port = newOutPort
+          }
+          return node
         case 'let':
           error('could not transform a (let [...] ...)')
-          break
+          return
         case 'ifOLD':
+          // old
           // NOTE: needs cleanup
           log(1, 'ifOLD')
           var check = data[1]
@@ -659,13 +660,10 @@ function parse_edn_to_json (ednObj, inputCode) {
                 arg instanceof edn.Map ||
                 arg instanceof edn.Set ||
                 _.includes(inputPorts, arg.name)) {
-              walk(arg, implementation, inputPorts, node.name, argPort)
-            } else if (arg instanceof edn.Symbol && false) {
-              if (!node.values) node.values = []
-              node.values.push({'port': argPort, 'value': arg.name})
+              let nextNode = walk(arg, implementation, inputPorts, node.name, argPort)
+              let toPort = node.name + ':' + argPort
+              addEdge(implementation, nextNode, toPort)
             } else {
-              // if (!node.values) node.values = []
-              // node.values.push({'port': argPort, 'value': arg})
               if (!_.isNaN(parseInt(arg))) { // check for NaN, because 0 is a number, too - see issue #1
                 var constNode = {
                   'meta': 'math/const',
@@ -673,41 +671,19 @@ function parse_edn_to_json (ednObj, inputCode) {
                   'params': {'value': parseInt(arg)}
                 }
 
-                to = node.name + ':' + argPort
-                from = constNode.name + ':output' // arg.name ? arg.name : arg
-
                 implementation.nodes.push(gNode(constNode))
-                implementation.edges.push(gEdge(from, to))
+
+                let toPort = node.name + ':' + argPort
+                let nextNode = {name: constNode.name, outputPorts: ['output'], port: 'output'}
+                addEdge(implementation, nextNode, toPort)
               }
             }
           }
-
-          to = parrent + ':' + inPort
-          from = node.name + ':'
-
-          if (outPort) {
-            from += outPort
-          } else {
-            from += component.output[0]
-          }
-
-          if (parrent && inPort) {
-            if (parrent === 'lambda') {
-              // NOTE: I hope we never have a component with the name 'lambda'
-              to = inPort
-            }
-            implementation.edges.push(gEdge(from, to))
-          } else {
-            to = root.port ? root.port : 'value'
-            to = cleanPort(to)
-            implementation.edges.push(gEdge(from, to))
-          }
-          break
+          let outPortHere = component.output[0]
+          return {name: node.name, outputPorts: component.output, port: outPortHere}
       }
     } else if (root instanceof edn.Symbol) {
-      from = root.name
-      to = parrent + ':' + inPort
-      implementation.edges.push(gEdge(from, to))
+      return {port: root.name}
     } else {
       error('Unkown walk class ' + root)
       return

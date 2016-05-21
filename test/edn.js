@@ -31,7 +31,7 @@ describe('edn', () => {
   })
 
   it('simple lambda node', () => {
-    var code = '(defcop math/add [s1 s2] [sum])(lambda (a b) (math/add a b))'
+    var code = '(defcop math/add [s1 s2] [sum]) (lambda (a b) (math/add a b))'
     var json = lisgy.parse_to_json(code)
     // console.log(JSON.stringify(json, null, 2))
     expect(json.edges.length).to.equal(0)
@@ -63,7 +63,7 @@ describe('edn', () => {
     it('multiple output ports', () => {
       var code = '(defcop add [s1 s2] [sum])(defco mathAdd [a b] [:a2 (add a 2) :b3 (add b 3)])'
       var json = lisgy.parse_to_json(code)
-      expect(json.error || "none").to.equal("none")
+      expect(json.error || 'none').to.equal('none')
       // console.log(JSON.stringify(json, null, 2))
 
       expect(json.edges.length).to.equal(0) // no edges
@@ -82,10 +82,10 @@ describe('edn', () => {
     })
 
     it('default output port', () => {
-      var code = '(defcop math/add [s1 s2] [sum])\
-                    (defco mathAdd [a b] (math/add a b))'
+      var code = `(defcop math/add [s1 s2] [sum])
+                  (defco mathAdd [a b] (math/add a b))`
       var json = lisgy.parse_to_json(code)
-      expect(json.error || "none").to.equal("none")
+      expect(json.error || 'none').to.equal('none')
       // console.log(JSON.stringify(json, null, 2))
 
       expect(json.edges.length).to.equal(0) // no edges
@@ -106,7 +106,7 @@ describe('edn', () => {
     it('default output port lambda', () => {
       var code = '(defcop add [s1 s2] [sum])(defco mathAdd [a b] (fn [a] (add a b)))'
       var json = lisgy.parse_to_json(code)
-      expect(json.error || "none").to.equal("none")
+      expect(json.error || 'none').to.equal('none')
       // console.log(JSON.stringify(json, null, 2))
 
       expect(json.edges.length).to.equal(0) // no edges
@@ -119,7 +119,8 @@ describe('edn', () => {
     })
 
     it('named output port lambda', () => {
-      var code = '(defcop math/less [isLess than] [value]) (defco newCo2 [a] [:test (fn [b] (math/less a b))])'
+      var code = `(defcop math/less [isLess than] [value]) 
+                  (defco newCo2 [a] [:test (fn [b] (math/less a b))])`
       var json = lisgy.parse_to_json(code)
       // console.log(JSON.stringify(json, null, 2))
       expect(json.edges.length).to.equal(0) // no edges
@@ -151,14 +152,14 @@ describe('edn', () => {
     it('wrong number of args for (add 2 3 4)', () => {
       var code = '(defcop math/add [s1 s2] [sum])(math/add 2 3 4)'
       var json = lisgy.parse_to_json(code)
-      expect(json.error || "none").to.equal(json.error)
+      expect(json.error || 'none').to.equal(json.error)
     })
 
     it('(add :s1 2 :s2 1)', () => {
       var code = '(defcop math/add [s1 s2] [sum])(math/add :s1 2 :s2 1)'
       var json = lisgy.parse_to_json(code)
       // console.log(JSON.stringify(json, null, 2))
-      expect(json.error || "none").to.equal("none")
+      expect(json.error || 'none').to.equal('none')
 
       expect(json.edges[0].v).to.equal('const(2)_1')
       expect(json.edges[0].w).to.equal('add_0')
@@ -173,7 +174,7 @@ describe('edn', () => {
       var code = '(defcop math/add [s1 s2] [sum])(math/add :s2 2 :s1 1)'
       var json = lisgy.parse_to_json(code)
       // console.log(JSON.stringify(json, null, 2))
-      expect(json.error || "none").to.equal("none")
+      expect(json.error || 'none').to.equal('none')
 
       expect(json.edges[0].v).to.equal('const(2)_1')
       expect(json.edges[0].w).to.equal('add_0')
@@ -188,12 +189,12 @@ describe('edn', () => {
       var code = '(defcop math/add [s1 s2] [sum])(math/add :s2 2 1)'
       var json = lisgy.parse_to_json(code)
       // console.log(JSON.stringify(json, null, 2))
-      expect(json.error || "none").to.equal(json.error)
+      expect(json.error || 'none').to.equal(json.error)
 
       code = '(defcop math/add [s1 s2] [sum])(math/add 2 :s2 1)'
       json = lisgy.parse_to_json(code)
       // console.log(JSON.stringify(json, null, 2))
-      expect(json.error || "none").to.equal(json.error)
+      expect(json.error || 'none').to.equal(json.error)
     })
 
     it('does not drop zeros', () => {
@@ -208,7 +209,7 @@ describe('edn', () => {
       var code = '(defcop test [s1 s2] [o1 o2 o3]) (test 1 (port :randomwrongname (test 1 2)))'
       var json = lisgy.parse_to_json(code)
       // console.log(JSON.stringify(json, null, 2))
-      expect(json.error || "none").to.equal(json.error)
+      expect(json.error || 'none').to.equal(json.error)
       // TODO: Add check for o2 -> s1 and o3 -> s2
     })
 
@@ -216,7 +217,7 @@ describe('edn', () => {
       var code = '(defcop test [s1 s2] [o1 o2 o3]) (test (port :o2 (test 1 2)) (port :o3 (test 1 2)))'
       var json = lisgy.parse_to_json(code)
       // console.log(JSON.stringify(json, null, 2))
-      expect(json.error || "none").to.equal("none")
+      expect(json.error || 'none').to.equal('none')
       // TODO: Add check for o2 -> s1 and o3 -> s2
     })
   })
@@ -235,8 +236,8 @@ describe('edn', () => {
       var code2 = '(defcop add [s1 s2] [sum])(add (add 1 2) 3)'
       var json1 = lisgy.parse_to_json(code1)
       var json2 = lisgy.parse_to_json(code2)
-      expect(json1.error || "").to.equal("")
-      expect(json2.error || "").to.equal("")
+      expect(json1.error || '').to.equal('')
+      expect(json2.error || '').to.equal('')
 
       // console.log(JSON.stringify(json1, null, 2))
       // console.log(JSON.stringify(json2, null, 2))
@@ -250,8 +251,8 @@ describe('edn', () => {
       var code2 = '(defcop add [s1 s2] [sum])(add (add 1 2) 3) (add (add 1 2) (add 1 2))'
       var json1 = lisgy.parse_to_json(code1)
       var json2 = lisgy.parse_to_json(code2)
-      expect(json1.error || "").to.equal("")
-      expect(json2.error || "").to.equal("")
+      expect(json1.error || '').to.equal('')
+      expect(json2.error || '').to.equal('')
 
       // console.log(JSON.stringify(json1, null, 2))
       // console.log(JSON.stringify(json2, null, 2))
@@ -265,8 +266,8 @@ describe('edn', () => {
       var code2 = '(defcop add [s1 s2] [sum])(add 2 3)'
       var json2 = lisgy.parse_to_json(code2)
       var json1 = lisgy.parse_to_json(code1)
-      expect(json1.error || "").to.equal("")
-      expect(json2.error || "").to.equal("")
+      expect(json1.error || '').to.equal('')
+      expect(json2.error || '').to.equal('')
 
       // console.log(JSON.stringify(json1, null, 2))
       // console.log(JSON.stringify(json2, null, 2))
@@ -280,8 +281,8 @@ describe('edn', () => {
       var code2 = '(defcop add [s1 s2] [sum])(add 2 3)(add 3 3)(add (add 1 2) 3)'
       var json2 = lisgy.parse_to_json(code2)
       var json1 = lisgy.parse_to_json(code1)
-      expect(json1.error || "").to.equal("")
-      expect(json2.error || "").to.equal("")
+      expect(json1.error || '').to.equal('')
+      expect(json2.error || '').to.equal('')
 
       // console.log(JSON.stringify(json1, null, 2))
       // console.log(JSON.stringify(json2, null, 2))
@@ -296,8 +297,8 @@ describe('edn', () => {
 
       var json2 = lisgy.parse_to_json(code2)
       var json1 = lisgy.parse_to_json(code1)
-      expect(json1.error || "").to.equal("")
-      expect(json2.error || "").to.equal("")
+      expect(json1.error || '').to.equal('')
+      expect(json2.error || '').to.equal('')
 
       // console.log(JSON.stringify(json1, null, 2))
       // console.log(JSON.stringify(json2, null, 2))
@@ -313,8 +314,8 @@ describe('edn', () => {
 
       var json2 = lisgy.parse_to_json(code2)
       var json1 = lisgy.parse_to_json(code1)
-      expect(json1.error || "").to.equal("")
-      expect(json2.error || "").to.equal("")
+      expect(json1.error || '').to.equal('')
+      expect(json2.error || '').to.equal('')
 
       // console.log(JSON.stringify(json1, null, 2))
       // console.log(JSON.stringify(json2, null, 2))
@@ -375,8 +376,8 @@ describe('edn', () => {
 
       var json2 = lisgy.parse_to_json(code2)
       var json1 = lisgy.parse_to_json(code1)
-      expect(json1.error || "").to.equal("")
-      expect(json2.error || "").to.equal("")
+      expect(json1.error || '').to.equal('')
+      expect(json2.error || '').to.equal('')
 
       // console.log(JSON.stringify(json1, null, 2))
       // console.log(JSON.stringify(json2, null, 2))
@@ -394,7 +395,7 @@ describe('edn', () => {
         '(defco test [n] (if (less n 10) (add n 1) n))'
       var json1 = lisgy.parse_to_json(code1)
       // console.log(JSON.stringify(json1, null, 2))
-      expect(json1.error || "").to.equal("")
+      expect(json1.error || '').to.equal('')
     })
   })
 
@@ -406,7 +407,7 @@ describe('edn', () => {
       // expect(json.implementation.nodes[0]).to.deep.equal({'meta': 'math/less', 'name': 'le_0'})
       // expect(json.implementation.nodes[1]).to.deep.equal({'meta': 'math/add', 'name': '+_1'})
     })
-  
+
     it('(simple example2)', () => {
       var code = '(defcop math/less [isLess than] [value])(defcop math/add [s1 s2] [sum])(def le math/less)(def + math/add)(defco test [a b] [:le (le a b) :ad (+ a b)])'
       var json = lisgy.parse_to_json(code)
@@ -414,7 +415,7 @@ describe('edn', () => {
       // expect(json.implementation.nodes[0]).to.deep.equal({'meta': 'math/less', 'name': 'le_0'})
       // expect(json.implementation.nodes[1]).to.deep.equal({'meta': 'math/add', 'name': '+_1'})
     })
-  
+
     it('(simple example3)', () => {
       var code = '(defcop math/less [isLess than] [value])(defcop math/add [s1 s2] [sum])(def le math/less)(def + math/add)(defco test [a b] [:le (le a b) :ad (+ a b)]) (test 10 (+ 3 20))'
       var json = lisgy.parse_to_json(code)
@@ -437,7 +438,7 @@ describe('edn', () => {
                       (if (= n 1)\
                           n\
                           (* (math/faculty (- n 1)) n))])'
-  
+
       var json = lisgy.parse_to_json(code)
       console.log('fac', json)
     })
@@ -451,7 +452,7 @@ describe('edn', () => {
               expect(example.implementation.edges).to.deep.equal(json.implementation.edges)
           })
       })
-  
+
       it('missing mixed', () => {
           var example = readParseExamples('defcoLambdaMissMixed.json')
           return lisgy.parse_to_json(example.code, true)
@@ -461,16 +462,16 @@ describe('edn', () => {
               expect(example.implementation.edges).to.deep.equal(json.implementation.edges)
           })
       })
-  
+
       it('rec2', () => {
           var code = '(defco test (n) (:out (test (math/add n 1)) :n n))'
-  
+
           return lisgy.parse_to_json(code, true)
           .then((json) => {
               console.log(JSON.stringify(json, null, 2))
           })
       })
-  
+
       it('parse', () => {
           var example = readParseExamples('simple.parse.json')
           return lisgy.parse_to_json(example.code, true)
