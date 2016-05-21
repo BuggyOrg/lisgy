@@ -7,32 +7,32 @@
     "lisgy": "./lib/cli.js"
   },
   "scripts": {
-    "mocha": "node node_modules/mocha/bin/mocha --compilers js:babel/register",
-    "gulp": "node node_modules/standard/bin/cmd.js src/**/*.js && gulp",
-    "build": "gulp",
-    "test": "node node_modules/standard/bin/cmd.js src/**/*.js && gulp && node node_modules/mocha/bin/mocha --compilers js:babel/register"
+    "mocha": "mocha --compilers js:babel-register",
+    "gulp": "standard src/**/*.js && babel src -d lib",
+    "build": "babel src -d lib",
+    "test": "standard src/**/*.js && mocha --compilers js:babel-register"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
     "@buggyorg/component-library": "^0.3.4",
     "@buggyorg/graphlib2kgraph": "^0.1.6",
-    "@buggyorg/resolve": "^0.1.15",
+    "@buggyorg/resolve": "^0.1.19",
     "chalk": "^1.1.3",
     "commander": "^2.9.0",
     "get-stdin": "^5.0.1",
     "graphlib": "^2.1.0",
-    "gulp": "^3.9.1",
     "jsedn": "^0.3.5",
     "lodash": "^4.8.2",
     "tempfile": "^1.1.1",
     "wsl-lisp-parser": "^0.1.0"
   },
   "devDependencies": {
-    "babel": "^5.8.29",
-    "babel-eslint": "^4.1.3",
+    "@buggyorg/graphtools": "^0.2.16",
+    "babel-cli": "^6.4.5",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-register": "^6.4.3",
     "chai": "^3.4.0",
-    "gulp-babel": "^5.3.0",
     "mocha": "^2.3.3",
     "standard": "^6.0.8"
   }

@@ -78,9 +78,9 @@ export function parse_edn (inputCode) {
 
   return ednObj
 
-  function replaceLet (obj, parrent) {
+  function replaceLet (obj, parent) {
     if (obj.val && obj.val[0] && obj.val[0].val === 'let') {
-      obj = walk(obj, parrent)
+      obj = walk(obj, parent)
       return obj.val
     }
     obj = _.map(obj.val, (obj) => {
@@ -92,7 +92,7 @@ export function parse_edn (inputCode) {
         }
         // }
       } else {
-        return walk(obj, parrent)
+        return walk(obj, parent)
       }
       return obj
     })
@@ -109,6 +109,9 @@ export function parse_edn (inputCode) {
       if (data instanceof edn.Symbol) {
         mapTo = _.findLast(vars, (v) => { return v.name === data.val })
         if (mapTo) {
+          if (typeof (mapTo.val.val) !== 'string') {
+            mapTo.val.val[0].fromVariable = mapTo.id
+          }
           obj.val[i] = mapTo.val
         }
       } else {
@@ -122,13 +125,7 @@ export function parse_edn (inputCode) {
   }
 
   function getAllVars () {
-    var allVars = []
-
-    _.map(vars, (vars) => {
-      allVars = _.concat(allVars, vars)
-    })
-
-    return allVars
+    return _.reduce(vars, (acc, v) => _.concat(acc, v), [])
   }
 
   function mapVars (ednVars) {
@@ -142,13 +139,14 @@ export function parse_edn (inputCode) {
       var val = ednVars.val[i++]
       val = replaceVars(val, _.concat(getAllVars(), newVars))
       newVars.push({'name': name,
+                 'id': {name, id: i},
                  'val': val})
     }
 
     return newVars
   }
 
-  function walk (obj, parrent) {
+  function walk (obj, parent) {
     var i
     if (obj instanceof edn.List || obj instanceof edn.Vector ||
         obj instanceof edn.Map || obj instanceof edn.Set) {
@@ -156,19 +154,19 @@ export function parse_edn (inputCode) {
       if (first instanceof edn.Symbol && first.val === 'let') {
         vars.push(mapVars(obj.val[1]))
 
-        var newObj = new edn.List(replaceLet(obj.val[2], parrent))
+        var newObj = new edn.List(replaceLet(obj.val[2], parent))
 
         for (i = 3; i < obj.val.length; i++) {
           var oldObj = obj.val[i++]
-          var newObj2 = new edn.List(replaceLet(oldObj, parrent))
-          parrent.push(newObj2)
+          var newObj2 = new edn.List(replaceLet(oldObj, parent))
+          parent.push(newObj2)
         }
 
         obj = newObj
         vars.pop()
       } else {
         for (i = 0; i < obj.val.length; i++) {
-          obj.val[i] = walk(obj.val[i], parrent)
+          obj.val[i] = walk(obj.val[i], parent)
         }
       }
     } else if (obj instanceof edn.Symbol) {
@@ -411,6 +409,9 @@ function parse_edn_to_json (ednObj, inputCode) {
 
   function simplify (node) {
     var name = node.name + '_' + count++
+    if (node.fromVariable && node.fromVariable.name && node.fromVariable.id) {
+      name = node.name + '__' + node.fromVariable.id
+    }
     return {'meta': node.val, 'name': name}
   }
 
