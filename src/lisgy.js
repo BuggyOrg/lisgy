@@ -130,7 +130,8 @@ export function parse_edn (inputCode) {
 
   function mapVars (ednVars) {
     if (ednVars.val.length % 2 !== 0) {
-      // error
+      logError('let has a wrong number of variables')
+      return []
     }
 
     var newVars = []
@@ -152,7 +153,11 @@ export function parse_edn (inputCode) {
         obj instanceof edn.Map || obj instanceof edn.Set) {
       var first = obj.val[0]
       if (first instanceof edn.Symbol && first.val === 'let') {
-        vars.push(mapVars(obj.val[1]))
+        var newVars = mapVars(obj.val[1])
+        if (newVars.length === 0) {
+          return obj
+        }
+        vars.push(newVars)
 
         var newObj = new edn.List(replaceLet(obj.val[2], parent))
 
@@ -513,6 +518,9 @@ function parse_edn_to_json (ednObj, inputCode) {
           var newOutPort = cleanPort(data[1].val)
           log(1, 'port ' + newOutPort)
           walk(data[2], implementation, inputPorts, parrent, inPort, newOutPort)
+          break
+        case 'let':
+          error('could not transform a (let [...] ...)')
           break
         case 'ifOLD':
           // NOTE: needs cleanup
