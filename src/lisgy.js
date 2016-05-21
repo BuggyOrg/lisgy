@@ -864,7 +864,6 @@ export function edn_add_components (edn) {
         for (let i = 0; i < vars.length; i += 2) {
           ignores.push(vars[i].val)
         }
-        console.error(ignore)
         ignores.push(ignore)
         for (let i = 1; i < vars.length; i += 2) {
           let value = vars[i]
