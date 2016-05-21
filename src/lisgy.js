@@ -7,7 +7,7 @@ import chalk from 'chalk'
 var componentApi
 var log, errorsWithColor
 
-setLog(false, false)
+setLog(false, true)
 
 export function connect (server) {
   if (!server) {
@@ -206,6 +206,8 @@ function parse_edn_to_json (ednObj, inputCode) {
   log(0, '# parsing to json')
   var json = {code: inputCode}
   var nodes = []
+  var vars = []
+  var newVars = []
 
   var inputPorts = []
   var implementation = {nodes: [], edges: []}
@@ -463,12 +465,40 @@ function parse_edn_to_json (ednObj, inputCode) {
       } else {
         fromPort = fromNode.port
       }
+      log(2, 'new edge from ' + fromPort + ' to ' + toPort)
       implementation.edges.push(gEdge(fromPort, toPort))
     }
   }
 
   function gNode (node) {
+    log(2, 'new node ' + node.name)
     return node // {'v': node.name, 'value': node}
+  }
+
+  function getAllVars () {
+    return _.concat(_.reduce(vars, (acc, v) => _.concat(acc, v), []), newVars)
+  }
+
+  function getVar (varName) {
+    return _.findLast(getAllVars(), (v) => { return v.name === varName })
+  }
+
+  function mapVars (ednVars) {
+    if (ednVars.val.length % 2 !== 0) {
+      logError('let has a wrong number of variables')
+      return []
+    }
+
+    let newVars = []
+    for (var i = 0; i < ednVars.val.length;) {
+      var name = ednVars.val[i++].val
+      var val = ednVars.val[i++]
+      // val = replaceVars(val, _.concat(getAllVars(), newVars))
+      newVars.push({'name': name,
+                 'id': i,
+                 'val': val})
+    }
+    return newVars
   }
 
   /**
@@ -476,7 +506,7 @@ function parse_edn_to_json (ednObj, inputCode) {
    */
   function walk (root, implementation, inputPorts, parrent, inPort, outPort) {
     var component
-    // console.log('walk on ', root)
+    // console.error('walk on ', root)
     var data = root.val
     if (root instanceof edn.List || root instanceof edn.Vector ||
         root instanceof edn.Map || root instanceof edn.Set) {
@@ -522,6 +552,24 @@ function parse_edn_to_json (ednObj, inputCode) {
         case 'let':
           error('could not transform a (let [...] ...)')
           return
+        case 'letr':
+          newVars = mapVars(data[1])
+          if (newVars.length === 0) {
+            logError('let has a wrong number of variables')
+          }
+          log(1, 'letr vars', _.map(newVars, (v) => v.name))
+
+          newVars = _.map(newVars, (v) => {
+            v.val = walk(v.val, implementation, inputPorts, parrent, inPort, newOutPort)
+            log(2, 'maped ' + v.name + ' to ' + v.val.name + ':' + v.val.port)
+            return v
+          })
+
+          vars.push(newVars)
+
+          let newNode = walk(data[2], implementation, inputPorts, parrent, inPort, newOutPort)
+          vars.pop()
+          return newNode
         case 'ifOLD':
           // old
           // NOTE: needs cleanup
@@ -660,12 +708,14 @@ function parse_edn_to_json (ednObj, inputCode) {
                 arg instanceof edn.Map ||
                 arg instanceof edn.Set ||
                 _.includes(inputPorts, arg.name)) {
+              log(2, 'FN walk over array/list')
               let nextNode = walk(arg, implementation, inputPorts, node.name, argPort)
               let toPort = node.name + ':' + argPort
               addEdge(implementation, nextNode, toPort)
             } else {
+              log(2, 'FN walk over symbol', arg.val || arg)
               if (!_.isNaN(parseInt(arg))) { // check for NaN, because 0 is a number, too - see issue #1
-                var constNode = {
+                let constNode = {
                   'meta': 'math/const',
                   'name': 'const(' + arg + ')_' + count++,
                   'params': {'value': parseInt(arg)}
@@ -676,6 +726,15 @@ function parse_edn_to_json (ednObj, inputCode) {
                 let toPort = node.name + ':' + argPort
                 let nextNode = {name: constNode.name, outputPorts: ['output'], port: 'output'}
                 addEdge(implementation, nextNode, toPort)
+              } else {
+                var argVar = getVar(arg.val)
+                if (argVar) {
+                  log(3, 'found var', argVar)
+                  let toPort = node.name + ':' + argPort
+                  addEdge(implementation, argVar.val, toPort)
+                } else {
+                  log(2, 'faild to find var ' + arg.val + ' inside', getAllVars())
+                }
               }
             }
           }
@@ -684,6 +743,17 @@ function parse_edn_to_json (ednObj, inputCode) {
       }
     } else if (root instanceof edn.Symbol) {
       return {port: root.name}
+    } else if (!_.isNaN(parseInt(root))) {
+      let constNode = {
+        'meta': 'math/const',
+        'name': 'const(' + root + ')_' + count++,
+        'params': {'value': parseInt(root)}
+      }
+
+      implementation.nodes.push(gNode(constNode))
+
+      log(1, 'const node ' + constNode.name)
+      return {name: constNode.name, outputPorts: ['output'], port: 'output'}
     } else {
       error('Unkown walk class ' + root)
       return
@@ -720,6 +790,7 @@ export function edn_add_components (edn) {
   var functions = []
   var definedComponents = []
   var defines = {}
+  var ignores = []
 
   _.each(edn.val, (vElement) => {
     walkAndFindFunctions(vElement.val)
@@ -782,6 +853,23 @@ export function edn_add_components (edn) {
         walkAndFindFunctions(root[1].val)
         walkAndFindFunctions(root[2].val)
         walkAndFindFunctions(root[3].val)
+        break
+      case 'letr':
+        let vars = root[1].val
+        let ignore = []
+        for (let i = 0; i < vars.length; i += 2) {
+          ignores.push(vars[i].val)
+        }
+        console.error(ignore)
+        ignores.push(ignore)
+        for (let i = 1; i < vars.length; i += 2) {
+          let value = vars[i]
+          if (value.val) {
+            walkAndFindFunctions(value.val)
+          }
+        }
+        walkAndFindFunctions(root[2].val)
+        ignores.pop()
         break
       default:
         log(1, 'used ' + root[0].val)

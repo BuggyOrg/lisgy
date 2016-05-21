@@ -223,11 +223,52 @@ describe('edn', () => {
   })
 
   it('defco with lambda (wip)', () => {
-    var code = '(defcop math/add [s1 s2] [sum])(defco test [a b c] [:a (math/add (math/add a b ) c) :d (fn [d] (math/add c d))]) (test 1 2 3)'
+    var code = `
+    (defcop math/add [s1 s2] [sum])
+    (defco test [a b c]
+      [:a (math/add (math/add a b ) c)
+       :d (fn [d] (math/add c d))])
+    (test 1 2 3)`
     var json = lisgy.parse_to_json(code)
     // console.log(JSON.stringify(json, null, 2))
     // expect(json.implementation.nodes[0]).to.deep.equal({'meta': 'math/less', 'name': 'le_0'})
     // expect(json.implementation.nodes[1]).to.deep.equal({'meta': 'math/add', 'name': '+_1'})
+  })
+
+  describe('letr', () => {
+    it('simple letr', () => {
+      var code = `
+      (defcop add [s1 s2] [sum])
+      (letr [a (add 1 2) 
+             b 3]
+             (add a b))`
+      var json = lisgy.parse_to_json(code)
+      expect(json.error || '').to.equal('')
+
+      // console.log(JSON.stringify(json, null, 2))
+      expect(json.nodes.length).to.equal(5) // 2 'add' nodes and 3 'const' nodes
+      expect(json.edges.length).to.equal(4)
+
+      let final = utils.finalize(json)
+      expect(utils.getAll(final, 'add')).to.have.length(2)
+    })
+
+    it('letr mixed vars', () => {
+      var code = `
+      (defcop add [s1 s2] [sum])
+      (letr [a (add 1 2)
+             b (add a 3)]
+             (add a b))`
+      var json = lisgy.parse_to_json(code)
+      expect(json.error || '').to.equal('')
+
+      // console.log(JSON.stringify(json, null, 2))
+      expect(json.nodes.length).to.equal(6) // 3 'add' nodes and 3 'const' nodes
+      expect(json.edges.length).to.equal(6)
+
+      let final = utils.finalize(json)
+      expect(utils.getAll(final, 'add')).to.have.length(3)
+    })
   })
 
   describe('let', () => {
@@ -327,7 +368,7 @@ describe('edn', () => {
     it('let mixed vars (wip)', () => {
       var code = `
       (defcop add [s1 s2] [sum])
-      (let [a (add 1 2)
+      (letr [a (add 1 2)
             b (add a (add a 3))]
             (add a b))`
 
