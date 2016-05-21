@@ -235,11 +235,11 @@ describe('edn', () => {
     // expect(json.implementation.nodes[1]).to.deep.equal({'meta': 'math/add', 'name': '+_1'})
   })
 
-  describe('letr', () => {
-    it('simple letr', () => {
+  describe('let', () => {
+    it('simple let', () => {
       var code = `
       (defcop add [s1 s2] [sum])
-      (letr [a (add 1 2) 
+      (let [a (add 1 2) 
              b 3]
              (add a b))`
       var json = lisgy.parse_to_json(code)
@@ -253,10 +253,10 @@ describe('edn', () => {
       expect(utils.getAll(final, 'add')).to.have.length(2)
     })
 
-    it('letr mixed vars', () => {
+    it('let mixed vars', () => {
       var code = `
       (defcop add [s1 s2] [sum])
-      (letr [a (add 1 2)
+      (let [a (add 1 2)
              b (add a 3)]
              (add a b))`
       var json = lisgy.parse_to_json(code)
@@ -269,106 +269,100 @@ describe('edn', () => {
       let final = utils.finalize(json)
       expect(utils.getAll(final, 'add')).to.have.length(3)
     })
-  })
-
-  describe('let', () => {
-    it('simple let', () => {
-      var code1 = '(defcop add [s1 s2] [sum])(let [a (add 1 2) b 3] (add a b))'
-      var code2 = '(defcop add [s1 s2] [sum])(add (add 1 2) 3)'
-      var json1 = lisgy.parse_to_json(code1)
-      var json2 = lisgy.parse_to_json(code2)
-      expect(json1.error || '').to.equal('')
-      expect(json2.error || '').to.equal('')
-
-      // console.log(JSON.stringify(json1, null, 2))
-      // console.log(JSON.stringify(json2, null, 2))
-
-      expect(json1.edges).to.deep.equal(json2.edges)
-      expect(json1.nodes).to.deep.equal(json2.nodes)
-    })
 
     it('multiple let FNs', () => {
-      var code1 = '(defcop add [s1 s2] [sum])(let [a (add 1 2) b 3] (add a b) (add a a))'
-      var code2 = '(defcop add [s1 s2] [sum])(add (add 1 2) 3) (add (add 1 2) (add 1 2))'
-      var json1 = lisgy.parse_to_json(code1)
-      var json2 = lisgy.parse_to_json(code2)
-      expect(json1.error || '').to.equal('')
-      expect(json2.error || '').to.equal('')
+      var code = `(defcop add [s1 s2] [sum])
+      (let [a (add 1 2)
+            b 3]
+            (add a b)
+            (add a a))`
+      var json = lisgy.parse_to_json(code)
+      expect(json.error || '').to.equal('')
 
-      // console.log(JSON.stringify(json1, null, 2))
-      // console.log(JSON.stringify(json2, null, 2))
+      // console.log(JSON.stringify(json, null, 2))
+      expect(json.nodes.length).to.equal(6)
+      expect(json.edges.length).to.equal(6)
 
-      expect(json1.edges).to.deep.equal(json2.edges)
-      expect(json1.nodes).to.deep.equal(json2.nodes)
+      let final = utils.finalize(json)
+      expect(utils.getAll(final, 'add')).to.have.length(3)
     })
 
     it('multiple lets', () => {
-      var code1 = '(defcop add [s1 s2] [sum])(let [a (add 1 2) b 3] (let [a 2] (add a b)))'
-      var code2 = '(defcop add [s1 s2] [sum])(add 2 3)'
-      var json2 = lisgy.parse_to_json(code2)
-      var json1 = lisgy.parse_to_json(code1)
-      expect(json1.error || '').to.equal('')
-      expect(json2.error || '').to.equal('')
+      // TODO: dose this work as expected?
+      /**
+       * currently it creates 6 nodes and 4 edges
+       * 2 'add' nodes and 4 'const' nodes [1 2 3 4]
+       * 2 edges for '(add 1 2)' and 2 edges for '(add 3 4)'
+       *
+       * Expected minimum: 3 nodes and 2 edges
+       */
+      var code = `(defcop add [s1 s2] [sum])
+      (let [a (add 1 2)
+            b 3]
+           (let [a 4]
+                (add b a)))`
+      var json = lisgy.parse_to_json(code)
+      expect(json.error || '').to.equal('')
 
-      // console.log(JSON.stringify(json1, null, 2))
-      // console.log(JSON.stringify(json2, null, 2))
+      // console.log(JSON.stringify(json, null, 2))
+      expect(json.nodes.length).to.equal(6)
+      expect(json.edges.length).to.equal(4)
 
-      expect(json1.edges).to.deep.equal(json2.edges)
-      expect(json1.nodes).to.deep.equal(json2.nodes)
+      let final = utils.finalize(json)
+      expect(utils.getAll(final, 'add')).to.have.length(2)
     })
 
     it('multiple lets with multiple FNs', () => {
-      var code1 = '(defcop add [s1 s2] [sum])(let [a (add 1 2) b 3] (let [a 2] (add a b) (add b b)) (add a b))'
-      var code2 = '(defcop add [s1 s2] [sum])(add 2 3)(add 3 3)(add (add 1 2) 3)'
-      var json2 = lisgy.parse_to_json(code2)
-      var json1 = lisgy.parse_to_json(code1)
-      expect(json1.error || '').to.equal('')
-      expect(json2.error || '').to.equal('')
+      var code = `(defcop add [s1 s2] [sum])
+      (let [a (add 1 2) b 3]
+           (let [a 4]
+                (add a b)
+                (add b b))
+           (add a b))`
+      var json = lisgy.parse_to_json(code)
+      expect(json.error || '').to.equal('')
 
-      // console.log(JSON.stringify(json1, null, 2))
-      // console.log(JSON.stringify(json2, null, 2))
+      // console.log(JSON.stringify(json, null, 2))
+      expect(json.nodes.length).to.equal(8)
+      expect(json.edges.length).to.equal(8)
 
-      expect(json1.edges).to.deep.equal(json2.edges)
-      expect(json1.nodes).to.deep.equal(json2.nodes)
+      let final = utils.finalize(json)
+      expect(utils.getAll(final, 'add')).to.have.length(4)
     })
 
     it('let inside FN', () => {
-      var code1 = '(defcop add [s1 s2] [sum])(add 1 (let [a 2 b 3] (add a b)))'
-      var code2 = '(defcop add [s1 s2] [sum])(add 1 (add 2 3))'
+      var code = `(defcop add [s1 s2] [sum])
+      (add 1
+           (let [a 2 b 3]
+                (add a b)))`
+      var json = lisgy.parse_to_json(code)
+      expect(json.error || '').to.equal('')
 
-      var json2 = lisgy.parse_to_json(code2)
-      var json1 = lisgy.parse_to_json(code1)
-      expect(json1.error || '').to.equal('')
-      expect(json2.error || '').to.equal('')
+      // console.log(JSON.stringify(json, null, 2))
+      expect(json.nodes.length).to.equal(5)
+      expect(json.edges.length).to.equal(4)
 
-      // console.log(JSON.stringify(json1, null, 2))
-      // console.log(JSON.stringify(json2, null, 2))
-
-      expect(json1.edges).to.deep.equal(json2.edges)
-      expect(json1.nodes).to.deep.equal(json2.nodes)
-
+      let final = utils.finalize(json)
+      expect(utils.getAll(final, 'add')).to.have.length(2)
     })
 
     it('let inside defco', () => {
-      var code1 = '(defcop add [s1 s2] [sum])(defco test [a] (:out (let [b 2] (add a b))))'
-      var code2 = '(defcop add [s1 s2] [sum])(defco test [a] (:out (add a 2)))'
+      var code = '(defcop add [s1 s2] [sum])(defco test [a] (:out (let [b 2] (add a b))))'
 
-      var json2 = lisgy.parse_to_json(code2)
-      var json1 = lisgy.parse_to_json(code1)
-      expect(json1.error || '').to.equal('')
-      expect(json2.error || '').to.equal('')
+      var json = lisgy.parse_to_json(code)
+      expect(json.error || '').to.equal('')
 
-      // console.log(JSON.stringify(json1, null, 2))
-      // console.log(JSON.stringify(json2, null, 2))
-
-      expect(json1.edges).to.deep.equal(json2.edges)
-      expect(json1.nodes).to.deep.equal(json2.nodes)
+      // console.log(JSON.stringify(json, null, 2))
+      expect(json.nodes.length).to.equal(1)
+      expect(json.edges.length).to.equal(0)
+      expect(json.nodes[0].value.implementation.nodes.length).to.equal(2)
+      expect(json.nodes[0].value.implementation.edges.length).to.equal(3)
     })
-
+/*
     it('let mixed vars (wip)', () => {
       var code = `
       (defcop add [s1 s2] [sum])
-      (letr [a (add 1 2)
+      (let [a (add 1 2)
             b (add a (add a 3))]
             (add a b))`
 
@@ -377,7 +371,7 @@ describe('edn', () => {
       // console.log(JSON.stringify(json, null, 2))
       // TODO: add tests
     })
-
+*/
     it('let mixed vars with multiple lets (wip)', () => {
       var code = `
       (defcop add [s1 s2] [sum])
@@ -410,7 +404,7 @@ describe('edn', () => {
       expect(json.error || '').to.equal('')
       expect(utils.getAll(utils.finalize(json), 'stdin')).to.have.length(1)
     })
-
+/*
     it('let with multiple out ports', () => {
       var code1 = '(defcop mul [s1 s2] [sum])(defcop add [s1 s2] [sum])(defco letPorts [a] (let [* mul m6 (* 2 3) a5 (* a 5)] [:o1 m6 :o2 (add 4 m6) :o3 a5 :o4 (* 6 7)]))'
       var code2 = '(defcop mul [s1 s2] [sum])(defcop add [s1 s2] [sum])(defco letPorts [a] [:o1 (mul 2 3) :o2 (add 4 (mul 2 3)) (add 4) without m6 :o3 (mul a 5) :o4 (mul 6 7)])'
@@ -426,12 +420,13 @@ describe('edn', () => {
       expect(json1.edges).to.deep.equal(json2.edges)
       expect(json1.nodes).to.deep.equal(json2.nodes)
     })
+*/
   })
 
   describe('if', () => {
     it('simple if', () => {
       var code1 = '(defcop if [check truePath falsePath] [value])' +
-        //'(defco if [check truePath falsePath] (mux truePath falsePath check))' +
+        // '(defco if [check truePath falsePath] (mux truePath falsePath check))' +
         '(defcop less [s1 s2] [sum])(defcop add [s1 s2] [sum])' +
         '(defco test [n] (if (less n 10) (add n 1) n))'
       var json1 = lisgy.parse_to_json(code1)

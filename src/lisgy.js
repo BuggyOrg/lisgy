@@ -130,7 +130,7 @@ export function parse_edn (inputCode) {
 
   function mapVars (ednVars) {
     if (ednVars.val.length % 2 !== 0) {
-      logError('let has a wrong number of variables')
+      logError('letOld has a wrong number of variables')
       return []
     }
 
@@ -152,7 +152,8 @@ export function parse_edn (inputCode) {
     if (obj instanceof edn.List || obj instanceof edn.Vector ||
         obj instanceof edn.Map || obj instanceof edn.Set) {
       var first = obj.val[0]
-      if (first instanceof edn.Symbol && first.val === 'let') {
+      if (first instanceof edn.Symbol && first.val === 'letOld') {
+        logError('Warning letOld used')
         var newVars = mapVars(obj.val[1])
         if (newVars.length === 0) {
           return obj
@@ -549,13 +550,13 @@ function parse_edn_to_json (ednObj, inputCode) {
             node.port = newOutPort
           }
           return node
-        case 'let':
-          error('could not transform a (let [...] ...)')
+        case 'letOld':
+          error('could not transform a (letOld [...] ...)')
           return
-        case 'letr':
+        case 'let':
           newVars = mapVars(data[1])
           if (newVars.length === 0) {
-            logError('let has a wrong number of variables')
+            error('let has a wrong number of variables')
           }
           log(1, 'letr vars', _.map(newVars, (v) => v.name))
 
@@ -567,7 +568,10 @@ function parse_edn_to_json (ednObj, inputCode) {
 
           vars.push(newVars)
 
-          let newNode = walk(data[2], implementation, inputPorts, parrent, inPort, newOutPort)
+          let newNode
+          for (let i = 2; i < data.length; i++) {
+            newNode = walk(data[i], implementation, inputPorts, parrent, inPort, newOutPort)
+          }
           vars.pop()
           return newNode
         case 'ifOLD':
@@ -854,7 +858,7 @@ export function edn_add_components (edn) {
         walkAndFindFunctions(root[2].val)
         walkAndFindFunctions(root[3].val)
         break
-      case 'letr':
+      case 'let':
         let vars = root[1].val
         let ignore = []
         for (let i = 0; i < vars.length; i += 2) {
@@ -868,7 +872,10 @@ export function edn_add_components (edn) {
             walkAndFindFunctions(value.val)
           }
         }
-        walkAndFindFunctions(root[2].val)
+
+        for (let i = 2; i < root.length; i++) {
+          walkAndFindFunctions(root[i].val)
+        }
         ignores.pop()
         break
       default:
