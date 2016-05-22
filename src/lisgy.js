@@ -509,6 +509,7 @@ function parse_edn_to_json (ednObj, inputCode) {
     var component
     // console.error('walk on ', root)
     var data = root.val
+    if (data instanceof Array && data.length === 0) return
     if (root instanceof edn.List || root instanceof edn.Vector ||
         root instanceof edn.Map || root instanceof edn.Set) {
       var name = data[0].name
@@ -811,7 +812,7 @@ export function edn_add_components (edn) {
   function walkAndFindFunctions (root) {
     var name
 
-    if (root instanceof Array) {
+    if (root instanceof Array && root.length > 0) {
       name = root[0].val
     } else {
       return // output port name

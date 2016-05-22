@@ -93,16 +93,16 @@ function parse (code, client) {
         resolve(graphlib.json.read(json), client.get)
           .then((res) => convertGraph(res))
           .then(parseToJSON)
-          .catch((error) => console.error(error))
+          .catch((error) => console.error(error.stack))
       } else if (program.resolve) {
         resolve(graphlib.json.read(json), client.get)
           .then((res) => graphlib.json.write(res))
           .then(parseToJSON)
-          .catch((error) => console.error(error))
+          .catch((error) => console.error(error.stack))
       } else {
         parseToJSON(json)
       }
-    }).catch((error) => console.error(error))
+    }).catch((error) => console.error(error.stack))
 }
 
 program
