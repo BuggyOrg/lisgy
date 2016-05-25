@@ -5,9 +5,9 @@ import * as edn from 'jsedn'
 import chalk from 'chalk'
 
 var componentApi
-var log, errorsWithColor
+var log, errorsWithColor, logsDisabled
 
-setLog(false, true)
+setLog(false, true, false)
 
 export function connect (server) {
   if (!server) {
@@ -25,18 +25,21 @@ function logError (...args) {
   if (errorsWithColor) {
     args[0] = chalk.bold.red(args[0])
   }
-  console.error.call(console.error, ...args)
+  if (!logsDisabled) {
+    console.error.call(console.error, ...args)
+  }
 }
 
-export function setLog (verbose, enableColor) {
+export function setLog (verbose, enableColor, disableLogs) {
+  logsDisabled = disableLogs
   errorsWithColor = enableColor
   log = function (...args) {
-    if (verbose && verbose >= args[0]) {
+    if (verbose && verbose >= args[0] && !logsDisabled) {
       if (args[0] === 0 && enableColor) {
         args[1] = chalk.bold.yellow(args[1])
       }
       args[0] = ''
-      console.log.call(console.log, ...args)
+      console.error.call(console.error, ...args)
     }
   }
 }

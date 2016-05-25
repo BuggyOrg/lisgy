@@ -16,10 +16,12 @@ var readParseExamples = (file) => {
 
 describe('edn', () => {
   it('defco fail on missing defcop', () => {
+    lisgy.setLog(false, true, true)
     var code = '(defco newCo1 [a b] [:value (math/less a (math/add b 3))])'
     var json = lisgy.parse_to_json(code)
     // console.log(JSON.stringify(json, null, 2))
     expect(json.error).to.contain('math/less')
+    lisgy.setLog(false, true, false)
   })
 
   it('defcop + defco with two output ports', () => {
@@ -150,9 +152,11 @@ describe('edn', () => {
 
   describe('(FN ARG ...) or (FN :PORT ARG ...)', () => {
     it('wrong number of args for (add 2 3 4)', () => {
+      lisgy.setLog(false, true, true)
       var code = '(defcop math/add [s1 s2] [sum])(math/add 2 3 4)'
       var json = lisgy.parse_to_json(code)
       expect(json.error || 'none').to.equal(json.error)
+      lisgy.setLog(false, true, false)
     })
 
     it('(add :s1 2 :s2 1)', () => {
@@ -186,6 +190,7 @@ describe('edn', () => {
     })
 
     it('wrong mixed port syntax for (add :s2 2 1) or (add 2 :s2 1)', () => {
+      lisgy.setLog(false, true, true)
       var code = '(defcop math/add [s1 s2] [sum])(math/add :s2 2 1)'
       var json = lisgy.parse_to_json(code)
       // console.log(JSON.stringify(json, null, 2))
@@ -195,6 +200,7 @@ describe('edn', () => {
       json = lisgy.parse_to_json(code)
       // console.log(JSON.stringify(json, null, 2))
       expect(json.error || 'none').to.equal(json.error)
+      lisgy.setLog(false, true, false)
     })
 
     it('does not drop zeros', () => {
@@ -206,11 +212,13 @@ describe('edn', () => {
 
   describe('(port :name (FN))', () => {
     it('wrong output port names', () => {
+      lisgy.setLog(false, true, true)
       var code = '(defcop test [s1 s2] [o1 o2 o3]) (test 1 (port :randomwrongname (test 1 2)))'
       var json = lisgy.parse_to_json(code)
       // console.log(JSON.stringify(json, null, 2))
       expect(json.error || 'none').to.equal(json.error)
       // TODO: Add check for o2 -> s1 and o3 -> s2
+      lisgy.setLog(false, true, false)
     })
 
     it('right output ports', () => {
@@ -385,12 +393,14 @@ describe('edn', () => {
     })
 
     it('let error with wrong number of variables', () => {
+      lisgy.setLog(false, true, true)
       var code = `(defcop add [s1 s2] [sum])
         (let [a (add 2 3) b] (add a 4))`
       var json = lisgy.parse_to_json(code)
       // console.log(JSON.stringify(json, null, 2))
       expect(json.error || '').to.equal(json.error)
       expect(json.error).to.contain('let')
+      lisgy.setLog(false, true, false)
     })
 
     it('let does not create multiple graphs for every usage', () => {

@@ -117,7 +117,7 @@ program
   .action(function (code) {
     var client = lib(program.elastic)
     lisgy.connect(program.elastic)
-    lisgy.setLog(program.verbose, !program.nocolor)
+    lisgy.setLog(program.verbose, !program.nocolor, false)
     if (!code) {
       log('no input code using editor/stdin')
       stdinOrEdit('.lisp', (code) => parse(code, client))
