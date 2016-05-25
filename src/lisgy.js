@@ -3,6 +3,7 @@ import libConnection from '@buggyorg/component-library'
 import _ from 'lodash'
 import * as edn from 'jsedn'
 import chalk from 'chalk'
+import * as allImports from './import/all.js'
 
 var componentApi
 var log, errorsWithColor, logsDisabled
@@ -51,7 +52,15 @@ function randomString () {
 */
 export function parse_edn (inputCode) {
   log(0, '# parse to edn')
-  var code = '[' + inputCode + ']' // add []
+
+  let newCode = inputCode
+
+  for (const key of Object.keys(allImports.strings)) {
+    let importString = '(import ' + key + ')'
+    newCode = newCode.replace(importString, allImports.strings[key])
+  }
+
+  var code = '[' + newCode + ']' // add []
   var ednObj = edn.parse(code)
   var vars = []
 

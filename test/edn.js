@@ -418,6 +418,15 @@ describe('edn', () => {
     })
   })
 
+  it('import', () => {
+    var code = `(import math)
+          (defcop math/add [s1 s2] [sum])
+          (+ 1 2)
+          `
+    var json = lisgy.parse_to_json(code)
+    expectNoError(json)
+  })
+
   it('can parse pattern match', () => {
     var parsed = lisgy.parse_to_json(readParseExamples('match.json').code)
     fs.writeFileSync('test/examples/match_result.json', JSON.stringify(parsed, null, 2))
