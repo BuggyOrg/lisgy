@@ -119,7 +119,7 @@ describe('edn', () => {
     })
 
     it('named output port lambda', () => {
-      var code = `(defcop math/less [isLess than] [value]) 
+      var code = `(defcop math/less [isLess than] [value])
                   (defco newCo2 [a] [:test (fn [b] (math/less a b))])`
       var json = lisgy.parse_to_json(code)
       // console.log(JSON.stringify(json, null, 2))
@@ -222,7 +222,7 @@ describe('edn', () => {
     })
   })
 
-  it('defco with lambda (wip)', () => {
+  /* it('defco with lambda (wip)', () => {
     var code = `
     (defcop math/add [s1 s2] [sum])
     (defco test [a b c]
@@ -231,15 +231,15 @@ describe('edn', () => {
     (test 1 2 3)`
     var json = lisgy.parse_to_json(code)
     // console.log(JSON.stringify(json, null, 2))
-    // expect(json.implementation.nodes[0]).to.deep.equal({'meta': 'math/less', 'name': 'le_0'})
-    // expect(json.implementation.nodes[1]).to.deep.equal({'meta': 'math/add', 'name': '+_1'})
-  })
+    expect(json.implementation.nodes[0]).to.deep.equal({'meta': 'math/less', 'name': 'le_0'})
+    expect(json.implementation.nodes[1]).to.deep.equal({'meta': 'math/add', 'name': '+_1'})
+  }) */
 
   describe('let', () => {
     it('simple let', () => {
       var code = `
       (defcop add [s1 s2] [sum])
-      (let [a (add 1 2) 
+      (let [a (add 1 2)
              b 3]
              (add a b))`
       var json = lisgy.parse_to_json(code)
@@ -375,8 +375,8 @@ describe('edn', () => {
     it('let mixed vars with multiple lets (wip)', () => {
       var code = `
       (defcop add [s1 s2] [sum])
-      (let [a (add 1 2)] 
-           (let [b (add a 3)] 
+      (let [a (add 1 2)]
+           (let [b (add a 3)]
                 (add b 4)))`
       var json = lisgy.parse_to_json(code)
       expect(json.error || '').to.equal('')
@@ -430,7 +430,7 @@ describe('edn', () => {
         '(defcop less [s1 s2] [sum])(defcop add [s1 s2] [sum])' +
         '(defco test [n] (if (less n 10) (add n 1) n))'
       var json1 = lisgy.parse_to_json(code1)
-      // console.log(JSON.stringify(json1, null, 2))
+      console.log(JSON.stringify(json1, null, 2))
       expect(json1.error || '').to.equal('')
     })
   })
@@ -525,4 +525,12 @@ describe('edn', () => {
           })
       })
   */
+
+  it('can parse pattern match', () => {
+    var parsed = lisgy.parse_to_json(readParseExamples('match.json').code)
+    fs.writeFileSync('test/examples/match_result.json', JSON.stringify(parsed, null, 2))
+    expect(parsed).to.be.ok
+  })
+  // TODO function input
+  // TODO function output
 })
