@@ -53,7 +53,6 @@ export function parse_edn (inputCode) {
   log(0, '# parse to edn')
   var code = '[' + inputCode + ']' // add []
   var ednObj = edn.parse(code)
-
   var vars = []
 
   var newObjs = []
@@ -190,9 +189,7 @@ export function parse_edn (inputCode) {
 
 export function parse_to_json (inputCode, addMissingComponents) {
   var ednObj = parse_edn(inputCode)
-
   var p = Promise.resolve(ednObj)
-
   if (addMissingComponents) {
     p = edn_add_components(ednObj)
   } else {
@@ -634,6 +631,50 @@ function parse_edn_to_json (ednObj, inputCode) {
           concatArrays('nodes', implementation, trueImp, falseImp)
 
           implementation.edges.push(gEdge(variable, demux.name + ':' + demuxC.input[0]))
+          break
+        case 'match':
+          // TODO id of match
+          var rules = {'name': 'match', 'rules': []}
+          var input = data[1].val
+          // var inputs = []
+          /* for (let i = 0; i < input.length; i++) {
+            inputs.push(walk(input[i], implementation, inputPorts))
+          }*/
+          for (let i = 2; i < data.length - 1; i = i + 2) {
+            rules.rules.push({'inputs': [], 'outputs': []})
+            var pattern = data[i].val
+            if (pattern === ':else') {
+              for (let j = 0; j < input.length; j++) {
+                rules.rules[rules.rules.length - 1]['inputs'].push({'variable': true, 'type': 'generic', 'value': input[j], 'name': input[j]})
+              }
+            } else {
+              for (let j = 0; j < pattern.length; j++) {
+                var pat = walk(pattern[j], implementation, inputPorts)
+                if (pat.name !== undefined && pat.name.startsWith('const')) {
+                  var value = pat.name.substring(6, 7)
+                  var type
+                  if (isNaN(value)) {
+                    type = 'string'
+                  } else {
+                    type = 'number' // other const-types?
+                  }
+                  rules.rules[rules.rules.length - 1]['inputs'].push({'variable': false, 'type': type, 'value/const': value, 'name': input[j]})
+                } else {
+                  rules.rules[rules.rules.length - 1]['inputs'].push({'variable': true, 'type': 'generic', 'value': input[j], 'name': input[j]})
+                }
+              }
+            }
+            var output = data[i + 1] // TODO more outputs?
+            if (typeof output === 'object') {
+              var varialeName = walk(output, implementation, inputPorts).port
+              rules.rules[rules.rules.length - 1]['outputs'].push({'variable': true, 'type': 'generic', 'value': varialeName, 'name': 'out'})
+            } else {
+              rules.rules[rules.rules.length - 1]['outputs'].push({'variable': false, 'type': typeof output, 'value/const': output, 'name': 'out'})
+            }
+          }
+          implementation.nodes = []
+          implementation.nodes.push(rules)
+          // fs.writeFileSync('test/examples/match_result.json', JSON.stringify(rules, null, 2))
           break
         default:
           // (FN ARG*)

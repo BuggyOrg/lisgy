@@ -1,0 +1,158 @@
+{
+  "code": "(match [n m] [0 0] \"FizzBuzz\" [0 _] \"Fizz\" [_ 0] \"Buzz\" :else n)",
+  "nodes": [
+    {
+      "v": "match",
+      "value": {
+        "name": "match",
+        "rules": [
+          {
+            "inputs": [
+              {
+                "variable": false,
+                "type": "number",
+                "value/const": "0",
+                "name": {
+                  "ns": null,
+                  "name": "n",
+                  "val": "n"
+                }
+              },
+              {
+                "variable": false,
+                "type": "number",
+                "value/const": "0",
+                "name": {
+                  "ns": null,
+                  "name": "m",
+                  "val": "m"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "variable": false,
+                "type": "string",
+                "value/const": "FizzBuzz",
+                "name": "out"
+              }
+            ]
+          },
+          {
+            "inputs": [
+              {
+                "variable": false,
+                "type": "number",
+                "value/const": "0",
+                "name": {
+                  "ns": null,
+                  "name": "n",
+                  "val": "n"
+                }
+              },
+              {
+                "variable": true,
+                "type": "generic",
+                "value": {
+                  "ns": null,
+                  "name": "m",
+                  "val": "m"
+                },
+                "name": {
+                  "ns": null,
+                  "name": "m",
+                  "val": "m"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "variable": false,
+                "type": "string",
+                "value/const": "Fizz",
+                "name": "out"
+              }
+            ]
+          },
+          {
+            "inputs": [
+              {
+                "variable": true,
+                "type": "generic",
+                "value": {
+                  "ns": null,
+                  "name": "n",
+                  "val": "n"
+                },
+                "name": {
+                  "ns": null,
+                  "name": "n",
+                  "val": "n"
+                }
+              },
+              {
+                "variable": false,
+                "type": "number",
+                "value/const": "0",
+                "name": {
+                  "ns": null,
+                  "name": "m",
+                  "val": "m"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "variable": false,
+                "type": "string",
+                "value/const": "Buzz",
+                "name": "out"
+              }
+            ]
+          },
+          {
+            "inputs": [
+              {
+                "variable": true,
+                "type": "generic",
+                "value": {
+                  "ns": null,
+                  "name": "n",
+                  "val": "n"
+                },
+                "name": {
+                  "ns": null,
+                  "name": "n",
+                  "val": "n"
+                }
+              },
+              {
+                "variable": true,
+                "type": "generic",
+                "value": {
+                  "ns": null,
+                  "name": "m",
+                  "val": "m"
+                },
+                "name": {
+                  "ns": null,
+                  "name": "m",
+                  "val": "m"
+                }
+              }
+            ],
+            "outputs": [
+              {
+                "variable": true,
+                "type": "generic",
+                "value": "n",
+                "name": "out"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "edges": []
+}
