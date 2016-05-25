@@ -435,6 +435,20 @@ describe('edn', () => {
     })
   })
 
+  describe('array []', () => {
+    it('empty array node', () => {
+      var code = `(defcop empty? [array] [isEmpty]) ; (def empty? array/empty)
+          (empty? [])
+          `
+      var json = lisgy.parse_to_json(code)
+      // console.log(JSON.stringify(json, null, 2))
+      expect(json.error || '').to.equal('')
+
+      expect(json.nodes.length).to.equal(2)
+      expect(json.edges.length).to.equal(1)
+    })
+  })
+
   /*
     it('(def name old_name)', () => {
       var code = '(defcop math/less [isLess than] [value])(defcop math/add [s1 s2] [sum])(def le math/less)(def + math/add)(defco newCo3 (a b c) (:out (le a (+ b c))))'
