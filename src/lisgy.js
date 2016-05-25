@@ -187,6 +187,9 @@ export function parse_edn (inputCode) {
   }
 }
 
+/**
+ * Parse the input code to json
+ */
 export function parse_to_json (inputCode, addMissingComponents) {
   var ednObj = parse_edn(inputCode)
   var p = Promise.resolve(ednObj)
