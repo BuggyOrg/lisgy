@@ -820,12 +820,12 @@ export function edn_add_components (edn) {
     walkAndFindFunctions(vElement.val)
   })
 
-  // filter out already defined components
-  functions = functions.filter((newDefine) =>
-    !definedComponents.some((defined) => defined === newDefine)
-  ).map((e) =>
+  functions = functions.map((e) =>
     // map them to defines
     defines[e] ? defines[e] : e
+  ).filter((newDefine) =>
+    // filter out already defined components
+    !definedComponents.some((defined) => defined === newDefine)
   )
 
   function walkAndFindFunctions (root) {
@@ -842,6 +842,12 @@ export function edn_add_components (edn) {
         // (def NAME OLD_NAME)
         var new_name = root[1].val
         var old_name = root[2].val
+
+        if (defines[old_name]) {
+          log(1, 'using old def ' + defines[old_name] + ' and not ' + old_name)
+          old_name = defines[old_name]
+        }
+
         defines[new_name] = old_name
         log(1, 'def map from ' + old_name + ' to ' + new_name)
         break
