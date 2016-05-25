@@ -683,6 +683,12 @@ function parse_edn_to_json (ednObj, inputCode) {
             }
           }
 
+          if (node.meta === 'functional/partial') {
+            log(2, 'functional/partial setting params', data[1])
+            node.params = {partial: data[1]}
+            data.splice(1, 1)
+          }
+
           var numInputs = data.length - 1
           if (portArgs) {
             numInputs /= 2
@@ -708,15 +714,30 @@ function parse_edn_to_json (ednObj, inputCode) {
               }
             }
 
+            let toPort = node.name + ':' + argPort
+
             if (arg instanceof edn.List ||
                 arg instanceof edn.Vector ||
                 arg instanceof edn.Map ||
                 arg instanceof edn.Set ||
                 _.includes(inputPorts, arg.name)) {
               log(2, 'FN walk over array/list')
-              let nextNode = walk(arg, implementation, inputPorts, node.name, argPort)
-              let toPort = node.name + ':' + argPort
-              addEdge(implementation, nextNode, toPort)
+
+              if (arg instanceof edn.Vector && arg.val.length === 0) {
+                log(2, 'FN empty array')
+                let emptyArrayNode = {
+                  'meta': 'array/emptyArray',
+                  'name': 'array/emptyArray_' + count++
+                }
+
+                implementation.nodes.push(gNode(emptyArrayNode))
+
+                let nextNode = {name: emptyArrayNode.name, outputPorts: ['output'], port: 'output'}
+                addEdge(implementation, nextNode, toPort)
+              } else {
+                let nextNode = walk(arg, implementation, inputPorts, node.name, argPort)
+                addEdge(implementation, nextNode, toPort)
+              }
             } else {
               log(2, 'FN walk over symbol', arg.val || arg)
               if (!_.isNaN(parseInt(arg))) { // check for NaN, because 0 is a number, too - see issue #1
@@ -728,14 +749,12 @@ function parse_edn_to_json (ednObj, inputCode) {
 
                 implementation.nodes.push(gNode(constNode))
 
-                let toPort = node.name + ':' + argPort
                 let nextNode = {name: constNode.name, outputPorts: ['output'], port: 'output'}
                 addEdge(implementation, nextNode, toPort)
               } else {
                 var argVar = getVar(arg.val)
                 if (argVar) {
                   log(3, 'found var', argVar)
-                  let toPort = node.name + ':' + argPort
                   addEdge(implementation, argVar.val, toPort)
                 } else {
                   log(2, 'faild to find var ' + arg.val + ' inside', getAllVars())
