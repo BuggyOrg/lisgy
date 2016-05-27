@@ -894,6 +894,8 @@ export function edn_add_components (edn) {
     }
 
     switch (name) {
+      case 'import':
+        break
       case 'def':
         // (def NAME OLD_NAME)
         var new_name = root[1].val
