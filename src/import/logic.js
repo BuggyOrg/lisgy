@@ -10,6 +10,9 @@ export var logic = `
 (def mux logic/mux)
 (def demux logic/demux)
 
-(defco if [check truePath falsePath] (mux truePath falsePath check))
-(defco neq? [a b] (! (= a b)))
+;(defco if [check truePath falsePath] (mux truePath falsePath check))
+;(defco neq? [a b] (! (= a b)))
+;(def if logic/if)
+;(def neq logic/neq)
+;(def neq? logic/neq)
 `

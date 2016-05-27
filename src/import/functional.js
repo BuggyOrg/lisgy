@@ -3,6 +3,6 @@ export var functional = `
 (def map functional/map)
 (def reduce functional/reduce)
 (def partial_n functional/partial_n)
-(def lambda functional/lambda)
+;(def lambda functional/lambda) use (fn [...] (...))
 (def partial functional/partial)
 `
