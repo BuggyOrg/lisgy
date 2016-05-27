@@ -418,8 +418,41 @@ describe('edn', () => {
     })
   })
 
-  it('import', () => {
+  describe('partial', () => {
+    it('simple with 3 args', () => {
+      var code = `(defcop functional/partial [fn value] [result])
+          (functional/partial 1 2 3)`
+      var json = lisgy.parse_to_json(code)
+      expectNoError(json)
+      expect(json.nodes.length).to.equal(3)
+      expect(json.edges.length).to.equal(2)
+
+      expect(json.nodes[0].value.params).to.deep.equal({ 'partial': 1 })
+    })
+
+    it('with 2 args', () => {
+      var code = `(defcop functional/partial [fn value] [result])
+          (functional/partial 2 3)`
+      var json = lisgy.parse_to_json(code)
+      expectNoError(json)
+      expect(json.nodes.length).to.equal(3)
+      expect(json.edges.length).to.equal(2)
+
+      expect(json.nodes[0].value.params).to.deep.equal({ 'partial': 0 })
+    })
+  })
+
+  it('(import math)', () => {
     var code = `(import math)
+          (defcop math/add [s1 s2] [sum])
+          (+ 1 2)
+          `
+    var json = lisgy.parse_to_json(code)
+    expectNoError(json)
+  })
+
+  it('(import all)', () => {
+    var code = `(import all)
           (defcop math/add [s1 s2] [sum])
           (+ 1 2)
           `

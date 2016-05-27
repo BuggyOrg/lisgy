@@ -741,8 +741,14 @@ function parse_edn_to_json (ednObj, inputCode) {
 
           if (node.meta === 'functional/partial') {
             log(2, 'functional/partial setting params', data[1])
-            node.params = {partial: data[1]}
-            data.splice(1, 1)
+            if (data.length === 4) {
+              node.params = {partial: data[1]}
+              data.splice(1, 1)
+            } else if (data.length === 3) {
+              node.params = {partial: 0}
+            } else {
+              error('functional/partial used with wrong number of ports ' + data.length)
+            }
           }
 
           var numInputs = data.length - 1
