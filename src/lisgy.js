@@ -181,6 +181,12 @@ export function parse_edn (inputCode) {
 
         obj = newObj
         vars.pop()
+      } else if (first instanceof edn.Symbol && (first.val === 'partial' || first.val === 'functional/partial') && obj.val.length > 4) {
+        var rest = new edn.List([first, obj.val[1], obj.val[2]])
+        for (i = 3; i < obj.val.length; i++) {
+          rest = new edn.List([first, rest, obj.val[i]])
+        }
+        obj = rest
       } else {
         for (i = 0; i < obj.val.length; i++) {
           obj.val[i] = walk(obj.val[i], parent)

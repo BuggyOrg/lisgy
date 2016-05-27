@@ -440,6 +440,43 @@ describe('edn', () => {
 
       expect(json.nodes[0].value.params).to.deep.equal({ 'partial': 0 })
     })
+    it('with 4 args', () => {
+      var code = `(def partial functional/partial)(defcop functional/partial [fn value] [result])
+          (partial 1 2 3 4)`
+      var json = lisgy.parse_to_json(code)
+      expectNoError(json)
+      expect(json.nodes.length).to.equal(7)
+      expect(json.edges.length).to.equal(6)
+
+      expect(json.nodes[0].value.params).to.deep.equal({ 'partial': 0 })
+
+      var code2 = `(def partial functional/partial)(defcop functional/partial [fn value] [result])
+          (partial (partial (partial 1 2) 3) 4)`
+      var json2 = lisgy.parse_to_json(code2)
+      expectNoError(json2)
+      expect(json2.nodes.length).to.equal(7)
+      expect(json2.edges.length).to.equal(6)
+
+      expect(json2.nodes[0].value.params).to.deep.equal({ 'partial': 0 })
+
+      expect(json.nodes).to.deep.equal(json2.nodes)
+      expect(json.edges).to.deep.equal(json2.edges)
+    })
+
+    it('with 5 args', () => {
+      var code = `(def partial functional/partial)(defcop functional/partial [fn value] [result])
+          (partial 1 2 3 4 5)`
+      var json = lisgy.parse_to_json(code)
+      expectNoError(json)
+
+      var code2 = `(def partial functional/partial)(defcop functional/partial [fn value] [result])
+          (partial (partial (partial (partial 1 2) 3) 4) 5)`
+      var json2 = lisgy.parse_to_json(code2)
+      expectNoError(json2)
+
+      expect(json.nodes).to.deep.equal(json2.nodes)
+      expect(json.edges).to.deep.equal(json2.edges)
+    })
   })
 
   it('(import math)', () => {
