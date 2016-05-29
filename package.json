@@ -1,5 +1,5 @@
 {
-  "name": "lisgy",
+  "name": "@buggyorg/lisgy",
   "version": "0.1.0",
   "description": "",
   "main": "lib/lisgy.js",
