@@ -1,6 +1,50 @@
 {
-  "code": "(match [n m] [0 0] \"FizzBuzz\" [0 _] \"Fizz\" [_ 0] \"Buzz\" :else n)",
+  "code": "(match [n m] [0 0] (math/add n 1) [0 _] n [_ 0] \"Buzz\" :else (math/add 1 1))",
   "nodes": [
+    {
+      "v": "add_0",
+      "value": {
+        "meta": "math/add",
+        "name": "add_0"
+      }
+    },
+    {
+      "v": "const(1)_1",
+      "value": {
+        "meta": "math/const",
+        "name": "const(1)_1",
+        "params": {
+          "value": 1
+        }
+      }
+    },
+    {
+      "v": "add_2",
+      "value": {
+        "meta": "math/add",
+        "name": "add_2"
+      }
+    },
+    {
+      "v": "const(1)_3",
+      "value": {
+        "meta": "math/const",
+        "name": "const(1)_3",
+        "params": {
+          "value": 1
+        }
+      }
+    },
+    {
+      "v": "const(1)_4",
+      "value": {
+        "meta": "math/const",
+        "name": "const(1)_4",
+        "params": {
+          "value": 1
+        }
+      }
+    },
     {
       "v": "match",
       "value": {
@@ -21,14 +65,7 @@
                 "name": "m"
               }
             ],
-            "outputs": [
-              {
-                "variable": false,
-                "type": "string",
-                "value/const": "FizzBuzz",
-                "name": "out"
-              }
-            ]
+            "outputs": []
           },
           {
             "inputs": [
@@ -47,9 +84,9 @@
             ],
             "outputs": [
               {
-                "variable": false,
-                "type": "string",
-                "value/const": "Fizz",
+                "variable": true,
+                "type": "generic",
+                "value": "n",
                 "name": "out"
               }
             ]
@@ -93,14 +130,7 @@
                 "name": "m"
               }
             ],
-            "outputs": [
-              {
-                "variable": true,
-                "type": "generic",
-                "value": "n",
-                "name": "out"
-              }
-            ]
+            "outputs": []
           }
         ],
         "inputPorts": {
@@ -113,5 +143,30 @@
       }
     }
   ],
-  "edges": []
+  "edges": [
+    {
+      "v": "const(1)_1",
+      "w": "add_0",
+      "value": {
+        "outPort": "output",
+        "inPort": "s2"
+      }
+    },
+    {
+      "v": "const(1)_3",
+      "w": "add_2",
+      "value": {
+        "outPort": "output",
+        "inPort": "s1"
+      }
+    },
+    {
+      "v": "const(1)_4",
+      "w": "add_2",
+      "value": {
+        "outPort": "output",
+        "inPort": "s2"
+      }
+    }
+  ]
 }

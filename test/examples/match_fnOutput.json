@@ -1,0 +1,18 @@
+{
+  "options": {
+    "directed": true,
+    "multigraph": true,
+    "compound": true
+  },
+  "code": "(match [n m] [0 0] (math/add n 1) [0 _] n [_ 0] \"Buzz\" :else (math/add 1 1))",
+  "inputPorts": {
+    "n": "number"
+  },
+  "outputPorts": {
+    "value": "string"
+  },
+  "implementation": {
+    "nodes": [],
+    "edges": []
+  }
+}

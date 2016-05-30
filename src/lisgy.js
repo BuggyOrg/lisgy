@@ -250,6 +250,12 @@ function parse_edn_to_json (ednObj, inputCode) {
     output: ['to']
   }
 
+  components['math/add'] = {
+    id: 'math/add',
+    input: ['s1', 's2'],
+    output: ['sum']
+  }
+
   _.each(ednObj.val, (vElement) => {
     walk(vElement, implementation, inputPorts)
   })
@@ -652,47 +658,53 @@ function parse_edn_to_json (ednObj, inputCode) {
           break
         case 'match':
           // TODO id of match
-          var rules = {'name': 'match', 'rules': []}
+          var rules = {'name': 'match', 'rules': [], 'inputPorts': {}, 'outputPorts': {}}
           var input = data[1].val
-          // var inputs = []
-          /* for (let i = 0; i < input.length; i++) {
+          var inputs = []
+          for (let i = 0; i < input.length; i++) {
             inputs.push(walk(input[i], implementation, inputPorts))
-          }*/
+            if (inputs[i].name !== undefined && !inputs[i].name.startsWith('const')) {
+              input[i].name = inputs[i].name
+              implementation.edges.push(gEdge(inputs[i].name + ':' + inputs[i].port, rules.name + ':' + inputs[i].name))
+            }
+          }
           for (let i = 2; i < data.length - 1; i = i + 2) {
             rules.rules.push({'inputs': [], 'outputs': []})
             var pattern = data[i].val
             if (pattern === ':else') {
               for (let j = 0; j < input.length; j++) {
-                rules.rules[rules.rules.length - 1]['inputs'].push({'variable': true, 'type': 'generic', 'value': input[j], 'name': input[j]})
+                rules.rules[rules.rules.length - 1]['inputs'].push({'variable': true, 'type': 'generic', 'value': input[j].name, 'name': input[j].name})
+                rules.inputPorts[input[j].name] = 'generic'
               }
             } else {
               for (let j = 0; j < pattern.length; j++) {
-                var pat = walk(pattern[j], implementation, inputPorts)
-                if (pat.name !== undefined && pat.name.startsWith('const')) {
-                  var value = pat.name.substring(6, 7)
-                  var type
-                  if (isNaN(value)) {
-                    type = 'string'
-                  } else {
-                    type = 'number' // other const-types?
-                  }
-                  rules.rules[rules.rules.length - 1]['inputs'].push({'variable': false, 'type': type, 'value/const': value, 'name': input[j]})
+                if (typeof pattern[j] !== 'object') { // constant object?
+                  var value = pattern[j]
+                  var type = typeof pattern[j]
+                  rules.rules[rules.rules.length - 1]['inputs'].push({'variable': false, 'type': type, 'value/const': value, 'name': input[j].name})
                 } else {
-                  rules.rules[rules.rules.length - 1]['inputs'].push({'variable': true, 'type': 'generic', 'value': input[j], 'name': input[j]})
+                  rules.rules[rules.rules.length - 1]['inputs'].push({'variable': true, 'type': 'generic', 'value': input[j].name, 'name': input[j].name})
+                  rules.inputPorts[input[j].name] = 'generic'
                 }
               }
             }
             var output = data[i + 1] // TODO more outputs?
-            if (typeof output === 'object') {
-              var varialeName = walk(output, implementation, inputPorts).port
-              rules.rules[rules.rules.length - 1]['outputs'].push({'variable': true, 'type': 'generic', 'value': varialeName, 'name': 'out'})
+            if (typeof output === 'object') { // constant object?
+              var out = walk(output, implementation, inputPorts)
+              if (output instanceof edn.Symbol) {
+                var variableName = out.port
+                rules.rules[rules.rules.length - 1]['outputs'].push({'variable': true, 'type': 'generic', 'value': variableName, 'name': 'out'})
+                rules.outputPorts['out'] = 'generic'
+              } else {
+                // implementation.edges.push(gEdge(out.name + ':' + out.port, rules.name + ':' + out.name))
+                // rules.rules[rules.rules.length - 1]['outputs'].push({'variable': false, 'type': 'generic', 'value': variableName, 'name': 'out'})
+                // TODO
+              }
             } else {
               rules.rules[rules.rules.length - 1]['outputs'].push({'variable': false, 'type': typeof output, 'value/const': output, 'name': 'out'})
             }
           }
-          implementation.nodes = []
           implementation.nodes.push(rules)
-          // fs.writeFileSync('test/examples/match_result.json', JSON.stringify(rules, null, 2))
           break
         default:
           // (FN ARG*)

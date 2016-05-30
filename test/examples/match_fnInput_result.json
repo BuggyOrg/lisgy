@@ -1,0 +1,192 @@
+{
+  "code": "(lambda (n) (match [(math/add 1 1) (math/add n 1)] [0 0] \"FizzBuzz\" [0 _] \"Fizz\" [_ 0] \"Buzz\" :else n))",
+  "nodes": [
+    {
+      "v": "lambda_0",
+      "value": {
+        "meta": "functional/lambda",
+        "name": "lambda_0",
+        "outputPorts": {
+          "fn": "lambda"
+        },
+        "inputPorts": {},
+        "data": {
+          "outputPorts": {
+            "value_0": "generic"
+          },
+          "inputPorts": {
+            "n": "generic"
+          },
+          "implementation": {
+            "nodes": [
+              {
+                "meta": "math/add",
+                "name": "add_1"
+              },
+              {
+                "meta": "math/const",
+                "name": "const(1)_2",
+                "params": {
+                  "value": 1
+                }
+              },
+              {
+                "meta": "math/const",
+                "name": "const(1)_3",
+                "params": {
+                  "value": 1
+                }
+              },
+              {
+                "meta": "math/add",
+                "name": "add_4"
+              },
+              {
+                "meta": "math/const",
+                "name": "const(1)_5",
+                "params": {
+                  "value": 1
+                }
+              },
+              {
+                "name": "match",
+                "rules": [
+                  {
+                    "inputs": [
+                      {
+                        "variable": false,
+                        "type": "number",
+                        "value/const": 0,
+                        "name": "add_1"
+                      },
+                      {
+                        "variable": false,
+                        "type": "number",
+                        "value/const": 0,
+                        "name": "add_4"
+                      }
+                    ],
+                    "outputs": [
+                      {
+                        "variable": false,
+                        "type": "string",
+                        "value/const": "FizzBuzz",
+                        "name": "out"
+                      }
+                    ]
+                  },
+                  {
+                    "inputs": [
+                      {
+                        "variable": false,
+                        "type": "number",
+                        "value/const": 0,
+                        "name": "add_1"
+                      },
+                      {
+                        "variable": true,
+                        "type": "generic",
+                        "value": "add_4",
+                        "name": "add_4"
+                      }
+                    ],
+                    "outputs": [
+                      {
+                        "variable": false,
+                        "type": "string",
+                        "value/const": "Fizz",
+                        "name": "out"
+                      }
+                    ]
+                  },
+                  {
+                    "inputs": [
+                      {
+                        "variable": true,
+                        "type": "generic",
+                        "value": "add_1",
+                        "name": "add_1"
+                      },
+                      {
+                        "variable": false,
+                        "type": "number",
+                        "value/const": 0,
+                        "name": "add_4"
+                      }
+                    ],
+                    "outputs": [
+                      {
+                        "variable": false,
+                        "type": "string",
+                        "value/const": "Buzz",
+                        "name": "out"
+                      }
+                    ]
+                  },
+                  {
+                    "inputs": [
+                      {
+                        "variable": true,
+                        "type": "generic",
+                        "value": "add_1",
+                        "name": "add_1"
+                      },
+                      {
+                        "variable": true,
+                        "type": "generic",
+                        "value": "add_4",
+                        "name": "add_4"
+                      }
+                    ],
+                    "outputs": [
+                      {
+                        "variable": true,
+                        "type": "generic",
+                        "value": "n",
+                        "name": "out"
+                      }
+                    ]
+                  }
+                ],
+                "inputPorts": {
+                  "add_4": "generic",
+                  "add_1": "generic"
+                },
+                "outputPorts": {
+                  "out": "generic"
+                }
+              }
+            ],
+            "edges": [
+              {
+                "from": "const(1)_2:output",
+                "to": "add_1:s1"
+              },
+              {
+                "from": "const(1)_3:output",
+                "to": "add_1:s2"
+              },
+              {
+                "from": "add_1:sum",
+                "to": "match:add_1"
+              },
+              {
+                "from": "n",
+                "to": "add_4:s1"
+              },
+              {
+                "from": "const(1)_5:output",
+                "to": "add_4:s2"
+              },
+              {
+                "from": "add_4:sum",
+                "to": "match:add_4"
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "edges": []
+}
