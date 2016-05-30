@@ -824,20 +824,35 @@ function parse_edn_to_json (ednObj, inputCode) {
                   'meta': 'math/const',
                   'name': 'const(' + arg + ')_' + count++,
                   'params': {'value': parseInt(arg)}
+                  // 'typeHint': {'output': 'number'}
                 }
 
                 implementation.nodes.push(gNode(constNode))
 
                 let nextNode = {name: constNode.name, outputPorts: ['output'], port: 'output'}
                 addEdge(implementation, nextNode, toPort)
-              } else {
-                var argVar = getVar(arg.val)
+              } else if (arg.val) {
+                let argVar = getVar(arg.val)
                 if (argVar) {
                   log(3, 'found var', argVar)
                   addEdge(implementation, argVar.val, toPort)
                 } else {
                   log(2, 'faild to find var ' + arg.val + ' inside', getAllVars())
                 }
+              } else {
+                log(1, 'using directly var ', arg)
+                let type = typeof arg
+                let constNode = {
+                  'meta': 'std/const',
+                  'name': 'const(' + arg + ')_' + count++,
+                  'params': {'value': arg},
+                  'typeHint': {'output': type}
+                }
+
+                implementation.nodes.push(gNode(constNode))
+
+                let nextNode = {name: constNode.name, outputPorts: ['output'], port: 'output'}
+                addEdge(implementation, nextNode, toPort)
               }
             }
           }

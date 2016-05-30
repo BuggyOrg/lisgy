@@ -497,6 +497,21 @@ describe('edn', () => {
     expectNoError(json)
   })
 
+  it('std/const with typeHints', () => {
+    var code = `(defcop test [s1 s2 s3] [sum])
+          (test 1 true "text")
+          `
+    var json = lisgy.parse_to_json(code)
+    expectNoError(json)
+    // 4 nodes 3 edges 3 typeHints
+    expect(json.nodes[1].value.params).to.deep.equal({'value': 1})
+    // expect(json.nodes[1].value.typeHint).to.deep.equal({'output': 'number'})
+    expect(json.nodes[2].value.params).to.deep.equal({'value': true})
+    expect(json.nodes[2].value.typeHint).to.deep.equal({'output': 'boolean'})
+    expect(json.nodes[3].value.params).to.deep.equal({'value': 'text'})
+    expect(json.nodes[3].value.typeHint).to.deep.equal({'output': 'string'})
+  })
+
   it('node with extra meta info', () => {
     var code = `(defcop add [s1 s2] [sum])
           (add 1 3 {:name A :testA testB})
