@@ -751,8 +751,8 @@ function parse_edn_to_json (ednObj, inputCode) {
             let meta = data[lastElement]
             data.splice(lastElement, 1)
             for (let i = 0; i < meta.vals.length; i++) {
-              let key = meta.keys[i].name.substr(1)
-              node[key] = meta.vals[i].val ? meta.vals[i].val : meta.vals[i]
+              let key = cleanPort(meta.keys[i].name)
+              node[key] = edn.toJS(meta.vals[i])
             }
           }
 
