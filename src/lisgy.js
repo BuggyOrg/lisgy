@@ -992,8 +992,14 @@ export function edn_add_components (edn) {
   log(0, '## getting the components', functions)
 
   // TODO: remove version number to get the latest version
-  var names = functions.map((f) => componentApi.get(f))
+  var names = functions.map((f) => componentApi.get(f).catch((err) => {
+    logError('failed to get the component', err.message)
+    return {failed: true, error: err}
+  }))
   var stuff = Promise.all(names).then((arr) => {
+    if (arr.some((e) => e.failed)) {
+      throw new Error('Failed to get some components')
+    }
     var newComponents = arr.map((e) => jsonToEdn(e))
     // filter out all already defined components
     newComponents = newComponents.filter((newDefine) =>
