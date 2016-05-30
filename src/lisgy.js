@@ -745,6 +745,17 @@ function parse_edn_to_json (ednObj, inputCode) {
             }
           }
 
+          // check if last arg is a Map, that is used eg. for names
+          let lastElement = data.length - 1
+          if (data[lastElement] instanceof edn.Map) {
+            let meta = data[lastElement]
+            data.splice(lastElement, 1)
+            for (let i = 0; i < meta.vals.length; i++) {
+              let key = meta.keys[i].name.substr(1)
+              node[key] = meta.vals[i].val ? meta.vals[i].val : meta.vals[i]
+            }
+          }
+
           if (node.meta === 'functional/partial') {
             log(2, 'functional/partial setting params', data[1])
             if (data.length === 4) {
@@ -877,14 +888,14 @@ export function jsonToEdn (obj) {
   return list
 }
 
-export function edn_add_components (edn) {
+export function edn_add_components (ednObj) {
   log(0, '# adding components')
   var functions = []
   var definedComponents = []
   var defines = {}
   var ignores = []
 
-  _.each(edn.val, (vElement) => {
+  _.each(ednObj.val, (vElement) => {
     walkAndFindFunctions(vElement.val)
   })
 
@@ -977,7 +988,11 @@ export function edn_add_components (edn) {
         log(1, 'used ' + root[0].val)
         functions.push(root[0].val)
         for (var j = 1; j < root.length; j++) {
-          walkAndFindFunctions(root[j].val)
+          if (root[j] instanceof edn.Map) {
+            // nothing
+          } else {
+            walkAndFindFunctions(root[j].val)
+          }
         }
         break
     }
@@ -1005,8 +1020,8 @@ export function edn_add_components (edn) {
     newComponents = newComponents.filter((newDefine) =>
       !definedComponents.some((defined) => defined === newDefine.val[1].val)
     )
-    edn.val = [].concat(newComponents, edn.val)
-    return edn
+    ednObj.val = [].concat(newComponents, ednObj.val)
+    return ednObj
   }).catch((err) => {
     logError('failed to load one component from server', functions)
     throw err

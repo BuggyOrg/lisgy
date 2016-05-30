@@ -497,6 +497,15 @@ describe('edn', () => {
     expectNoError(json)
   })
 
+  it('node with extra meta info', () => {
+    var code = `(defcop add [s1 s2] [sum])
+          (add 1 3 {:name A :testA testB})
+          `
+    var json = lisgy.parse_to_json(code)
+    expectNoError(json)
+    expect(json.nodes[0].value).to.deep.equal({'meta': 'add', 'name': 'A', 'testA': 'testB'})
+  })
+
   it('can parse pattern match', () => {
     var parsed = lisgy.parse_to_json(readParseExamples('match.json').code)
     fs.writeFileSync('test/examples/match_result.json', JSON.stringify(parsed, null, 2))
