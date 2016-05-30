@@ -15,7 +15,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@buggyorg/component-library": "^0.3.4",
+    "@buggyorg/component-library": "^0.3.6",
     "@buggyorg/graphlib2kgraph": "^0.1.6",
     "@buggyorg/resolve": "^0.1.19",
     "chalk": "^1.1.3",
