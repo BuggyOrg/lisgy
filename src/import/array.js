@@ -1,0 +1,15 @@
+export var array = `
+(def pack array/pack)
+(def unpack array/unpack)
+(def rest array/rest)
+(def emptyArray array/emptyArray)
+(def at array/at)
+(def length array/length)
+(def unpack-value array/unpack-value)
+(def unpackv array/unpack-value)
+(def prepend array/prepend)
+(def first array/first)
+(def empty array/empty)
+(def swap array/swap)
+(def append array/append)
+`

@@ -3,6 +3,7 @@ import libConnection from '@buggyorg/component-library'
 import _ from 'lodash'
 import * as edn from 'jsedn'
 import chalk from 'chalk'
+import * as allImports from './import/all.js'
 
 var componentApi
 var log, errorsWithColor, logsDisabled
@@ -51,7 +52,15 @@ function randomString () {
 */
 export function parse_edn (inputCode) {
   log(0, '# parse to edn')
-  var code = '[' + inputCode + ']' // add []
+
+  let newCode = inputCode
+
+  for (const key of Object.keys(allImports.strings)) {
+    let importString = '(import ' + key + ')'
+    newCode = newCode.replace(importString, allImports.strings[key])
+  }
+
+  var code = '[' + newCode + ']' // add []
   var ednObj = edn.parse(code)
   var vars = []
 
@@ -172,6 +181,12 @@ export function parse_edn (inputCode) {
 
         obj = newObj
         vars.pop()
+      } else if (first instanceof edn.Symbol && (first.val === 'partial' || first.val === 'functional/partial') && obj.val.length > 4) {
+        var rest = new edn.List([first, obj.val[1], obj.val[2]])
+        for (i = 3; i < obj.val.length; i++) {
+          rest = new edn.List([first, rest, obj.val[i]])
+        }
+        obj = rest
       } else {
         for (i = 0; i < obj.val.length; i++) {
           obj.val[i] = walk(obj.val[i], parent)
@@ -730,10 +745,27 @@ function parse_edn_to_json (ednObj, inputCode) {
             }
           }
 
+          // check if last arg is a Map, that is used eg. for names
+          let lastElement = data.length - 1
+          if (data[lastElement] instanceof edn.Map) {
+            let meta = data[lastElement]
+            data.splice(lastElement, 1)
+            for (let i = 0; i < meta.vals.length; i++) {
+              let key = cleanPort(meta.keys[i].name)
+              node[key] = edn.toJS(meta.vals[i])
+            }
+          }
+
           if (node.meta === 'functional/partial') {
             log(2, 'functional/partial setting params', data[1])
-            node.params = {partial: data[1]}
-            data.splice(1, 1)
+            if (data.length === 4) {
+              node.params = {partial: data[1]}
+              data.splice(1, 1)
+            } else if (data.length === 3) {
+              node.params = {partial: 0}
+            } else {
+              error('functional/partial used with wrong number of ports ' + data.length)
+            }
           }
 
           var numInputs = data.length - 1
@@ -792,20 +824,35 @@ function parse_edn_to_json (ednObj, inputCode) {
                   'meta': 'math/const',
                   'name': 'const(' + arg + ')_' + count++,
                   'params': {'value': parseInt(arg)}
+                  // 'typeHint': {'output': 'number'}
                 }
 
                 implementation.nodes.push(gNode(constNode))
 
                 let nextNode = {name: constNode.name, outputPorts: ['output'], port: 'output'}
                 addEdge(implementation, nextNode, toPort)
-              } else {
-                var argVar = getVar(arg.val)
+              } else if (arg.val) {
+                let argVar = getVar(arg.val)
                 if (argVar) {
                   log(3, 'found var', argVar)
                   addEdge(implementation, argVar.val, toPort)
                 } else {
                   log(2, 'faild to find var ' + arg.val + ' inside', getAllVars())
                 }
+              } else {
+                log(1, 'using directly var ', arg)
+                let type = typeof arg
+                let constNode = {
+                  'meta': 'std/const',
+                  'name': 'const(' + arg + ')_' + count++,
+                  'params': {'value': arg},
+                  'typeHint': {'output': type}
+                }
+
+                implementation.nodes.push(gNode(constNode))
+
+                let nextNode = {name: constNode.name, outputPorts: ['output'], port: 'output'}
+                addEdge(implementation, nextNode, toPort)
               }
             }
           }
@@ -856,14 +903,14 @@ export function jsonToEdn (obj) {
   return list
 }
 
-export function edn_add_components (edn, specialResolver) {
+export function edn_add_components (ednObj, specialResolver) {
   log(0, '# adding components')
   var functions = []
   var definedComponents = []
   var defines = {}
   var ignores = []
 
-  _.each(edn.val, (vElement) => {
+  _.each(ednObj.val, (vElement) => {
     walkAndFindFunctions(vElement.val)
   })
 
@@ -885,6 +932,8 @@ export function edn_add_components (edn, specialResolver) {
     }
 
     switch (name) {
+      case 'import':
+        break
       case 'def':
         // (def NAME OLD_NAME)
         var new_name = root[1].val
@@ -954,7 +1003,11 @@ export function edn_add_components (edn, specialResolver) {
         log(1, 'used ' + root[0].val)
         functions.push(root[0].val)
         for (var j = 1; j < root.length; j++) {
-          walkAndFindFunctions(root[j].val)
+          if (root[j] instanceof edn.Map) {
+            // nothing
+          } else {
+            walkAndFindFunctions(root[j].val)
+          }
         }
         break
     }
@@ -972,15 +1025,21 @@ export function edn_add_components (edn, specialResolver) {
   log(0, '## getting the components', functions)
 
   // TODO: remove version number to get the latest version
-  var names = functions.map((f) => componentApi.get(f))
+  var names = functions.map((f) => componentApi.get(f).catch((err) => {
+    logError('failed to get the component', err.message)
+    return {failed: true, error: err}
+  }))
   var stuff = Promise.all(names).then((arr) => {
+    if (arr.some((e) => e.failed)) {
+      throw new Error('Failed to get some components')
+    }
     var newComponents = arr.map((e) => jsonToEdn(e))
     // filter out all already defined components
     newComponents = newComponents.filter((newDefine) =>
       !definedComponents.some((defined) => defined === newDefine.val[1].val)
     )
-    edn.val = [].concat(newComponents, edn.val)
-    return edn
+    ednObj.val = [].concat(newComponents, ednObj.val)
+    return ednObj
   }).catch((err) => {
     logError('failed to load one component from server', functions)
     throw err
