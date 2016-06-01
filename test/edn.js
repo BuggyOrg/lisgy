@@ -4,6 +4,8 @@ import fs from 'fs'
 import {utils} from '@buggyorg/graphtools'
 import {expect} from 'chai'
 import * as lisgy from '../src/lisgy.js'
+import * as components from './components.json'
+import _ from 'lodash'
 
 var readParseExamples = (file) => {
   try {
@@ -13,6 +15,16 @@ var readParseExamples = (file) => {
     throw e
   }
 }
+
+const resolveFnGet = (name) => {
+  if (name in components) {
+    return Promise.resolve(_.cloneDeep(components[name]))
+  } else {
+    return Promise.reject('Component "' + name + '" undefined')
+  }
+}
+
+const resolveFn = {get: resolveFnGet}
 
 /**
  * Use this to debug the json output
@@ -415,6 +427,127 @@ describe('edn', () => {
 
       expect(json.nodes.length).to.equal(2)
       expect(json.edges.length).to.equal(1)
+    })
+  })
+
+  describe('add components with lisgy.edn_add_components', () => {
+    it('add missing component ports', () => {
+      var code = `(test/two (test/zero) 2)`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes.length).to.equal(3)
+        expect(json.edges.length).to.equal(2)
+
+        let finalized = utils.finalize(json)
+        expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
+        expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
+        expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
+      })
+    })
+
+    it('add missing renamed components', () => {
+      var code = `(def two test/two)(def zero test/zero) (two (zero) 2)`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes.length).to.equal(3)
+        expect(json.edges.length).to.equal(2)
+
+        let finalized = utils.finalize(json)
+        expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
+        expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
+        expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
+      })
+    })
+
+    it('no problem with lambda/fn', () => {
+      var code = `(fn [a b] (test/two a b))`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes.length).to.equal(1)
+        expect(json.edges.length).to.equal(0)
+
+        let finalized = utils.finalize(json)
+        expect(utils.getAll(finalized, 'functional/lambda')).to.have.length(1)
+      })
+    })
+
+    it('no problem inside new defco component', () => {
+      var code = `(defco new [a b] (test/two a b))`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes.length).to.equal(1)
+        expect(json.edges.length).to.equal(0)
+
+        expect(json.nodes[0].value.implementation.nodes.length).to.equal(1)
+        expect(json.nodes[0].value.implementation.edges.length).to.equal(3)
+
+        let finalized = utils.finalize(json)
+        expect(utils.getAll(finalized, 'new')).to.have.length(1)
+      })
+    })
+
+    it('no problem with new defco component 1)', () => {
+      var code = `(defco new [a b] (test/two a b)) (new (test/zero) 2)`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes.length).to.equal(3)
+        expect(json.edges.length).to.equal(2)
+
+        let finalized = utils.finalize(json)
+        expect(utils.getAll(finalized, 'new')).to.have.length(1)
+        expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
+        expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
+      })
+    })
+
+    it('no problem with new defco component 2)', () => {
+      var code = `(defco new [a b] (test/two a b)) (new (test/two 1 2) 3)`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes.length).to.equal(5)
+        expect(json.edges.length).to.equal(4)
+
+        let finalized = utils.finalize(json)
+        expect(utils.getAll(finalized, 'new')).to.have.length(1)
+        expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
+        expect(utils.getAll(finalized, 'math/const')).to.have.length(3)
+      })
+    })
+
+    it('no problem with new defco component and (port ...)', () => {
+      var code = `(defco new [a b] [:fn (fn [c] (test/two a c)) :value (test/two a b)]) (test/two (port :value (new 1 2)) 3)`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes.length).to.equal(5)
+        expect(json.edges.length).to.equal(4)
+
+        let finalized = utils.finalize(json)
+        expect(utils.getAll(finalized, 'new')).to.have.length(1)
+        expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
+        expect(utils.getAll(finalized, 'math/const')).to.have.length(3)
+      })
+    })
+
+    it('no problem with let', () => {
+      var code = `(let [zero (test/zero) one 1] (test/two zero one))`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes.length).to.equal(3)
+        expect(json.edges.length).to.equal(2)
+
+        let finalized = utils.finalize(json)
+        expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
+        expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
+        expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
+      })
     })
   })
 
