@@ -190,11 +190,11 @@ export function parse_edn (inputCode) {
 /**
  * Parse the input code to json
  */
-export function parse_to_json (inputCode, addMissingComponents) {
+export function parse_to_json (inputCode, addMissingComponents, specialResolver) {
   var ednObj = parse_edn(inputCode)
   var p = Promise.resolve(ednObj)
   if (addMissingComponents) {
-    p = edn_add_components(ednObj)
+    p = edn_add_components(ednObj, specialResolver)
   } else {
     // NOTE: cleanup
     return parse_edn_to_json(ednObj, inputCode)
@@ -856,7 +856,7 @@ export function jsonToEdn (obj) {
   return list
 }
 
-export function edn_add_components (edn) {
+export function edn_add_components (edn, specialResolver) {
   log(0, '# adding components')
   var functions = []
   var definedComponents = []
@@ -958,6 +958,9 @@ export function edn_add_components (edn) {
         }
         break
     }
+  }
+  if (specialResolver) {
+    componentApi = specialResolver
   }
 
   if (!componentApi) {
