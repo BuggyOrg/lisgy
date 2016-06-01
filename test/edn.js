@@ -430,8 +430,8 @@ describe('edn', () => {
     })
   })
 
-  describe('add components with lisgy.edn_add_components', () => {
-    it('add missing component ports', () => {
+  describe('add `missing` components', () => {
+    it('component ports', () => {
       var code = `(test/two (test/zero) 2)`
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
@@ -446,7 +446,7 @@ describe('edn', () => {
       })
     })
 
-    it('add missing renamed components', () => {
+    it('renamed components', () => {
       var code = `(def two test/two)(def zero test/zero) (two (zero) 2)`
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
@@ -461,7 +461,7 @@ describe('edn', () => {
       })
     })
 
-    it('no problem with lambda/fn', () => {
+    it('lambda/fn', () => {
       var code = `(fn [a b] (test/two a b))`
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
@@ -474,7 +474,7 @@ describe('edn', () => {
       })
     })
 
-    it('no problem inside new defco component', () => {
+    it('inside new defco component', () => {
       var code = `(defco new [a b] (test/two a b))`
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
@@ -490,7 +490,7 @@ describe('edn', () => {
       })
     })
 
-    it('no problem with new defco component 1)', () => {
+    it('new defco component 1)', () => {
       var code = `(defco new [a b] (test/two a b)) (new (test/zero) 2)`
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
@@ -505,7 +505,7 @@ describe('edn', () => {
       })
     })
 
-    it('no problem with new defco component 2)', () => {
+    it('new defco component 2)', () => {
       var code = `(defco new [a b] (test/two a b)) (new (test/two 1 2) 3)`
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
@@ -520,7 +520,7 @@ describe('edn', () => {
       })
     })
 
-    it('no problem with new defco component and (port ...)', () => {
+    it('new defco component and (port ...)', () => {
       var code = `(defco new [a b] [:fn (fn [c] (test/two a c)) :value (test/two a b)]) (test/two (port :value (new 1 2)) 3)`
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
@@ -535,7 +535,7 @@ describe('edn', () => {
       })
     })
 
-    it('no problem with let', () => {
+    it('let', () => {
       var code = `(let [zero (test/zero) one 1] (test/two zero one))`
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
