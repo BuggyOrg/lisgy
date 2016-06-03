@@ -861,20 +861,26 @@ function parse_edn_to_json (ednObj, inputCode) {
       }
     } else if (root instanceof edn.Symbol) {
       return {port: root.name}
-    } else if (!_.isNaN(parseInt(root))) {
+    } else {
+      let value = edn.toJS(root)
+      let type = typeof value
+
+      if (type === 'object') {
+        error('Unkown walk class ' + root)
+        return
+      }
+
       let constNode = {
-        'meta': 'math/const',
+        'meta': 'std/const',
         'name': 'const(' + root + ')_' + count++,
-        'params': {'value': parseInt(root)}
+        'params': {'value': value},
+        'typeHint': {'output': type}
       }
 
       implementation.nodes.push(gNode(constNode))
 
       log(1, 'const node ' + constNode.name)
       return {name: constNode.name, outputPorts: ['output'], port: 'output'}
-    } else {
-      error('Unkown walk class ' + root)
-      return
     }
   }
 

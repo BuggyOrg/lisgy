@@ -260,17 +260,23 @@ describe('edn', () => {
     it('simple let', () => {
       var code = `
       (defcop add [s1 s2] [sum])
+      (defcop fnc [s1 s2 s3 s4] [sum])
       (let [a (add 1 2)
-             b 3]
-             (add a b))`
+             b 3
+             c "hello"
+             d true]
+             (fnc a b c d))`
       var json = lisgy.parse_to_json(code)
       expectNoError(json)
 
-      expect(json.nodes).to.have.length(5) // 2 'add' nodes and 3 'const' nodes
-      expect(json.edges).to.have.length(4)
+      expect(json.nodes).to.have.length(7) // 2 'add' nodes and 5 'const' nodes
+      expect(json.edges).to.have.length(6)
 
       let final = utils.finalize(json)
-      expect(utils.getAll(final, 'add')).to.have.length(2)
+      expect(utils.getAll(final, 'add')).to.have.length(1)
+      expect(utils.getAll(final, 'fnc')).to.have.length(1)
+      expect(utils.getAll(final, 'std/const')).to.have.length(3)
+      expect(utils.getAll(final, 'math/const')).to.have.length(2)
     })
 
     it('let mixed vars', () => {
@@ -536,17 +542,17 @@ describe('edn', () => {
     })
 
     it('let', () => {
-      var code = `(let [zero (test/zero) one 1] (test/two zero one))`
+      var code = `(let [zero (test/zero) one 1 two "hello"] (test/three zero one two))`
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.length(3)
-        expect(json.edges).to.have.length(2)
+        expect(json.nodes).to.have.length(4)
+        expect(json.edges).to.have.length(3)
 
         let finalized = utils.finalize(json)
         expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
-        expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
-        expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
+        expect(utils.getAll(finalized, 'test/three')).to.have.length(1)
+        expect(utils.getAll(finalized, 'std/const')).to.have.length(2)
       })
     })
   })
