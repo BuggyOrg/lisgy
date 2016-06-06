@@ -2,10 +2,14 @@
 
 import fs from 'fs'
 import {utils} from '@buggyorg/graphtools'
-import {expect} from 'chai'
+import * as chai from 'chai'
 import * as lisgy from '../src/lisgy.js'
 import * as components from './components.json'
 import _ from 'lodash'
+import chaiAsPromised from 'chai-as-promised'
+
+chai.use(chaiAsPromised)
+const expect = chai.expect
 
 var readParseExamples = (file) => {
   try {
@@ -73,9 +77,13 @@ describe('edn', () => {
     expect(node.meta).to.equal('functional/lambda')
     expect(node.outputPorts).to.deep.equal({ 'fn': 'lambda' })
     expect(node.inputPorts).to.deep.equal({})
+    expect(node).to.have.property('settings')
+    expect(node.settings).to.have.property('argumentOrdering')
 
     expect(node.data.inputPorts).to.deep.equal({ 'a': 'generic', 'b': 'generic' })
     expect(node.data.outputPorts).to.deep.equal({ 'value_0': 'generic' })
+    expect(node.data).to.have.property('settings')
+    expect(node.data.settings).to.have.property('argumentOrdering')
 
     var nodes = node.data.implementation.nodes
     var edges = node.data.implementation.edges
@@ -93,6 +101,31 @@ describe('edn', () => {
   })
 
   describe('(defco [INPUTS] (FN)) or (defco [INPUTS] [:OUT (FN) ...])', () => {
+    it('creates an argumentOrdering for the inputs', () => {
+      var code = `(defcop math/add [s1 s2] [sum])
+                  (defco test [a b] (math/add a b))`
+      return lisgy.parseToJson(code)
+      .then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes[0].value).to.have.property('settings')
+        expect(json.nodes[0].value.settings).to.have.property('argumentOrdering')
+        expect(json.nodes[0].value.settings.argumentOrdering).to.eql(['a', 'b', 'value'])
+      })
+    })
+
+    it('creates an argumentOrdering for multiple outputs', () => {
+      var code = `(defcop add [s1 s2] [sum])(defco mathAdd [a b] [:a2 (add a 2) :b3 (add b 3)])`
+      return lisgy.parseToJson(code)
+      .then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes[0].value).to.have.property('settings')
+        expect(json.nodes[0].value.settings).to.have.property('argumentOrdering')
+        expect(json.nodes[0].value.settings.argumentOrdering).to.eql(['a', 'b', 'a2', 'b3'])
+      })
+    })
+
     it('multiple output ports', () => {
       var code = '(defcop add [s1 s2] [sum])(defco mathAdd [a b] [:a2 (add a 2) :b3 (add b 3)])'
       var json = lisgy.parse_to_json(code)
@@ -450,6 +483,21 @@ describe('edn', () => {
         expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
         expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
       })
+    })
+
+    it('uses the argument order given in `settings.argumentOrdering`', () => {
+      var code = `(test/two 1 2)`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+        
+        expect(_.find(json.edges, (e) => e.v === 'const(1)_1').value.inPort).to.equal('input1')
+        expect(_.find(json.edges, (e) => e.v === 'const(2)_2').value.inPort).to.equal('input2')
+      })
+    })
+
+    it('complains if there is no `settings.argumentOrdering` field', () => {
+      var code = `(test/broken 1 2)`
+      return expect(lisgy.parse_to_json(code, true, resolveFn)).to.be.rejected
     })
 
     it('renamed components', () => {

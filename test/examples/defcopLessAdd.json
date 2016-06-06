@@ -13,6 +13,9 @@
           "out1": "generic",
           "out2": "generic"
         },
+        "settings": {
+          "argumentOrdering": ["a", "b", "out1", "out2" ]
+        },
         "implementation": {
           "nodes": [
             {

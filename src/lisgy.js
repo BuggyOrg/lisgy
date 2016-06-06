@@ -214,7 +214,6 @@ export function parse_to_json (inputCode, addMissingComponents, specialResolver)
     // NOTE: cleanup
     return parse_edn_to_json(ednObj, inputCode)
   }
-
   return p.then((edn) => {
     var jsonObj = parse_edn_to_json(edn, inputCode)
     return jsonObj
@@ -322,19 +321,24 @@ function parse_edn_to_json (ednObj, inputCode) {
     json.name = data[0].name + '_' + count++
 
     json.outputPorts = {'fn': 'lambda'}
+    json.settings = {argumentOrdering: ['fn']}
     json.inputPorts = {}
 
     json.data = {}
     // NOTE: anonymous functions have one output port right now
     json.data.outputPorts = {'value_0': 'generic'}
+    json.data.settings = {argumentOrdering: []}
 
     json.data.inputPorts = {}
 
     data[1].val.every((v) => {
       json.data.inputPorts[v.name] = 'generic'
+      json.data.settings.argumentOrdering.push(v.name)
       inputPorts.push(v.name)
       return true
     })
+    
+    json.data.settings.argumentOrdering.push('value_0')
 
     json.data.implementation = {nodes: [], edges: []}
 
@@ -369,11 +373,13 @@ function parse_edn_to_json (ednObj, inputCode) {
     json.id = data[1].name
     json.inputPorts = {}
     json.outputPorts = {}
+    json.settings = {argumentOrdering: []}
 
     var inputPorts = []
 
     data[2].val.every((input) => {
       json.inputPorts[input.name] = 'generic'
+      json.settings.argumentOrdering.push(input.name)
       inputPorts.push(input.name)
       return true
     })
@@ -381,6 +387,7 @@ function parse_edn_to_json (ednObj, inputCode) {
     data[3].val.every((output) => {
       if (output instanceof edn.Keyword) {
         json.outputPorts[cleanPort(output.name)] = 'generic'
+        json.settings.argumentOrdering.push(cleanPort(output.name))
       }
       return true
     })
@@ -396,6 +403,7 @@ function parse_edn_to_json (ednObj, inputCode) {
       next = data[3]
       let port = cleanPort('value')
       json.outputPorts[port] = 'generic'
+      json.settings.argumentOrdering.push(port)
       next.port = port
       next.parent = json
       node = walk(next, json.implementation, inputPorts)
@@ -902,8 +910,13 @@ export function encode_edn (ednObj) {
 
 export function jsonToEdn (obj) {
   var toObject = (e) => { return edn.sym(e) }
-  var input = Object.getOwnPropertyNames(obj.inputPorts).map(toObject)
-  var output = Object.getOwnPropertyNames(obj.outputPorts).map(toObject)
+  if (!obj.settings || !obj.settings.argumentOrdering) {
+    throw new Error('Node ' + obj.id + ' is missing the argumentOrdering field.')
+  }
+  var inputs = _.intersection(obj.settings.argumentOrdering, _.keys(obj.inputPorts))
+  var outputs = _.intersection(obj.settings.argumentOrdering, _.keys(obj.outputPorts))
+  var input = inputs.map(toObject)
+  var output = outputs.map(toObject)
   var list = new edn.List([edn.sym('defcop'), edn.sym(obj.id), new edn.Vector(input), new edn.Vector(output)])
   list.id = obj.id
   return list
