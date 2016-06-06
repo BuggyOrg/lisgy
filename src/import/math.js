@@ -1,5 +1,4 @@
 export var math = `
-(def < math/less)
 (def * math/multiply)
 (def multiply math/multiply)
 (def mul math/multiply)

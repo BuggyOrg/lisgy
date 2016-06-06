@@ -61,7 +61,11 @@ export function parse_edn (inputCode) {
   }
 
   var code = '[' + newCode + ']' // add []
-  var ednObj = edn.parse(code)
+  try {
+    var ednObj = edn.parse(code)
+  } catch (err) {
+    throw new Error('Lisgy parsing error\n' + err)
+  }
   var vars = []
 
   var newObjs = []
@@ -200,6 +204,12 @@ export function parse_edn (inputCode) {
     }
     return obj
   }
+}
+
+export function parseToJson (inputCode, addMissingComponents, specialResolver) {
+  return new Promise((resolve) => {
+    resolve(parse_to_json(inputCode, addMissingComponents, specialResolver))
+  })
 }
 
 /**
