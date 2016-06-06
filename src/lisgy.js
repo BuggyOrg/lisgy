@@ -205,11 +205,11 @@ export function parse_edn (inputCode) {
 /**
  * Parse the input code to json
  */
-export function parse_to_json (inputCode, addMissingComponents) {
+export function parse_to_json (inputCode, addMissingComponents, specialResolver) {
   var ednObj = parse_edn(inputCode)
   var p = Promise.resolve(ednObj)
   if (addMissingComponents) {
-    p = edn_add_components(ednObj)
+    p = edn_add_components(ednObj, specialResolver)
   } else {
     // NOTE: cleanup
     return parse_edn_to_json(ednObj, inputCode)
@@ -757,6 +757,17 @@ function parse_edn_to_json (ednObj, inputCode) {
             }
           }
 
+          // check if last arg is a Map, that is used eg. for names
+          let lastElement = data.length - 1
+          if (data[lastElement] instanceof edn.Map) {
+            let meta = data[lastElement]
+            data.splice(lastElement, 1)
+            for (let i = 0; i < meta.vals.length; i++) {
+              let key = cleanPort(meta.keys[i].name)
+              node[key] = edn.toJS(meta.vals[i])
+            }
+          }
+
           if (node.meta === 'functional/partial') {
             log(2, 'functional/partial setting params', data[1])
             if (data.length === 4) {
@@ -825,20 +836,35 @@ function parse_edn_to_json (ednObj, inputCode) {
                   'meta': 'math/const',
                   'name': 'const(' + arg + ')_' + count++,
                   'params': {'value': parseInt(arg)}
+                  // 'typeHint': {'output': 'number'}
                 }
 
                 implementation.nodes.push(gNode(constNode))
 
                 let nextNode = {name: constNode.name, outputPorts: ['output'], port: 'output'}
                 addEdge(implementation, nextNode, toPort)
-              } else {
-                var argVar = getVar(arg.val)
+              } else if (arg.val) {
+                let argVar = getVar(arg.val)
                 if (argVar) {
                   log(3, 'found var', argVar)
                   addEdge(implementation, argVar.val, toPort)
                 } else {
                   log(2, 'faild to find var ' + arg.val + ' inside', getAllVars())
                 }
+              } else {
+                log(1, 'using directly var ', arg)
+                let type = typeof arg
+                let constNode = {
+                  'meta': 'std/const',
+                  'name': 'const(' + arg + ')_' + count++,
+                  'params': {'value': arg},
+                  'typeHint': {'output': type}
+                }
+
+                implementation.nodes.push(gNode(constNode))
+
+                let nextNode = {name: constNode.name, outputPorts: ['output'], port: 'output'}
+                addEdge(implementation, nextNode, toPort)
               }
             }
           }
@@ -847,20 +873,26 @@ function parse_edn_to_json (ednObj, inputCode) {
       }
     } else if (root instanceof edn.Symbol) {
       return {port: root.name}
-    } else if (!_.isNaN(parseInt(root))) {
+    } else {
+      let value = edn.toJS(root)
+      let type = typeof value
+
+      if (type === 'object') {
+        error('Unkown walk class ' + root)
+        return
+      }
+
       let constNode = {
-        'meta': 'math/const',
+        'meta': 'std/const',
         'name': 'const(' + root + ')_' + count++,
-        'params': {'value': parseInt(root)}
+        'params': {'value': value},
+        'typeHint': {'output': type}
       }
 
       implementation.nodes.push(gNode(constNode))
 
       log(1, 'const node ' + constNode.name)
       return {name: constNode.name, outputPorts: ['output'], port: 'output'}
-    } else {
-      error('Unkown walk class ' + root)
-      return
     }
   }
 
@@ -889,14 +921,14 @@ export function jsonToEdn (obj) {
   return list
 }
 
-export function edn_add_components (edn) {
+export function edn_add_components (ednObj, specialResolver) {
   log(0, '# adding components')
   var functions = []
   var definedComponents = []
   var defines = {}
   var ignores = []
 
-  _.each(edn.val, (vElement) => {
+  _.each(ednObj.val, (vElement) => {
     walkAndFindFunctions(vElement.val)
   })
 
@@ -989,10 +1021,17 @@ export function edn_add_components (edn) {
         log(1, 'used ' + root[0].val)
         functions.push(root[0].val)
         for (var j = 1; j < root.length; j++) {
-          walkAndFindFunctions(root[j].val)
+          if (root[j] instanceof edn.Map) {
+            // nothing
+          } else {
+            walkAndFindFunctions(root[j].val)
+          }
         }
         break
     }
+  }
+  if (specialResolver) {
+    componentApi = specialResolver
   }
 
   if (!componentApi) {
@@ -1004,15 +1043,21 @@ export function edn_add_components (edn) {
   log(0, '## getting the components', functions)
 
   // TODO: remove version number to get the latest version
-  var names = functions.map((f) => componentApi.get(f))
+  var names = functions.map((f) => componentApi.get(f).catch((err) => {
+    logError('failed to get the component', err.message)
+    return {failed: true, error: err}
+  }))
   var stuff = Promise.all(names).then((arr) => {
+    if (arr.some((e) => e.failed)) {
+      throw new Error('Failed to get some components')
+    }
     var newComponents = arr.map((e) => jsonToEdn(e))
     // filter out all already defined components
     newComponents = newComponents.filter((newDefine) =>
       !definedComponents.some((defined) => defined === newDefine.val[1].val)
     )
-    edn.val = [].concat(newComponents, edn.val)
-    return edn
+    ednObj.val = [].concat(newComponents, ednObj.val)
+    return ednObj
   }).catch((err) => {
     logError('failed to load one component from server', functions)
     throw err

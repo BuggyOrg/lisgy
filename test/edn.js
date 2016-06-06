@@ -4,6 +4,8 @@ import fs from 'fs'
 import {utils} from '@buggyorg/graphtools'
 import {expect} from 'chai'
 import * as lisgy from '../src/lisgy.js'
+import * as components from './components.json'
+import _ from 'lodash'
 
 var readParseExamples = (file) => {
   try {
@@ -13,6 +15,16 @@ var readParseExamples = (file) => {
     throw e
   }
 }
+
+const resolveFnGet = (name) => {
+  if (name in components) {
+    return Promise.resolve(_.cloneDeep(components[name]))
+  } else {
+    return Promise.reject('Component "' + name + '" undefined')
+  }
+}
+
+const resolveFn = {get: resolveFnGet}
 
 /**
  * Use this to debug the json output
@@ -54,8 +66,8 @@ describe('edn', () => {
     var json = lisgy.parse_to_json(code)
     expectNoError(json)
 
-    expect(json.edges.length).to.equal(0)
-    expect(json.nodes.length).to.equal(1) // create one lambda node
+    expect(json.edges).to.have.length(0)
+    expect(json.nodes).to.have.length(1) // create one lambda node
 
     var node = json.nodes[0].value
     expect(node.meta).to.equal('functional/lambda')
@@ -68,10 +80,10 @@ describe('edn', () => {
     var nodes = node.data.implementation.nodes
     var edges = node.data.implementation.edges
 
-    expect(nodes.length).to.equal(1)
+    expect(nodes).to.have.length(1)
     expect(nodes[0].meta).to.equal('math/add')
 
-    expect(edges.length).to.equal(3)
+    expect(edges).to.have.length(3)
     expect(edges[0].from).to.equal('a')
     expect(edges[0].to).to.equal('add_1:s1')
     expect(edges[1].from).to.equal('b')
@@ -86,8 +98,8 @@ describe('edn', () => {
       var json = lisgy.parse_to_json(code)
       expectNoError(json)
 
-      expect(json.edges.length).to.equal(0) // no edges
-      expect(json.nodes.length).to.equal(1) // create one defco node
+      expect(json.edges).to.have.length(0) // no edges
+      expect(json.nodes).to.have.length(1) // create one defco node
 
       var node = json.nodes[0].value
       expect(node.id).to.equal('mathAdd')
@@ -97,8 +109,8 @@ describe('edn', () => {
       var nodes = node.implementation.nodes
       var edges = node.implementation.edges
 
-      expect(nodes.length).to.equal(4)
-      expect(edges.length).to.equal(6)
+      expect(nodes).to.have.length(4)
+      expect(edges).to.have.length(6)
     })
 
     it('default output port', () => {
@@ -107,8 +119,8 @@ describe('edn', () => {
       var json = lisgy.parse_to_json(code)
       expectNoError(json)
 
-      expect(json.edges.length).to.equal(0) // no edges
-      expect(json.nodes.length).to.equal(1) // create one defco node
+      expect(json.edges).to.have.length(0) // no edges
+      expect(json.nodes).to.have.length(1) // create one defco node
 
       var node = json.nodes[0].value
       expect(node.id).to.equal('mathAdd')
@@ -118,8 +130,8 @@ describe('edn', () => {
       var nodes = node.implementation.nodes
       var edges = node.implementation.edges
 
-      expect(nodes.length).to.equal(1)
-      expect(edges.length).to.equal(3)
+      expect(nodes).to.have.length(1)
+      expect(edges).to.have.length(3)
     })
 
     it('default output port lambda', () => {
@@ -127,8 +139,8 @@ describe('edn', () => {
       var json = lisgy.parse_to_json(code)
       expectNoError(json)
 
-      expect(json.edges.length).to.equal(0) // no edges
-      expect(json.nodes.length).to.equal(1) // create one defco node
+      expect(json.edges).to.have.length(0) // no edges
+      expect(json.nodes).to.have.length(1) // create one defco node
 
       var node = json.nodes[0].value
       expect(node.id).to.equal('mathAdd')
@@ -142,8 +154,8 @@ describe('edn', () => {
       var json = lisgy.parse_to_json(code)
       expectNoError(json)
 
-      expect(json.edges.length).to.equal(0) // no edges
-      expect(json.nodes.length).to.equal(1) // create one defco node
+      expect(json.edges).to.have.length(0) // no edges
+      expect(json.nodes).to.have.length(1) // create one defco node
 
       var node = json.nodes[0].value
       expect(node.id).to.equal('newCo2')
@@ -153,11 +165,11 @@ describe('edn', () => {
       var nodes = node.implementation.nodes
       var edges = node.implementation.edges
 
-      expect(edges.length).to.equal(1)
+      expect(edges).to.have.length(1)
       expect(edges[0].from).to.equal('fn_0:fn')
       expect(edges[0].to).to.equal('test')
 
-      expect(nodes.length).to.equal(1)
+      expect(nodes).to.have.length(1)
       node = nodes[0]
       expect(node.meta).to.equal('functional/lambda')
       expect(node.inputPorts).to.deep.equal({})
@@ -222,7 +234,7 @@ describe('edn', () => {
       var json = lisgy.parse_to_json(code)
       expectNoError(json)
 
-      expect(json.nodes.filter((n) => n.value.meta === 'math/const').length).to.equal(2)
+      expect(json.nodes.filter((n) => n.value.meta === 'math/const')).to.have.length(2)
     })
   })
 
@@ -248,17 +260,23 @@ describe('edn', () => {
     it('simple let', () => {
       var code = `
       (defcop add [s1 s2] [sum])
+      (defcop fnc [s1 s2 s3 s4] [sum])
       (let [a (add 1 2)
-             b 3]
-             (add a b))`
+             b 3
+             c "hello"
+             d true]
+             (fnc a b c d))`
       var json = lisgy.parse_to_json(code)
       expectNoError(json)
 
-      expect(json.nodes.length).to.equal(5) // 2 'add' nodes and 3 'const' nodes
-      expect(json.edges.length).to.equal(4)
+      expect(json.nodes).to.have.length(7) // 2 'add' nodes and 5 'const' nodes
+      expect(json.edges).to.have.length(6)
 
       let final = utils.finalize(json)
-      expect(utils.getAll(final, 'add')).to.have.length(2)
+      expect(utils.getAll(final, 'add')).to.have.length(1)
+      expect(utils.getAll(final, 'fnc')).to.have.length(1)
+      expect(utils.getAll(final, 'std/const')).to.have.length(3)
+      expect(utils.getAll(final, 'math/const')).to.have.length(2)
     })
 
     it('let mixed vars', () => {
@@ -270,8 +288,8 @@ describe('edn', () => {
       var json = lisgy.parse_to_json(code)
       expectNoError(json)
 
-      expect(json.nodes.length).to.equal(6) // 3 'add' nodes and 3 'const' nodes
-      expect(json.edges.length).to.equal(6)
+      expect(json.nodes).to.have.length(6) // 3 'add' nodes and 3 'const' nodes
+      expect(json.edges).to.have.length(6)
 
       let final = utils.finalize(json)
       expect(utils.getAll(final, 'add')).to.have.length(3)
@@ -286,8 +304,8 @@ describe('edn', () => {
       var json = lisgy.parse_to_json(code)
       expectNoError(json)
 
-      expect(json.nodes.length).to.equal(6)
-      expect(json.edges.length).to.equal(6)
+      expect(json.nodes).to.have.length(6)
+      expect(json.edges).to.have.length(6)
 
       let final = utils.finalize(json)
       expect(utils.getAll(final, 'add')).to.have.length(3)
@@ -310,8 +328,8 @@ describe('edn', () => {
       var json = lisgy.parse_to_json(code)
       expectNoError(json)
 
-      expect(json.nodes.length).to.equal(6)
-      expect(json.edges.length).to.equal(4)
+      expect(json.nodes).to.have.length(6)
+      expect(json.edges).to.have.length(4)
 
       let final = utils.finalize(json)
       expect(utils.getAll(final, 'add')).to.have.length(2)
@@ -327,8 +345,8 @@ describe('edn', () => {
       var json = lisgy.parse_to_json(code)
       expectNoError(json)
 
-      expect(json.nodes.length).to.equal(8)
-      expect(json.edges.length).to.equal(8)
+      expect(json.nodes).to.have.length(8)
+      expect(json.edges).to.have.length(8)
 
       let final = utils.finalize(json)
       expect(utils.getAll(final, 'add')).to.have.length(4)
@@ -342,8 +360,8 @@ describe('edn', () => {
       var json = lisgy.parse_to_json(code)
       expectNoError(json)
 
-      expect(json.nodes.length).to.equal(5)
-      expect(json.edges.length).to.equal(4)
+      expect(json.nodes).to.have.length(5)
+      expect(json.edges).to.have.length(4)
 
       let final = utils.finalize(json)
       expect(utils.getAll(final, 'add')).to.have.length(2)
@@ -355,10 +373,10 @@ describe('edn', () => {
       var json = lisgy.parse_to_json(code)
       expectNoError(json)
 
-      expect(json.nodes.length).to.equal(1)
-      expect(json.edges.length).to.equal(0)
-      expect(json.nodes[0].value.implementation.nodes.length).to.equal(2)
-      expect(json.nodes[0].value.implementation.edges.length).to.equal(3)
+      expect(json.nodes).to.have.length(1)
+      expect(json.edges).to.have.length(0)
+      expect(json.nodes[0].value.implementation.nodes).to.have.length(2)
+      expect(json.nodes[0].value.implementation.edges).to.have.length(3)
     })
 
     it('let mixed vars with multiple lets (wip)', () => {
@@ -413,8 +431,129 @@ describe('edn', () => {
       var json = lisgy.parse_to_json(code)
       expectNoError(json)
 
-      expect(json.nodes.length).to.equal(2)
-      expect(json.edges.length).to.equal(1)
+      expect(json.nodes).to.have.length(2)
+      expect(json.edges).to.have.length(1)
+    })
+  })
+
+  describe('add `missing` components', () => {
+    it('component ports', () => {
+      var code = `(test/two (test/zero) 2)`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes).to.have.length(3)
+        expect(json.edges).to.have.length(2)
+
+        let finalized = utils.finalize(json)
+        expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
+        expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
+        expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
+      })
+    })
+
+    it('renamed components', () => {
+      var code = `(def two test/two)(def zero test/zero) (two (zero) 2)`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes).to.have.length(3)
+        expect(json.edges).to.have.length(2)
+
+        let finalized = utils.finalize(json)
+        expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
+        expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
+        expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
+      })
+    })
+
+    it('lambda/fn', () => {
+      var code = `(fn [a b] (test/two a b))`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes).to.have.length(1)
+        expect(json.edges).to.have.length(0)
+
+        let finalized = utils.finalize(json)
+        expect(utils.getAll(finalized, 'functional/lambda')).to.have.length(1)
+      })
+    })
+
+    it('inside new defco component', () => {
+      var code = `(defco new [a b] (test/two a b))`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes).to.have.length(1)
+        expect(json.edges).to.have.length(0)
+
+        expect(json.nodes[0].value.implementation.nodes).to.have.length(1)
+        expect(json.nodes[0].value.implementation.edges).to.have.length(3)
+
+        let finalized = utils.finalize(json)
+        expect(utils.getAll(finalized, 'new')).to.have.length(1)
+      })
+    })
+
+    it('new defco component 1)', () => {
+      var code = `(defco new [a b] (test/two a b)) (new (test/zero) 2)`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes).to.have.length(3)
+        expect(json.edges).to.have.length(2)
+
+        let finalized = utils.finalize(json)
+        expect(utils.getAll(finalized, 'new')).to.have.length(1)
+        expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
+        expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
+      })
+    })
+
+    it('new defco component 2)', () => {
+      var code = `(defco new [a b] (test/two a b)) (new (test/two 1 2) 3)`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes).to.have.length(5)
+        expect(json.edges).to.have.length(4)
+
+        let finalized = utils.finalize(json)
+        expect(utils.getAll(finalized, 'new')).to.have.length(1)
+        expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
+        expect(utils.getAll(finalized, 'math/const')).to.have.length(3)
+      })
+    })
+
+    it('new defco component and (port ...)', () => {
+      var code = `(defco new [a b] [:fn (fn [c] (test/two a c)) :value (test/two a b)]) (test/two (port :value (new 1 2)) 3)`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes).to.have.length(5)
+        expect(json.edges).to.have.length(4)
+
+        let finalized = utils.finalize(json)
+        expect(utils.getAll(finalized, 'new')).to.have.length(1)
+        expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
+        expect(utils.getAll(finalized, 'math/const')).to.have.length(3)
+      })
+    })
+
+    it('let', () => {
+      var code = `(let [zero (test/zero) one 1 two "hello"] (test/three zero one two))`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expectNoError(json)
+
+        expect(json.nodes).to.have.length(4)
+        expect(json.edges).to.have.length(3)
+
+        let finalized = utils.finalize(json)
+        expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
+        expect(utils.getAll(finalized, 'test/three')).to.have.length(1)
+        expect(utils.getAll(finalized, 'std/const')).to.have.length(2)
+      })
     })
   })
 
@@ -495,6 +634,30 @@ describe('edn', () => {
           `
     var json = lisgy.parse_to_json(code)
     expectNoError(json)
+  })
+
+  it('std/const with typeHints', () => {
+    var code = `(defcop test [s1 s2 s3] [sum])
+          (test 1 true "text")
+          `
+    var json = lisgy.parse_to_json(code)
+    expectNoError(json)
+    // 4 nodes 3 edges 3 typeHints
+    expect(json.nodes[1].value.params).to.deep.equal({'value': 1})
+    // expect(json.nodes[1].value.typeHint).to.deep.equal({'output': 'number'})
+    expect(json.nodes[2].value.params).to.deep.equal({'value': true})
+    expect(json.nodes[2].value.typeHint).to.deep.equal({'output': 'boolean'})
+    expect(json.nodes[3].value.params).to.deep.equal({'value': 'text'})
+    expect(json.nodes[3].value.typeHint).to.deep.equal({'output': 'string'})
+  })
+
+  it('node with extra meta info', () => {
+    var code = `(defcop add [s1 s2] [sum])
+          (add 1 3 {:name A :testA testB})
+          `
+    var json = lisgy.parse_to_json(code)
+    expectNoError(json)
+    expect(json.nodes[0].value).to.deep.equal({'meta': 'add', 'name': 'A', 'testA': 'testB'})
   })
 
   it('can parse pattern match', () => {
