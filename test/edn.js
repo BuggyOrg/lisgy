@@ -660,23 +660,30 @@ describe('edn', () => {
     expect(json.nodes[0].value).to.deep.equal({'meta': 'add', 'name': 'A', 'testA': 'testB'})
   })
 
-  it('can parse pattern match', () => {
-    var parsed = lisgy.parse_to_json(readParseExamples('match.json').code)
-    fs.writeFileSync('test/examples/match_result.json', JSON.stringify(parsed, null, 2))
-    expect(parsed).to.be.ok
-  })
+  describe('pattern match', () => {
+    it('can parse pattern match', () => {
+      var parsed = lisgy.parse_to_json(readParseExamples('match.json').code)
+      fs.writeFileSync('test/examples/match_result.json', JSON.stringify(parsed, null, 2))
+      expect(parsed).to.be.ok
+    })
 
-  it('can parse pattern match with function input', () => {
-    var parsed = lisgy.parse_to_json(readParseExamples('match_fnInput.json').code)
-    fs.writeFileSync('test/examples/match_fnInput_result.json', JSON.stringify(parsed, null, 2))
-    expect(parsed).to.be.ok
-  })
+    it.only('can parse pattern match with function input', () => {
+      var parsed = lisgy.parse_to_json(readParseExamples('match_fnInput.json').code)
+      fs.writeFileSync('test/examples/match_fnInput_result.json', JSON.stringify(parsed, null, 2))
+      expect(parsed).to.be.ok
+    })
 
-  it.only('can parse pattern match with function output', () => {
-    var parsed = lisgy.parse_to_json(readParseExamples('match_fnOutput.json').code)
-    fs.writeFileSync('test/examples/match_fnOutput_result.json', JSON.stringify(parsed, null, 2))
-    expect(parsed).to.be.ok
-  })
+    it('can parse pattern match with function output', () => {
+      var parsed = lisgy.parse_to_json(readParseExamples('match_fnOutput.json').code)
+      fs.writeFileSync('test/examples/match_fnOutput_result.json', JSON.stringify(parsed, null, 2))
+      expect(parsed).to.be.ok
+    })
 
-  // TODO function in match
+    it('can parse pattern match with function in- and output', () => {
+      var parsed = lisgy.parse_to_json(readParseExamples('match_fnInOut.json').code)
+      fs.writeFileSync('test/examples/match_fnInOut_result.json', JSON.stringify(parsed, null, 2))
+      expect(parsed).to.be.ok
+    })
+    // TODO function in match
+  })
 })

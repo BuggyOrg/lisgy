@@ -4,7 +4,7 @@
     "multigraph": true,
     "compound": true
   },
-  "code": "(lambda (n) (match [(math/add 1 1) (math/add n 1)] [0 0] \"FizzBuzz\" [0 _] \"Fizz\" [_ 0] \"Buzz\" :else n))",
+  "code": "(defco match_0 [n m] [:out (match [(math/add 1 1) (math/add (math/add n 1) m)] [0 0] \"FizzBuzz\" [0 _] \"Fizz\" [_ 0] \"Buzz\" :else n)])",
   "inputPorts": {
     "n": "number"
   },

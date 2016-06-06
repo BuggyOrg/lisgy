@@ -2,113 +2,146 @@
   "code": "(match [n m] [0 0] \"FizzBuzz\" [0 _] \"Fizz\" [_ 0] \"Buzz\" :else n)",
   "nodes": [
     {
-      "v": "match",
       "value": {
-        "name": "match",
-        "rules": [
-          {
-            "inputs": [
-              {
-                "variable": false,
-                "type": "number",
-                "value/const": 0,
-                "name": "n"
-              },
-              {
-                "variable": false,
-                "type": "number",
-                "value/const": 0,
-                "name": "m"
-              }
-            ],
-            "outputs": [
-              {
-                "variable": false,
-                "type": "string",
-                "value/const": "FizzBuzz",
-                "name": "out"
-              }
-            ]
+        "v": "match",
+        "value": {
+          "inputPorts": {
+            "n": "generic",
+            "m": "generic"
           },
-          {
-            "inputs": [
-              {
-                "variable": false,
-                "type": "number",
-                "value/const": 0,
-                "name": "n"
-              },
-              {
-                "variable": true,
-                "type": "generic",
-                "value": "m",
-                "name": "m"
-              }
-            ],
-            "outputs": [
-              {
-                "variable": false,
-                "type": "string",
-                "value/const": "Fizz",
-                "name": "out"
-              }
-            ]
+          "outputPorts": {
+            "out": "generic"
           },
-          {
-            "inputs": [
+          "implementation": {
+            "nodes": [
               {
-                "variable": true,
-                "type": "generic",
-                "value": "n",
-                "name": "n"
-              },
-              {
-                "variable": false,
-                "type": "number",
-                "value/const": 0,
-                "name": "m"
+                "name": "match_rules",
+                "rules": [
+                  {
+                    "inputs": [
+                      {
+                        "variable": false,
+                        "type": "number",
+                        "value/const": 0,
+                        "name": "n"
+                      },
+                      {
+                        "variable": false,
+                        "type": "number",
+                        "value/const": 0,
+                        "name": "m"
+                      }
+                    ],
+                    "outputs": [
+                      {
+                        "variable": false,
+                        "type": "string",
+                        "value/const": "FizzBuzz",
+                        "name": "out"
+                      }
+                    ]
+                  },
+                  {
+                    "inputs": [
+                      {
+                        "variable": false,
+                        "type": "number",
+                        "value/const": 0,
+                        "name": "n"
+                      },
+                      {
+                        "variable": true,
+                        "type": "generic",
+                        "value": "m",
+                        "name": "m"
+                      }
+                    ],
+                    "outputs": [
+                      {
+                        "variable": false,
+                        "type": "string",
+                        "value/const": "Fizz",
+                        "name": "out"
+                      }
+                    ]
+                  },
+                  {
+                    "inputs": [
+                      {
+                        "variable": true,
+                        "type": "generic",
+                        "value": "n",
+                        "name": "n"
+                      },
+                      {
+                        "variable": false,
+                        "type": "number",
+                        "value/const": 0,
+                        "name": "m"
+                      }
+                    ],
+                    "outputs": [
+                      {
+                        "variable": false,
+                        "type": "string",
+                        "value/const": "Buzz",
+                        "name": "out"
+                      }
+                    ]
+                  },
+                  {
+                    "inputs": [
+                      {
+                        "variable": true,
+                        "type": "generic",
+                        "value": "n",
+                        "name": "n"
+                      },
+                      {
+                        "variable": true,
+                        "type": "generic",
+                        "value": "m",
+                        "name": "m"
+                      }
+                    ],
+                    "outputs": [
+                      {
+                        "variable": true,
+                        "type": "generic",
+                        "value": "n",
+                        "name": "out"
+                      }
+                    ]
+                  }
+                ],
+                "inputPorts": {
+                  "m": "generic",
+                  "n": "generic"
+                },
+                "outputPorts": {
+                  "out": "generic"
+                }
               }
             ],
-            "outputs": [
+            "edges": [
               {
-                "variable": false,
-                "type": "string",
-                "value/const": "Buzz",
-                "name": "out"
-              }
-            ]
-          },
-          {
-            "inputs": [
-              {
-                "variable": true,
-                "type": "generic",
-                "value": "n",
-                "name": "n"
+                "from": "n",
+                "to": "match_rules:n"
               },
               {
-                "variable": true,
-                "type": "generic",
-                "value": "m",
-                "name": "m"
-              }
-            ],
-            "outputs": [
+                "from": "m",
+                "to": "match_rules:m"
+              },
               {
-                "variable": true,
-                "type": "generic",
-                "value": "n",
-                "name": "out"
+                "from": "undefined:fn",
+                "to": "match_rules:undefined"
+              },
+              {
+                "from": "match_rules:out",
+                "to": "out"
               }
             ]
           }
-        ],
-        "inputPorts": {
-          "m": "generic",
-          "n": "generic"
-        },
-        "outputPorts": {
-          "out": "generic"
         }
       }
     }

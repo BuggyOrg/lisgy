@@ -368,7 +368,6 @@ function parse_edn_to_json (ednObj, inputCode) {
     // (defco NAME (INPUT*) (:OUTPUT1 (FN1) :OUTPUT2 (FN2) ...))
     var data = root.val
     var json = {}
-
     var component = defco(root)
     components[component.id] = component
 
@@ -533,6 +532,7 @@ function parse_edn_to_json (ednObj, inputCode) {
     var component
     // console.error('walk on ', root)
     var data = root.val
+    console.log(data)
     if (data instanceof Array && data.length === 0) return
     if (root instanceof edn.List || root instanceof edn.Vector ||
         root instanceof edn.Map || root instanceof edn.Set) {
@@ -658,14 +658,24 @@ function parse_edn_to_json (ednObj, inputCode) {
           break
         case 'match':
           // TODO id of match
-          var rules = {'name': 'match', 'rules': [], 'inputPorts': {}, 'outputPorts': {}}
+          var matchID = 'match'
+          implementation.nodes.push(gNode({'v': matchID, 'value': {'inputPorts': {}, 'outputPorts': {}}}))
+          var innerImplementation = {'nodes': [], 'edges': []}
+          var rules = {'name': 'match_rules', 'rules': [], 'inputPorts': {}, 'outputPorts': {}}
           var input = data[1].val
           var inputs = []
           for (let i = 0; i < input.length; i++) {
-            inputs.push(walk(input[i], implementation, inputPorts))
+            inputs.push(walk(input[i], innerImplementation, inputPorts))
             if (inputs[i].name !== undefined && !inputs[i].name.startsWith('const')) {
               input[i].name = inputs[i].name
-              implementation.edges.push(gEdge(inputs[i].name + ':' + inputs[i].port, rules.name + ':' + inputs[i].name))
+              for (let port = 0; port < inputs[i].inputPorts.length; port++) {
+                implementation.nodes[0].value['inputPorts'][inputs[i].inputPorts[port]] = 'generic'
+                implementation.edges.push(gEdge(inputs[i].inputPorts[port], matchID + ':' + inputs[i].inputPorts[port]))
+              }
+              innerImplementation.edges.push(gEdge(inputs[i].name + ':' + inputs[i].port, rules.name + ':' + inputs[i].name))
+            } else {
+              implementation.nodes[0].value.inputPorts[inputs[i].port] = 'generic'
+              innerImplementation.edges.push(gEdge(inputs[i].port, rules.name + ':' + inputs[i].port))
             }
           }
           for (let i = 2; i < data.length - 1; i = i + 2) {
@@ -690,21 +700,35 @@ function parse_edn_to_json (ednObj, inputCode) {
             }
             var output = data[i + 1] // TODO more outputs?
             if (typeof output === 'object') { // constant object?
-              var out = walk(output, implementation, inputPorts)
+              var out
               if (output instanceof edn.Symbol) {
+                out = walk(output, innerImplementation, inputPorts)
                 var variableName = out.port
                 rules.rules[rules.rules.length - 1]['outputs'].push({'variable': true, 'type': 'generic', 'value': variableName, 'name': 'out'})
-                rules.outputPorts['out'] = 'generic'
+                innerImplementation.edges.push(gEdge(out.name + ':fn', rules.name + ':' + out.name))
               } else {
-                // implementation.edges.push(gEdge(out.name + ':' + out.port, rules.name + ':' + out.name))
-                // rules.rules[rules.rules.length - 1]['outputs'].push({'variable': false, 'type': 'generic', 'value': variableName, 'name': 'out'})
-                // TODO
+                // TODO output = [ Symbol { ns: null, name: 'defco', val: 'defco' },Symbol { ns: null, name: 'match_0', val: 'match_0' },Vector { val: [ [Object], [Object] ] },Vector { val: [ [Object], [Object] ] } ]
+                output = new edn.List([new edn.Symbol('fn'), data[1], output])
+                console.log(data[1])
+                console.log(input)
+                out = walk(output, innerImplementation, inputPorts)
+                rules.rules[rules.rules.length - 1]['outputs'].push({'variable': true, 'type': 'generic', 'value': out.name, 'name': 'out'})
+                for (let inp = 0; inp < input.length; inp++) {
+                  innerImplementation.edges.push(gEdge(input[inp].name, out.name + ':' + input[inp].name))
+                }
+                innerImplementation.edges.push(gEdge(out.name + ':fn', rules.name + ':' + out.name))
+                rules.inputPorts[out.name] = 'generic'
               }
+              rules.outputPorts['out'] = 'generic'
             } else {
               rules.rules[rules.rules.length - 1]['outputs'].push({'variable': false, 'type': typeof output, 'value/const': output, 'name': 'out'})
             }
           }
-          implementation.nodes.push(rules)
+          implementation.nodes[0].value['outputPorts']['out'] = 'generic'
+          innerImplementation.edges.push(gEdge('match_rules:out', 'out'))
+          innerImplementation.nodes.push(rules)
+          implementation.nodes[0].value['implementation'] = innerImplementation
+          implementation.edges.push(gEdge(matchID + ':out', 'out'))
           break
         default:
           // (FN ARG*)
@@ -715,6 +739,8 @@ function parse_edn_to_json (ednObj, inputCode) {
           // map
           node.meta = defines[node.meta] ? defines[node.meta] : node.meta
           component = components[node.meta]
+
+          var inp = []
 
           implementation.nodes.push(gNode(node))
 
@@ -827,6 +853,11 @@ function parse_edn_to_json (ednObj, inputCode) {
                 addEdge(implementation, nextNode, toPort)
               } else {
                 let nextNode = walk(arg, implementation, inputPorts, node.name, argPort)
+                if (arg instanceof edn.Symbol) {
+                  inp.push(arg.name)
+                } else if (nextNode && nextNode.inputPorts) {
+                  inp = inp.concat(nextNode.inputPorts)
+                }
                 addEdge(implementation, nextNode, toPort)
               }
             } else {
@@ -869,7 +900,7 @@ function parse_edn_to_json (ednObj, inputCode) {
             }
           }
           let outPortHere = component.output[0]
-          return {name: node.name, outputPorts: component.output, port: outPortHere}
+          return {name: node.name, outputPorts: component.output, port: outPortHere, inputPorts: inp}
       }
     } else if (root instanceof edn.Symbol) {
       return {port: root.name}
