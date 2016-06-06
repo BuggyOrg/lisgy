@@ -347,7 +347,7 @@ function parse_edn_to_json (ednObj, inputCode) {
       inputPorts.push(v.name)
       return true
     })
-    
+
     json.data.settings.argumentOrdering.push('value_0')
 
     json.data.implementation = {nodes: [], edges: []}
