@@ -489,7 +489,7 @@ describe('edn', () => {
       var code = `(test/two 1 2)`
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
-        
+
         expect(_.find(json.edges, (e) => e.v === 'const(1)_1').value.inPort).to.equal('input1')
         expect(_.find(json.edges, (e) => e.v === 'const(2)_2').value.inPort).to.equal('input2')
       })
@@ -715,7 +715,7 @@ describe('edn', () => {
       expect(parsed).to.be.ok
     })
 
-    it.only('can parse pattern match with function input', () => {
+    it('can parse pattern match with function input', () => {
       var parsed = lisgy.parse_to_json(readParseExamples('match_fnInput.json').code)
       fs.writeFileSync('test/examples/match_fnInput_result.json', JSON.stringify(parsed, null, 2))
       expect(parsed).to.be.ok

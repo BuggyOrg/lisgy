@@ -550,7 +550,7 @@ function parse_edn_to_json (ednObj, inputCode) {
     var component
     // console.error('walk on ', root)
     var data = root.val
-    console.log(data)
+    // console.log(data)
     if (data instanceof Array && data.length === 0) return
     if (root instanceof edn.List || root instanceof edn.Vector ||
         root instanceof edn.Map || root instanceof edn.Set) {
@@ -727,8 +727,8 @@ function parse_edn_to_json (ednObj, inputCode) {
               } else {
                 // TODO output = [ Symbol { ns: null, name: 'defco', val: 'defco' },Symbol { ns: null, name: 'match_0', val: 'match_0' },Vector { val: [ [Object], [Object] ] },Vector { val: [ [Object], [Object] ] } ]
                 output = new edn.List([new edn.Symbol('fn'), data[1], output])
-                console.log(data[1])
-                console.log(input)
+                // console.log(data[1])
+                // console.log(input)
                 out = walk(output, innerImplementation, inputPorts)
                 rules.rules[rules.rules.length - 1]['outputs'].push({'variable': true, 'type': 'generic', 'value': out.name, 'name': 'out'})
                 for (let inp = 0; inp < input.length; inp++) {
