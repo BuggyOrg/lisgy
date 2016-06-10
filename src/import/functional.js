@@ -5,4 +5,5 @@ export var functional = `
 (def partial_n functional/partial_n)
 ;(def lambda functional/lambda) use (fn [...] (...))
 (def partial functional/partial)
+(def call functional/call)
 `
