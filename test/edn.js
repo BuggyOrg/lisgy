@@ -708,6 +708,22 @@ describe('edn', () => {
     expect(json.nodes[0].value).to.deep.equal({'meta': 'add', 'name': 'A', 'testA': 'testB'})
   })
 
+  it('new node with extra meta info', () => {
+    var code = `(defcop add [s1 s2] [sum])
+          (defco test [a b] (add a b))
+          (test 1 (test 2 (add 3 4 {:name C :testA testB}) {:name B :testA testB}) {:name A :testA testB})
+          `
+    var json = lisgy.parse_to_json(code)
+    expectNoError(json)
+
+    expect(json.nodes[0].value.name).to.equal('A')
+    expect(json.nodes[2].value.name).to.equal('B')
+    expect(json.nodes[4].value.name).to.equal('C')
+    expect(json.nodes[0].value.testA).to.equal('testB')
+    expect(json.nodes[2].value.testA).to.equal('testB')
+    expect(json.nodes[4].value.testA).to.equal('testB')
+  })
+
   describe('pattern match', () => {
     it('can parse pattern match', () => {
       var parsed = lisgy.parse_to_json(readParseExamples('match.json').code)

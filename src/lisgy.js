@@ -286,6 +286,14 @@ function parse_edn_to_json (ednObj, inputCode) {
       return false
     })) {
       selected.name = node.name
+
+      // add other/new variables
+      for (let v in node) {
+        if (v !== 'meta') {
+          selected[v] = node[v]
+        }
+      }
+
       return selected
     }
     return node
