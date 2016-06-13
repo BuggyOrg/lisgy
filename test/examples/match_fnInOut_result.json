@@ -11,6 +11,12 @@
         "outputPorts": {
           "out": "generic"
         },
+        "settings": {
+          "argumentOrdering": [
+            "n",
+            "out"
+          ]
+        },
         "implementation": {
           "nodes": [
             {
@@ -54,29 +60,32 @@
                       }
                     },
                     {
-                      "meta": "functional/lambda",
-                      "name": "fn_5",
-                      "outputPorts": {
-                        "fn": "lambda"
-                      },
-                      "inputPorts": {},
-                      "data": {
-                        "outputPorts": {
-                          "value_0": "generic"
-                        },
+                      "v": "defco_out_fn_8",
+                      "value": {
+                        "id": "out_fn_8",
                         "inputPorts": {
                           "add_0": "generic",
                           "add_2": "generic"
+                        },
+                        "outputPorts": {
+                          "out": "generic"
+                        },
+                        "settings": {
+                          "argumentOrdering": [
+                            "add_0",
+                            "add_2",
+                            "out"
+                          ]
                         },
                         "implementation": {
                           "nodes": [
                             {
                               "meta": "math/add",
-                              "name": "add_6"
+                              "name": "add_0"
                             },
                             {
                               "meta": "math/const",
-                              "name": "const(1)_7",
+                              "name": "const(1)_1",
                               "params": {
                                 "value": 1
                               }
@@ -84,15 +93,16 @@
                           ],
                           "edges": [
                             {
-                              "from": "const(1)_7:output",
-                              "to": "add_6:s1"
+                              "from": "const(1)_1:output",
+                              "to": "add_0:s1"
                             },
                             {
-                              "from": "add_6:sum",
-                              "to": "value_0"
+                              "from": "add_0:sum",
+                              "to": "out"
                             }
                           ]
-                        }
+                        },
+                        "name": "defco_out_fn_8"
                       }
                     },
                     {
@@ -117,8 +127,7 @@
                             {
                               "variable": false,
                               "type": "string",
-                              "value/const": "FizzBuzz",
-                              "name": "out"
+                              "value/const": "FizzBuzz"
                             }
                           ]
                         },
@@ -141,8 +150,7 @@
                             {
                               "variable": false,
                               "type": "string",
-                              "value/const": "Fizz",
-                              "name": "out"
+                              "value/const": "Fizz"
                             }
                           ]
                         },
@@ -165,8 +173,7 @@
                             {
                               "variable": false,
                               "type": "string",
-                              "value/const": "Buzz",
-                              "name": "out"
+                              "value/const": "Buzz"
                             }
                           ]
                         },
@@ -189,7 +196,7 @@
                             {
                               "variable": true,
                               "type": "generic",
-                              "value": "fn_5",
+                              "value": "r8",
                               "name": "out"
                             }
                           ]
@@ -198,7 +205,7 @@
                       "inputPorts": {
                         "add_2": "generic",
                         "add_0": "generic",
-                        "fn_5": "generic"
+                        "r8": "generic"
                       },
                       "outputPorts": {
                         "out": "generic"
@@ -232,15 +239,15 @@
                     },
                     {
                       "from": "add_0",
-                      "to": "fn_5:add_0"
+                      "to": "defco_out_fn_8:add_0"
                     },
                     {
                       "from": "add_2",
-                      "to": "fn_5:add_2"
+                      "to": "defco_out_fn_8:add_2"
                     },
                     {
-                      "from": "fn_5:fn",
-                      "to": "match_rules:fn_5"
+                      "from": "defco_out_fn_8:out",
+                      "to": "match_rules:r8"
                     },
                     {
                       "from": "match_rules:out",

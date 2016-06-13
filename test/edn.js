@@ -727,7 +727,7 @@ describe('edn', () => {
       expect(parsed).to.be.ok
     })
 
-    it('can parse pattern match with function in- and output', () => {
+    it('can parse pattern match with function in- and output', () => { // TODO
       var parsed = lisgy.parse_to_json(readParseExamples('match_fnInOut.json').code)
       fs.writeFileSync('test/examples/match_fnInOut_result.json', JSON.stringify(parsed, null, 2))
       expect(parsed).to.be.ok

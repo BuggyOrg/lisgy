@@ -36,8 +36,7 @@
                       {
                         "variable": false,
                         "type": "string",
-                        "value/const": "FizzBuzz",
-                        "name": "out"
+                        "value/const": "FizzBuzz"
                       }
                     ]
                   },
@@ -60,8 +59,7 @@
                       {
                         "variable": false,
                         "type": "string",
-                        "value/const": "Fizz",
-                        "name": "out"
+                        "value/const": "Fizz"
                       }
                     ]
                   },
@@ -84,8 +82,7 @@
                       {
                         "variable": false,
                         "type": "string",
-                        "value/const": "Buzz",
-                        "name": "out"
+                        "value/const": "Buzz"
                       }
                     ]
                   },
@@ -131,10 +128,6 @@
               {
                 "from": "m",
                 "to": "match_rules:m"
-              },
-              {
-                "from": "undefined:fn",
-                "to": "match_rules:undefined"
               },
               {
                 "from": "match_rules:out",

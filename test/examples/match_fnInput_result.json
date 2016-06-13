@@ -12,6 +12,13 @@
         "outputPorts": {
           "out": "generic"
         },
+        "settings": {
+          "argumentOrdering": [
+            "n",
+            "m",
+            "out"
+          ]
+        },
         "implementation": {
           "nodes": [
             {
@@ -81,8 +88,7 @@
                             {
                               "variable": false,
                               "type": "string",
-                              "value/const": "FizzBuzz",
-                              "name": "out"
+                              "value/const": "FizzBuzz"
                             }
                           ]
                         },
@@ -105,8 +111,7 @@
                             {
                               "variable": false,
                               "type": "string",
-                              "value/const": "Fizz",
-                              "name": "out"
+                              "value/const": "Fizz"
                             }
                           ]
                         },
@@ -129,8 +134,7 @@
                             {
                               "variable": false,
                               "type": "string",
-                              "value/const": "Buzz",
-                              "name": "out"
+                              "value/const": "Buzz"
                             }
                           ]
                         },
@@ -200,10 +204,6 @@
                     {
                       "from": "add_3:sum",
                       "to": "match_rules:add_3"
-                    },
-                    {
-                      "from": "undefined:fn",
-                      "to": "match_rules:undefined"
                     },
                     {
                       "from": "match_rules:out",
