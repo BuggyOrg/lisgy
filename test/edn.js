@@ -724,7 +724,7 @@ describe('edn', () => {
     expect(json.nodes[4].value.testA).to.equal('testB')
   })
 
-  describe.only('errors', () => {
+  describe('errors', () => {
     it('syntax', () => {
       try {
         var code = `(def a b)\n(defcop add [s1 s2] [sum]`
