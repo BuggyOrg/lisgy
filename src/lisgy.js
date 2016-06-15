@@ -64,7 +64,10 @@ export function parse_edn (inputCode) {
   try {
     var ednObj = edn.parse(code)
   } catch (err) {
-    throw new Error('Lisgy parsing error\n' + err)
+    let newErr = new Error('Lisgy parsing error\n' + err)
+    let line = err.split('line ')
+    newErr.line = parseInt(line[line.length - 1])
+    throw newErr
   }
   var vars = []
 
@@ -452,7 +455,8 @@ function parse_edn_to_json (ednObj, inputCode) {
 
   function error (message) {
     logError(message)
-    json = {code: inputCode, error: message}
+    // TODO: lines
+    json = {code: inputCode, error: message, line: 0}
   }
 
   function simplify (node) {

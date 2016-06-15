@@ -724,6 +724,28 @@ describe('edn', () => {
     expect(json.nodes[4].value.testA).to.equal('testB')
   })
 
+  describe.only('errors', () => {
+    it('syntax', () => {
+      try {
+        var code = `(def a b)\n(defcop add [s1 s2] [sum]`
+        var json = lisgy.parse_to_json(code)
+        expectError(json)
+      } catch (error) {
+        expect(error.line).to.equal(2) // or 1?
+      }
+    })
+
+    it('ports', () => {
+      var code = `(defcop add [s1 s2] [sum])\n (add 1 2 3)`
+      disableErrorLog()
+      var json = lisgy.parse_to_json(code)
+      enableErrorLog()
+      expectError(json)
+      // TODO: add lines to components
+      // expect(json.line).to.equal(2) // or 1?
+    })
+  })
+
   describe('pattern match', () => {
     it('can parse pattern match', () => {
       var parsed = lisgy.parse_to_json(readParseExamples('match.json').code)

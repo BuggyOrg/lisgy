@@ -9,6 +9,7 @@ create simple buggy graphs from lisp code
 
 **TODO**
 - [ ] Anonymous functions `#(...)`
+- [ ] Better error handling with lines for components/edn objects
 
 **DONE**
 - [x] set a specific input port e.g. `(FN :portB (exprs1) :portA (exprs2))`
@@ -18,6 +19,7 @@ create simple buggy graphs from lisp code
 - [x] if same as logic/mux -> `(defco if [check truePath falsePath] (logic/mux truePath falsePath check))`
 - [x] `(import ...)` Include default mappings e.g. + to math/add 
 - [x] Extra node infos with `{:var value}`
+- [x] syntax errors with lines
 
 **API**
 ```clojure
