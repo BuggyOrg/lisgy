@@ -64,9 +64,7 @@ export function parse_edn (inputCode) {
   try {
     var ednObj = edn.parse(code)
   } catch (err) {
-    let newErr = new Error('Lisgy parsing error\n' + err)
-    let line = err.split('line ')
-    newErr.line = parseInt(line[line.length - 1])
+    let newErr = new Error('Lisgy parsing error: ' + err)
     throw newErr
   }
   var vars = []
@@ -215,12 +213,38 @@ export function parseToJson (inputCode, addMissingComponents, specialResolver) {
   })
 }
 
+
+export function checkSyntax(inputCode) {
+  let ednObj
+  try {
+    ednObj = parse_edn(inputCode)
+  } catch (error) {
+    // console.error(error)
+    let message = error.message
+    let location = message.split('at line ')
+    if (location[1]) {
+      location = location[1].split('-')
+      let start = location[0].split(':')
+      let end = location[1].split(':')
+      location = {'startLine': start[0], 'startCol': start[1], 'endLine': end[0], 'endCol': end[1]}
+    } else {
+      location = {'startLine': 1, 'startCol': 1, 'endLine': 1, 'endCol': 1}
+    }
+    return {'code': inputCode, 'error': message, 'location': location}
+  }
+  return ednObj
+}
+
 /**
  * Parse the input code to json
  */
 export function parse_to_json (inputCode, addMissingComponents, specialResolver) {
-  var ednObj = parse_edn(inputCode)
+  var ednObj = checkSyntax(inputCode)
+
   var p = Promise.resolve(ednObj)
+  if (ednObj.error) {
+    return ednObj
+  }
   if (addMissingComponents) {
     p = edn_add_components(ednObj, specialResolver)
   } else {
@@ -453,10 +477,19 @@ function parse_edn_to_json (ednObj, inputCode) {
     return {'json': json, 'component': component}
   }
 
-  function error (message) {
+  function error (message, location) {
     logError(message)
     // TODO: lines
-    json = {code: inputCode, error: message, line: 0}
+    json = {code: inputCode, error: message, location: {
+      startLine: location.start[0],
+      startCol: location.start[1],
+      endLine: location.end[0],
+      endCol: location.end[1]
+    }}
+  }
+
+  function getLocation (node) {
+    return {start: [node.posLineStart, node.posColStart], end: [node.posLineEnd, node.posColEnd]}
   }
 
   function simplify (node) {
@@ -464,7 +497,9 @@ function parse_edn_to_json (ednObj, inputCode) {
     if (node.fromVariable && node.fromVariable.name && node.fromVariable.id) {
       name = node.name + '__' + node.fromVariable.id
     }
-    return {'meta': node.val, 'name': name}
+    let out = {'meta': node.val, 'name': name}
+
+    return out
   }
 
   function cleanPort (port) {
@@ -779,7 +814,7 @@ function parse_edn_to_json (ednObj, inputCode) {
               componentNames.push(name)
             }
             error('The input/output ports for component ' + node.meta +
-                  ' are not defined via (defcop ' + node.meta + ' [...] [...]), only for ' + componentNames)
+                  ' are not defined via (defcop ' + node.meta + ' [...] [...]), only for ' + componentNames, getLocation(data[0]))
             return
           }
 
@@ -794,7 +829,7 @@ function parse_edn_to_json (ednObj, inputCode) {
           }
 
           if (outPort && !_.find(component.output, (id) => { return id === outPort })) {
-            error('Used unkown output port ' + outPort + ' for ' + component.id + '. Use: ' + component.output)
+            error('Used unkown output port ' + outPort + ' for ' + component.id + '. Use: ' + component.output, getLocation(data[0]))
             return
           }
 
@@ -807,7 +842,7 @@ function parse_edn_to_json (ednObj, inputCode) {
             var _portData = data[k++]
 
             if (portArgs && !oddNumber || _portData && _portData.val && _portData.val[0] === ':') {
-              error('Mixed port syntax, use only (FN ARG ...) or (FN :port ARG ...)')
+              error('Mixed port syntax, use only (FN ARG ...) or (FN :port ARG ...)', getLocation(data[0]))
               return
             }
           }
@@ -831,7 +866,7 @@ function parse_edn_to_json (ednObj, inputCode) {
             } else if (data.length === 3) {
               node.params = {partial: 0}
             } else {
-              error('functional/partial used with wrong number of ports ' + data.length)
+              error('functional/partial used with wrong number of ports ' + data.length, getLocation(data[0]))
             }
           }
 
@@ -841,7 +876,7 @@ function parse_edn_to_json (ednObj, inputCode) {
           }
 
           if (numInputs !== component.input.length) {
-            error('Wrong number of input ports for ' + component.id + ', got ' + numInputs + ' expected ' + component.input.length)
+            error('Wrong number of input ports for ' + component.id + ', got ' + numInputs + ' expected ' + component.input.length, getLocation(data[0]))
             return
           }
 
@@ -855,7 +890,7 @@ function parse_edn_to_json (ednObj, inputCode) {
               arg = data[++j]
 
               if (!_.find(component.input, (id) => { return id === argPort })) {
-                error('Used unkown input port ' + argPort + ' for ' + component.id + '. Use: ' + component.input)
+                error('Used unkown input port ' + argPort + ' for ' + component.id + '. Use: ' + component.input, getLocation(data[0]))
                 return
               }
             }
@@ -938,7 +973,7 @@ function parse_edn_to_json (ednObj, inputCode) {
       let type = typeof value
 
       if (type === 'object') {
-        error('Unkown walk class ' + root)
+        error('Unkown walk class ' + root, getLocation(root))
         return
       }
 

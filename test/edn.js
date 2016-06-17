@@ -725,14 +725,25 @@ describe('edn', () => {
   })
 
   describe('errors', () => {
-    it('syntax', () => {
-      try {
-        var code = `(def a b)\n(defcop add [s1 s2] [sum]`
-        var json = lisgy.parse_to_json(code)
-        expectError(json)
-      } catch (error) {
-        expect(error.line).to.equal(2) // or 1?
-      }
+    it('syntax missing )', () => {
+      var code = `(def a b)\n(defcop add [s1 s2] [sum]`
+      var json = lisgy.parse_to_json(code)
+      expectError(json)
+      logJson(json)
+    })
+
+    it('syntax map', () => {
+      var code = `{a b c}`
+      var json = lisgy.parse_to_json(code)
+      expectError(json)
+      logJson(json)
+    })
+
+    it('syntax symbol', () => {
+      var code = `(ä test)`
+      var json = lisgy.parse_to_json(code)
+      expectError(json)
+      logJson(json)
     })
 
     it('ports', () => {
@@ -741,8 +752,9 @@ describe('edn', () => {
       var json = lisgy.parse_to_json(code)
       enableErrorLog()
       expectError(json)
+      logJson(json)
       // TODO: add lines to components
-      // expect(json.line).to.equal(2) // or 1?
+      expect(json.location).to.deep.equal({'startLine': 2, 'endLine': 2, 'startCol': 3, 'endCol': 7})
     })
   })
 
