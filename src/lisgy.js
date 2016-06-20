@@ -685,11 +685,10 @@ function parse_edn_to_json (ednObj, inputCode) {
           implementation.edges.push(gEdge(variable, demux.name + ':' + demuxC.input[0]))
           break
         case 'match':
-          // TODO id of match und match_Rules
-          var matchID = 'match'
+          var matchID = 'match' + '_' + count++
           implementation.nodes.push(gNode({'v': matchID, 'value': {'inputPorts': {}, 'outputPorts': {}}}))
           var innerImplementation = {'nodes': [], 'edges': []}
-          var rules = {'name': 'match_rules', 'rules': [], 'inputPorts': {}, 'outputPorts': {}}
+          var rules = {'name': 'match_rules' + '_' + count++, 'rules': [], 'inputPorts': {}, 'outputPorts': {}}
           var input = data[1].val
           var inputs = []
           for (let i = 0; i < input.length; i++) {
@@ -726,38 +725,52 @@ function parse_edn_to_json (ednObj, inputCode) {
                 }
               }
             }
-            var output = data[i + 1] // TODO more outputs?
-            if (typeof output === 'object') { // constant object?
-              var outputName = 'out'
-              if (output instanceof edn.Symbol) {
-                var out = walk(output, innerImplementation, inputPorts)
-                var variableName = out.port
-                rules.rules[rules.rules.length - 1]['outputs'].push({'variable': true, 'type': 'generic', 'value': variableName, 'name': outputName})
-                // innerImplementation.edges.push(gEdge(out.name + ':fn', rules.name + ':' + out.name))
-              } else {
-                output = new edn.List([ new edn.Symbol('defco'), new edn.Symbol(outputName + '_fn_' + i), new edn.Vector(input), new edn.Vector([new edn.Keyword(':' + outputName), output]) ])
-                // output = new edn.List([new edn.Symbol('fn'), data[1], output])
-                var func = parse_edn_to_json(new edn.List([output]), inputPorts)
-                innerImplementation.nodes = innerImplementation.nodes.concat(func.nodes)
-                // walk(output, innerImplementation, inputPorts)
-                // walk(output, innerImplementation, inputPorts)
-                rules.rules[rules.rules.length - 1]['outputs'].push({'variable': true, 'type': 'generic', 'value': 'r' + i, 'name': outputName})
-                for (let inp = 0; inp < input.length; inp++) {
-                  innerImplementation.edges.push(gEdge(input[inp].name, 'defco_' + outputName + '_fn_' + i + ':' + input[inp].name))
+            var output = data[i + 1].val // TODO outputnames
+            for (let o = 0; o < output.length; o++) {
+              var outputName = 'out' + '_' + o
+              if (typeof output[o] === 'object') { // constant object?
+                if (output[o] instanceof edn.Symbol) {
+                  var out = walk(output[o], innerImplementation, inputPorts)
+                  var variableName = out.port
+                  rules.rules[rules.rules.length - 1]['outputs'].push({'variable': true, 'type': 'generic', 'value': variableName, 'name': outputName})
+                  rules.inputPorts[variableName] = 'generic'
+                  if (!contains(innerImplementation.edges, gEdge(variableName, rules.name + ':' + variableName))) {
+                    innerImplementation.edges.push(gEdge(variableName, rules.name + ':' + variableName))
+                  }
+                } else {
+                  var out_fn_inputs = []
+                  for (let inp = 0; inp < input.length; inp++) {
+                    if (input[inp] instanceof edn.Symbol) {
+                      out_fn_inputs.push(input[inp])
+                    } else {
+                      for (let p = 0; p < inputs[inp].inputPorts.length; p++) {
+                        out_fn_inputs.push(new edn.Symbol(inputs[inp].inputPorts[p]))
+                      }
+                    }
+                  }
+                  output[o] = new edn.List([ new edn.Symbol('defco'), new edn.Symbol(outputName + '_fn_' + i), new edn.Vector(out_fn_inputs), new edn.Vector([new edn.Keyword(':' + outputName), output[o]]) ])
+                  var func = parse_edn_to_json(new edn.List([output[o]]), inputPorts)
+                  innerImplementation.nodes = innerImplementation.nodes.concat(func.nodes)
+                  rules.rules[rules.rules.length - 1]['outputs'].push({'variable': true, 'type': 'generic', 'value': 'r' + i, 'name': outputName})
+                  for (let inp = 0; inp < out_fn_inputs.length; inp++) {
+                    innerImplementation.edges.push(gEdge(out_fn_inputs[inp].name, 'defco_' + outputName + '_fn_' + i + ':' + out_fn_inputs[inp].name))
+                  }
+                  innerImplementation.edges.push(gEdge('defco_' + outputName + '_fn_' + i + ':' + outputName, rules.name + ':' + 'r' + i))
+                  rules.inputPorts['r' + i] = 'generic'
                 }
-                innerImplementation.edges.push(gEdge('defco_' + outputName + '_fn_' + i + ':' + outputName, rules.name + ':' + 'r' + i))
-                rules.inputPorts['r' + i] = 'generic'
+                rules.outputPorts[outputName] = 'generic'
+              } else {
+                rules.rules[rules.rules.length - 1]['outputs'].push({'variable': false, 'type': typeof output[o], 'value/const': output[o], 'name': outputName})
               }
-              rules.outputPorts[outputName] = 'generic'
-            } else {
-              rules.rules[rules.rules.length - 1]['outputs'].push({'variable': false, 'type': typeof output, 'value/const': output, 'name': outputName})
             }
           }
-          implementation.nodes[0].value['outputPorts'][outputName] = 'generic'
-          innerImplementation.edges.push(gEdge('match_rules:out', outputName))
+          for (let o = 0; o < output.length; o++) {
+            implementation.nodes[0].value['outputPorts']['out_' + o] = 'generic'
+            innerImplementation.edges.push(gEdge('match_rules:' + 'out_' + o, 'out_' + o))
+            implementation.edges.push(gEdge(matchID + ':' + 'out_' + o, 'out_' + o))
+          }
           innerImplementation.nodes.push(rules)
           implementation.nodes[0].value['implementation'] = innerImplementation
-          implementation.edges.push(gEdge(matchID + ':' + outputName, outputName))
           break
         default:
           // (FN ARG*)
@@ -957,6 +970,15 @@ function parse_edn_to_json (ednObj, inputCode) {
   }
 
   return json
+}
+
+function contains (a, obj) {
+  for (var i = 0; i < a.length; i++) {
+    if (a[i].from === obj.from && a[i].to === obj.to) {
+      return true
+    }
+  }
+  return false
 }
 
 export function parse_to_edn (json) {

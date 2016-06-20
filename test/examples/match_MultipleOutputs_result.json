@@ -1,5 +1,5 @@
 {
-  "code": "(defco match_0 [n] [:out_0 (match [(math/add n 1) (math/add 1 1)] [0 0] [\"FizzBuzz\"] [0 _] [\"Fizz\"] [_ 0] [\"Buzz\"] :else [(math/add 1 n)])])",
+  "code": "(defco match_0 [n] [:out_0 (match [(math/add n 1) (math/add 1 1)] [0 0] [n 1] [0 _] [\"Fizz\" 0] [_ 0] [\"Buzz\" 3] :else [(math/add 1 n) 4]) :out_1 ()])",
   "nodes": [
     {
       "v": "defco_match_0",
@@ -9,12 +9,14 @@
           "n": "generic"
         },
         "outputPorts": {
-          "out_0": "generic"
+          "out_0": "generic",
+          "out_1": "generic"
         },
         "settings": {
           "argumentOrdering": [
             "n",
-            "out_0"
+            "out_0",
+            "out_1"
           ]
         },
         "implementation": {
@@ -26,7 +28,8 @@
                   "n": "generic"
                 },
                 "outputPorts": {
-                  "out_0": "generic"
+                  "out_0": "generic",
+                  "out_1": "generic"
                 },
                 "implementation": {
                   "nodes": [
@@ -127,10 +130,16 @@
                           ],
                           "outputs": [
                             {
-                              "variable": false,
-                              "type": "string",
-                              "value/const": "FizzBuzz",
+                              "variable": true,
+                              "type": "generic",
+                              "value": "n",
                               "name": "out_0"
+                            },
+                            {
+                              "variable": false,
+                              "type": "number",
+                              "value/const": 1,
+                              "name": "out_1"
                             }
                           ]
                         },
@@ -155,6 +164,12 @@
                               "type": "string",
                               "value/const": "Fizz",
                               "name": "out_0"
+                            },
+                            {
+                              "variable": false,
+                              "type": "number",
+                              "value/const": 0,
+                              "name": "out_1"
                             }
                           ]
                         },
@@ -179,6 +194,12 @@
                               "type": "string",
                               "value/const": "Buzz",
                               "name": "out_0"
+                            },
+                            {
+                              "variable": false,
+                              "type": "number",
+                              "value/const": 3,
+                              "name": "out_1"
                             }
                           ]
                         },
@@ -203,11 +224,18 @@
                               "type": "generic",
                               "value": "r8",
                               "name": "out_0"
+                            },
+                            {
+                              "variable": false,
+                              "type": "number",
+                              "value/const": 4,
+                              "name": "out_1"
                             }
                           ]
                         }
                       ],
                       "inputPorts": {
+                        "n": "generic",
                         "add_4": "generic",
                         "add_2": "generic",
                         "r8": "generic"
@@ -244,6 +272,10 @@
                     },
                     {
                       "from": "n",
+                      "to": "match_rules_1:n"
+                    },
+                    {
+                      "from": "n",
                       "to": "defco_out_0_fn_8:n"
                     },
                     {
@@ -253,6 +285,10 @@
                     {
                       "from": "match_rules:out_0",
                       "to": "out_0"
+                    },
+                    {
+                      "from": "match_rules:out_1",
+                      "to": "out_1"
                     }
                   ]
                 }
@@ -267,6 +303,10 @@
             {
               "from": "match_0:out_0",
               "to": "out_0"
+            },
+            {
+              "from": "match_0:out_1",
+              "to": "out_1"
             }
           ]
         },

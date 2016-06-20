@@ -1,18 +1,3 @@
 {
-  "options": {
-    "directed": true,
-    "multigraph": true,
-    "compound": true
-  },
-  "code": "(match [n m] [0 0] \"FizzBuzz\" [0 _] \"Fizz\" [_ 0] \"Buzz\" :else n)",
-  "inputPorts": {
-    "n": "number"
-  },
-  "outputPorts": {
-    "value": "string"
-  },
-  "implementation": {
-    "nodes": [],
-    "edges": []
-  }
+  "code": "(match [n m] [0 0] [\"FizzBuzz\"] [0 _] [\"Fizz\"] [_ 0] [\"Buzz\"] :else [n])"
 }
