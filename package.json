@@ -10,7 +10,8 @@
     "mocha": "mocha --compilers js:babel-register",
     "gulp": "standard src/**/*.js && babel src -d lib",
     "build": "babel src -d lib",
-    "test": "standard src/**/*.js && mocha --compilers js:babel-register"
+    "test": "standard src/**/*.js && mocha --compilers js:babel-register",
+    "prepublish": "babel src -d lib"
   },
   "author": "",
   "license": "MIT",
