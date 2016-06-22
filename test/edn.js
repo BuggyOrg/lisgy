@@ -781,7 +781,7 @@ describe('edn', () => {
       expect(parsed).to.be.ok
     })
 
-    it.only('can parse pattern match with multiple outputs', () => {
+    it('can parse pattern match with multiple outputs', () => {
       var parsed = lisgy.parse_to_json(readParseExamples('match_MultipleOutputs.json').code2)
       fs.writeFileSync('test/examples/match_MultipleOutputs_result.json', JSON.stringify(parsed, null, 2))
       expect(parsed).to.be.ok
