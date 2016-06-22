@@ -1,21 +1,21 @@
 {
-  "code": "(match [n m] [0 0] \"FizzBuzz\" [0 _] \"Fizz\" [_ 0] \"Buzz\" :else n)",
+  "code": "(match [n m] [0 0] [\"FizzBuzz\"] [0 _] [\"Fizz\"] [_ 0] [\"Buzz\"] :else [n])",
   "nodes": [
     {
       "value": {
-        "v": "match",
+        "v": "match_0",
         "value": {
           "inputPorts": {
             "n": "generic",
             "m": "generic"
           },
           "outputPorts": {
-            "out": "generic"
+            "out_0": "generic"
           },
           "implementation": {
             "nodes": [
               {
-                "name": "match_rules",
+                "name": "match_rules_1",
                 "rules": [
                   {
                     "inputs": [
@@ -36,7 +36,8 @@
                       {
                         "variable": false,
                         "type": "string",
-                        "value/const": "FizzBuzz"
+                        "value/const": "FizzBuzz",
+                        "name": "out_0"
                       }
                     ]
                   },
@@ -59,7 +60,8 @@
                       {
                         "variable": false,
                         "type": "string",
-                        "value/const": "Fizz"
+                        "value/const": "Fizz",
+                        "name": "out_0"
                       }
                     ]
                   },
@@ -82,7 +84,8 @@
                       {
                         "variable": false,
                         "type": "string",
-                        "value/const": "Buzz"
+                        "value/const": "Buzz",
+                        "name": "out_0"
                       }
                     ]
                   },
@@ -106,7 +109,7 @@
                         "variable": true,
                         "type": "generic",
                         "value": "n",
-                        "name": "out"
+                        "name": "out_0"
                       }
                     ]
                   }
@@ -116,22 +119,22 @@
                   "n": "generic"
                 },
                 "outputPorts": {
-                  "out": "generic"
+                  "out_0": "generic"
                 }
               }
             ],
             "edges": [
               {
                 "from": "n",
-                "to": "match_rules:n"
+                "to": "match_rules_1:n"
               },
               {
                 "from": "m",
-                "to": "match_rules:m"
+                "to": "match_rules_1:m"
               },
               {
-                "from": "match_rules:out",
-                "to": "out"
+                "from": "match_rules:out_0",
+                "to": "out_0"
               }
             ]
           }

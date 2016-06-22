@@ -775,9 +775,15 @@ describe('edn', () => {
       expect(parsed).to.be.ok
     })
 
-    it('can parse pattern match with function in- and output', () => { // TODO
+    it('can parse pattern match with function in- and output', () => {
       var parsed = lisgy.parse_to_json(readParseExamples('match_fnInOut.json').code)
       fs.writeFileSync('test/examples/match_fnInOut_result.json', JSON.stringify(parsed, null, 2))
+      expect(parsed).to.be.ok
+    })
+
+    it.only('can parse pattern match with multiple outputs', () => {
+      var parsed = lisgy.parse_to_json(readParseExamples('match_MultipleOutputs.json').code2)
+      fs.writeFileSync('test/examples/match_MultipleOutputs_result.json', JSON.stringify(parsed, null, 2))
       expect(parsed).to.be.ok
     })
     // TODO function in match

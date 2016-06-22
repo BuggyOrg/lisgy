@@ -1,3 +1,3 @@
 {
-  "code": "(defco match_0 [n] [:out (match [(math/add n 1) (math/add 1 1)] [0 0] \"FizzBuzz\" [0 _] \"Fizz\" [_ 0] \"Buzz\" :else (math/add 1 n))])"
+  "code": "(defco match_0 [n] [:out_0 (match [(math/add n 1) (math/add 1 1)] [0 0] [\"FizzBuzz\"] [0 _] [\"Fizz\"] [_ 0] [\"Buzz\"] :else [(math/add 1 n)])])"
 }
