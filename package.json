@@ -22,7 +22,7 @@
     "commander": "^2.9.0",
     "get-stdin": "^5.0.1",
     "graphlib": "^2.1.0",
-    "jsedn": "BuggyOrg/jsedn#e4fa58e7eab3e1671a4724aa55ab0b6adb6c86bd",
+    "jsedn": "BuggyOrg/jsedn#5659a1b1fd698fbbebb33e98e9b71318b96ff36e",
     "lodash": "^4.8.2",
     "tempfile": "^1.1.1",
     "wsl-lisp-parser": "^0.1.0"

@@ -213,8 +213,7 @@ export function parseToJson (inputCode, addMissingComponents, specialResolver) {
   })
 }
 
-
-export function checkSyntax(inputCode) {
+export function checkSyntax (inputCode) {
   let ednObj
   try {
     ednObj = parse_edn(inputCode)
@@ -226,7 +225,7 @@ export function checkSyntax(inputCode) {
       location = location[1].split('-')
       let start = location[0].split(':')
       let end = location[1].split(':')
-      location = {'startLine': start[0], 'startCol': start[1], 'endLine': end[0], 'endCol': end[1]}
+      location = {'startLine': parseInt(start[0]), 'startCol': parseInt(start[1]), 'endLine': parseInt(end[0]), 'endCol': parseInt(end[1])}
     } else {
       location = {'startLine': 1, 'startCol': 1, 'endLine': 1, 'endCol': 1}
     }
@@ -479,12 +478,14 @@ function parse_edn_to_json (ednObj, inputCode) {
 
   function error (message, location) {
     logError(message)
-    // TODO: lines
+    if (!location) {
+      location = {start: [1, 1], end: [1, 1]}
+    }
     json = {code: inputCode, error: message, location: {
-      startLine: location.start[0],
-      startCol: location.start[1],
-      endLine: location.end[0],
-      endCol: location.end[1]
+      startLine: parseInt(location.start[0]),
+      startCol: parseInt(location.start[1]),
+      endLine: parseInt(location.end[0]),
+      endCol: parseInt(location.end[1])
     }}
   }
 
@@ -644,7 +645,7 @@ function parse_edn_to_json (ednObj, inputCode) {
         case 'let':
           newVars = mapVars(data[1])
           if (newVars.length === 0) {
-            error('let has a wrong number of variables')
+            error('let has a wrong number of variables', getLocation(data[1]))
           }
           log(1, 'letr vars', _.map(newVars, (v) => v.name))
 
