@@ -10,6 +10,9 @@ var log, errorsWithColor, logsDisabled
 
 setLog(false, true, false)
 
+/**
+ * Connect to the component api server
+ */
 export function connect (server) {
   if (!server) {
     if (process.env.BUGGY_COMPONENT_LIBRARY_HOST) {
@@ -31,6 +34,9 @@ function logError (...args) {
   }
 }
 
+/**
+ * Set the lisgy log settings
+ */
 export function setLog (verbose, enableColor, disableLogs) {
   logsDisabled = disableLogs
   errorsWithColor = enableColor
@@ -50,6 +56,10 @@ function randomString () {
   return Math.random().toString(36).substr(2, 5)
 }
 */
+
+/**
+ * Parse the code to edn, handels a few partial special cases
+ */
 export function parse_edn (inputCode) {
   log(0, '# parse to edn')
 
@@ -213,6 +223,12 @@ export function parseToJson (inputCode, addMissingComponents, specialResolver) {
   })
 }
 
+/**
+ * Check the syntax of the input code
+ * @param {String} Lisgy code that will be parsed & checked
+ * @returns The parsed ednObj if no error occured
+ * @return A object with the inputCode, the error message and the location
+ */
 export function checkSyntax (inputCode) {
   let ednObj
   try {
@@ -236,6 +252,9 @@ export function checkSyntax (inputCode) {
 
 /**
  * Parse the input code to json
+ * @param {String} Lisgy code
+ * @param {Boolean} Add missing components if true
+ * @parm {Object} Special resolver to use
  */
 export function parse_to_json (inputCode, addMissingComponents, specialResolver) {
   var ednObj = checkSyntax(inputCode)
@@ -1017,19 +1036,27 @@ function contains (a, obj) {
   return false
 }
 
+/**
+ * TODO: implement
+ */
 export function parse_to_edn (json) {
-  // TODO: implement
   log(0, '# parsing to edn')
   return new edn.List([edn.sym('a'), edn.sym('b'), new edn.List([edn.sym('c'), edn.sym('d')])])
 }
 
+/**
+ * TODO: implement
+ */
 export function encode_edn (ednObj) {
   log(0, '# encode to edn')
   var code = edn.encode(ednObj)
-  code = code.slice(1, code.length - 1) // remove []
+  code = code.slice(1, code.length - 1)
   return code
 }
 
+/**
+ * Creates a new EDN object from a graph component
+ */
 export function jsonToEdn (obj) {
   var toObject = (e) => { return edn.sym(e) }
   if (!obj.settings || !obj.settings.argumentOrdering) {
@@ -1044,6 +1071,9 @@ export function jsonToEdn (obj) {
   return list
 }
 
+/**
+ * Add missing components ports from the server
+ */
 export function edn_add_components (ednObj, specialResolver) {
   log(0, '# adding components')
   var functions = []
