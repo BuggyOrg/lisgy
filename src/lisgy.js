@@ -255,19 +255,20 @@ export function checkSyntax (inputCode) {
  * @param {String} Lisgy code
  * @param {Boolean} Add missing components if true
  * @parm {Object} Special resolver to use
+ * @return {Promise}
  */
 export function parse_to_json (inputCode, addMissingComponents, specialResolver) {
   var ednObj = checkSyntax(inputCode)
 
   var p = Promise.resolve(ednObj)
   if (ednObj.error) {
-    return ednObj
+    return p
   }
   if (addMissingComponents) {
     p = edn_add_components(ednObj, specialResolver)
   } else {
     // NOTE: cleanup
-    return parse_edn_to_json(ednObj, inputCode)
+    // return parse_edn_to_json(ednObj, inputCode)
   }
   return p.then((edn) => {
     var jsonObj = parse_edn_to_json(edn, inputCode)
