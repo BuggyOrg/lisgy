@@ -245,7 +245,7 @@ export function checkSyntax (inputCode) {
     } else {
       location = {'startLine': 1, 'startCol': 1, 'endLine': 1, 'endCol': 1}
     }
-    return {'code': inputCode, 'error': message, 'location': location}
+    return {'code': inputCode, 'errorMessage': message, 'errorLocation': location}
   }
   return ednObj
 }
@@ -261,8 +261,8 @@ export function parse_to_json (inputCode, addMissingComponents, specialResolver)
   var ednObj = checkSyntax(inputCode)
 
   var p = Promise.resolve(ednObj)
-  if (ednObj.error) {
-    return p
+  if (ednObj.errorMessage) {
+    return Promise.reject(ednObj)
   }
   if (addMissingComponents) {
     p = edn_add_components(ednObj, specialResolver)
@@ -272,6 +272,9 @@ export function parse_to_json (inputCode, addMissingComponents, specialResolver)
   }
   return p.then((edn) => {
     var jsonObj = parse_edn_to_json(edn, inputCode)
+    if (jsonObj.errorMessage) {
+      return Promise.reject(jsonObj)
+    }
     return jsonObj
   })
 }
@@ -501,7 +504,7 @@ function parse_edn_to_json (ednObj, inputCode) {
     if (!location) {
       location = {start: [1, 1], end: [1, 1]}
     }
-    json = {code: inputCode, error: message, location: {
+    json = {code: inputCode, errorMessage: message, errorLocation: {
       startLine: parseInt(location.start[0]),
       startCol: parseInt(location.start[1]),
       endLine: parseInt(location.end[0]),
@@ -1199,7 +1202,7 @@ export function edn_add_components (ednObj, specialResolver) {
   // TODO: remove version number to get the latest version
   var names = functions.map((f) => componentApi.get(f).catch((err) => {
     logError('failed to get the component', err.message)
-    return {failed: true, error: err}
+    return {failed: true, errorMessage: err}
   }))
   var stuff = Promise.all(names).then((arr) => {
     if (arr.some((e) => e.failed)) {

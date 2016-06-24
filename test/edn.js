@@ -40,8 +40,8 @@ let logJson = (json) => {
 let disableErrorLog = () => { lisgy.setLog(false, true, true) }
 let enableErrorLog = () => { lisgy.setLog(false, true, false) }
 
-let expectNoError = (json) => { expect(json.error || 'none').to.equal('none') }
-let expectError = (json) => { expect(json.error || 'none').to.equal(json.error) }
+let expectNoError = (json) => { expect(json.errorMessage || 'none').to.equal('none') }
+let expectError = (json) => { expect(json.errorMessage || 'none').to.equal(json.errorMessage) }
 
 describe('edn', () => {
   it('defco fail on missing defcop', () => {
@@ -49,9 +49,10 @@ describe('edn', () => {
     var code = '(defco newCo1 [a b] [:value (math/less a (math/add b 3))])'
     return lisgy.parse_to_json(code)
     .then((json) => {
+      expect('This should not happen').to.equal('')
+    }).catch((json) => {
       expectError(json)
-
-      expect(json.error).to.contain('math/less')
+      expect(json.errorMessage).to.contain('math/less')
       enableErrorLog()
     })
   })
@@ -229,8 +230,10 @@ describe('edn', () => {
       var code = '(defcop math/add [s1 s2] [sum])(math/add 2 3 4)'
       return lisgy.parse_to_json(code)
       .then((json) => {
+        expect('This should not happen').to.equal('')
+      }).catch((json) => {
         expectError(json)
-        expect(json.error).to.contain('number of input ports')
+        expect(json.errorMessage).to.contain('number of input ports')
         enableErrorLog()
       })
     })
@@ -273,15 +276,21 @@ describe('edn', () => {
       var prom = []
       prom.push(lisgy.parse_to_json(code)
       .then((json) => {
+        expect('This should not happen').to.equal('')
+      }).catch((json) => {
         expectError(json)
       }))
 
       code = '(defcop math/add [s1 s2] [sum])(math/add 2 :s2 1)'
       prom.push(lisgy.parse_to_json(code)
       .then((json) => {
+        expect('This should not happen').to.equal('')
+      }).catch((json) => {
         expectError(json)
       }))
       return Promise.all(prom).then(() => {
+        enableErrorLog()
+      }).catch(() => {
         enableErrorLog()
       })
     })
@@ -303,6 +312,8 @@ describe('edn', () => {
       var code = '(defcop test [s1 s2] [o1 o2 o3]) (test 1 (port :randomwrongname (test 1 2)))'
       return lisgy.parse_to_json(code)
       .then((json) => {
+        expect('This should not happen').to.equal('')
+      }).catch((json) => {
         expectError(json)
         // TODO: Add check for o2 -> s1 and o3 -> s2
         enableErrorLog()
@@ -475,8 +486,10 @@ describe('edn', () => {
         (let [a (add 2 3) b] (add a 4))`
       return lisgy.parse_to_json(code)
       .then((json) => {
+        expect('This should not happen').to.equal('')
+      }).catch((json) => {
         expectError(json)
-        expect(json.error).to.contain('let')
+        expect(json.errorMessage).to.contain('let')
         enableErrorLog()
       })
     })
@@ -819,8 +832,11 @@ describe('edn', () => {
       var code = `(def a b)\n(defcop add [s1 s2] [sum]`
       return lisgy.parse_to_json(code)
       .then((json) => {
+        console.error(json)
+        expect('This should not happen').to.equal('')
+      }).catch((json) => {
         expectError(json)
-        expect(json.location).to.deep.equal({'startLine': 2, 'endLine': 2, 'startCol': 26, 'endCol': 27})
+        expect(json.errorLocation).to.deep.equal({'startLine': 2, 'endLine': 2, 'startCol': 26, 'endCol': 27})
       })
     })
 
@@ -828,8 +844,10 @@ describe('edn', () => {
       var code = `{a b c}`
       return lisgy.parse_to_json(code)
       .then((json) => {
+        expect('This should not happen').to.equal('')
+      }).catch((json) => {
         expectError(json)
-        expect(json.location).to.deep.equal({'startLine': 1, 'endLine': 1, 'startCol': 2, 'endCol': 8})
+        expect(json.errorLocation).to.deep.equal({'startLine': 1, 'endLine': 1, 'startCol': 2, 'endCol': 8})
       })
     })
 
@@ -837,8 +855,10 @@ describe('edn', () => {
       var code = `(ä test)`
       return lisgy.parse_to_json(code)
       .then((json) => {
+        expect('This should not happen').to.equal('')
+      }).catch((json) => {
         expectError(json)
-        expect(json.location).to.deep.equal({'startLine': 1, 'endLine': 1, 'startCol': 1, 'endCol': 1})
+        expect(json.errorLocation).to.deep.equal({'startLine': 1, 'endLine': 1, 'startCol': 1, 'endCol': 1})
       })
     })
 
@@ -847,9 +867,11 @@ describe('edn', () => {
       disableErrorLog()
       return lisgy.parse_to_json(code)
       .then((json) => {
-        enableErrorLog()
+        expect('This should not happen').to.equal('')
+      }).catch((json) => {
         expectError(json)
-        expect(json.location).to.deep.equal({'startLine': 2, 'endLine': 2, 'startCol': 3, 'endCol': 7})
+        expect(json.errorLocation).to.deep.equal({'startLine': 2, 'endLine': 2, 'startCol': 3, 'endCol': 7})
+        enableErrorLog()
       })
     })
   })
