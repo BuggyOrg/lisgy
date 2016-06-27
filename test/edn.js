@@ -906,11 +906,17 @@ describe('edn', () => {
     })
 
     it('can parse pattern match with multiple outputs', () => {
-      return lisgy.parse_to_json(readParseExamples('match_MultipleOutputs.json').code2).then((parsed) => {
+      return lisgy.parse_to_json(readParseExamples('match_MultipleOutputs.json').code).then((parsed) => {
         fs.writeFileSync('test/examples/match_MultipleOutputs_result.json', JSON.stringify(parsed, null, 2))
         expect(parsed).to.be.ok
       })
     })
-    // TODO function in match
+
+    it('can parse pattern match with function in pattern', () => {
+      return lisgy.parse_to_json(readParseExamples('match_fnPattern.json').code).then((parsed) => {
+        fs.writeFileSync('test/examples/match_fnPattern_result.json', JSON.stringify(parsed, null, 2))
+        expect(parsed).to.be.ok
+      })
+    })
   })
 })

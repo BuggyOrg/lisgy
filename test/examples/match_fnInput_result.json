@@ -1,5 +1,5 @@
 {
-  "code": "(defco match_0 [n m] [:out_0 (match [(math/add 1 1) (math/add (math/add n 1) m)] [0 0] [\"FizzBuzz\"] [0 _] [\"Fizz\"] [_ 0] [\"Buzz\"] :else [n])])",
+  "code": "(match [(math/add 1 1) (math/add (math/add n 1) m)] [0 0] [\"FizzBuzz\"] [0 _] [\"Fizz\"] [_ 0] [\"Buzz\"] :else [n])",
   "nodes": [
     {
       "v": "defco_match_0",
@@ -22,7 +22,7 @@
         "implementation": {
           "nodes": [
             {
-              "v": "match_0",
+              "v": "match_1",
               "value": {
                 "inputPorts": {
                   "n": "generic",
@@ -35,14 +35,7 @@
                   "nodes": [
                     {
                       "meta": "math/add",
-                      "name": "add_2"
-                    },
-                    {
-                      "meta": "math/const",
-                      "name": "const(1)_3",
-                      "params": {
-                        "value": 1
-                      }
+                      "name": "add_3"
                     },
                     {
                       "meta": "math/const",
@@ -52,22 +45,29 @@
                       }
                     },
                     {
-                      "meta": "math/add",
-                      "name": "add_5"
+                      "meta": "math/const",
+                      "name": "const(1)_5",
+                      "params": {
+                        "value": 1
+                      }
                     },
                     {
                       "meta": "math/add",
                       "name": "add_6"
                     },
                     {
+                      "meta": "math/add",
+                      "name": "add_7"
+                    },
+                    {
                       "meta": "math/const",
-                      "name": "const(1)_7",
+                      "name": "const(1)_8",
                       "params": {
                         "value": 1
                       }
                     },
                     {
-                      "name": "match_rules_1",
+                      "name": "match_rules_2",
                       "rules": [
                         {
                           "inputs": [
@@ -75,13 +75,13 @@
                               "variable": false,
                               "type": "number",
                               "value/const": 0,
-                              "name": "add_2"
+                              "name": "add_3"
                             },
                             {
                               "variable": false,
                               "type": "number",
                               "value/const": 0,
-                              "name": "add_5"
+                              "name": "add_6"
                             }
                           ],
                           "outputs": [
@@ -99,13 +99,13 @@
                               "variable": false,
                               "type": "number",
                               "value/const": 0,
-                              "name": "add_2"
+                              "name": "add_3"
                             },
                             {
                               "variable": true,
                               "type": "generic",
-                              "value": "add_5",
-                              "name": "add_5"
+                              "value": "add_6",
+                              "name": "add_6"
                             }
                           ],
                           "outputs": [
@@ -122,14 +122,14 @@
                             {
                               "variable": true,
                               "type": "generic",
-                              "value": "add_2",
-                              "name": "add_2"
+                              "value": "add_3",
+                              "name": "add_3"
                             },
                             {
                               "variable": false,
                               "type": "number",
                               "value/const": 0,
-                              "name": "add_5"
+                              "name": "add_6"
                             }
                           ],
                           "outputs": [
@@ -146,14 +146,14 @@
                             {
                               "variable": true,
                               "type": "generic",
-                              "value": "add_2",
-                              "name": "add_2"
+                              "value": "add_3",
+                              "name": "add_3"
                             },
                             {
                               "variable": true,
                               "type": "generic",
-                              "value": "add_5",
-                              "name": "add_5"
+                              "value": "add_6",
+                              "name": "add_6"
                             }
                           ],
                           "outputs": [
@@ -167,8 +167,8 @@
                         }
                       ],
                       "inputPorts": {
-                        "add_5": "generic",
-                        "add_2": "generic",
+                        "add_6": "generic",
+                        "add_3": "generic",
                         "n": "generic"
                       },
                       "outputPorts": {
@@ -178,40 +178,40 @@
                   ],
                   "edges": [
                     {
-                      "from": "const(1)_3:output",
-                      "to": "add_2:s1"
-                    },
-                    {
                       "from": "const(1)_4:output",
-                      "to": "add_2:s2"
+                      "to": "add_3:s1"
                     },
                     {
-                      "from": "add_2:sum",
-                      "to": "match_rules_1:add_2"
+                      "from": "const(1)_5:output",
+                      "to": "add_3:s2"
+                    },
+                    {
+                      "from": "add_3:sum",
+                      "to": "match_rules_2:add_3"
                     },
                     {
                       "from": "n",
+                      "to": "add_7:s1"
+                    },
+                    {
+                      "from": "const(1)_8:output",
+                      "to": "add_7:s2"
+                    },
+                    {
+                      "from": "add_7:sum",
                       "to": "add_6:s1"
                     },
                     {
-                      "from": "const(1)_7:output",
+                      "from": "m",
                       "to": "add_6:s2"
                     },
                     {
                       "from": "add_6:sum",
-                      "to": "add_5:s1"
-                    },
-                    {
-                      "from": "m",
-                      "to": "add_5:s2"
-                    },
-                    {
-                      "from": "add_5:sum",
-                      "to": "match_rules_1:add_5"
+                      "to": "match_rules_2:add_6"
                     },
                     {
                       "from": "n",
-                      "to": "match_rules_1:n"
+                      "to": "match_rules_2:n"
                     },
                     {
                       "from": "match_rules:out_0",
@@ -225,14 +225,14 @@
           "edges": [
             {
               "from": "n",
-              "to": "match_0:n"
+              "to": "match_1:n"
             },
             {
               "from": "m",
-              "to": "match_0:m"
+              "to": "match_1:m"
             },
             {
-              "from": "match_0:out_0",
+              "from": "match_1:out_0",
               "to": "out_0"
             }
           ]

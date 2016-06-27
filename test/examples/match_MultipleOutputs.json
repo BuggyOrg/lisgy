@@ -1,4 +1,4 @@
 {
-  "code": "(match [n m] [0 0] [\"FizzBuzz\" 0] [0 _] [\"Fizz\" 1] [_ 0] [\"Buzz\" 0] :else [n m])",
-  "code2": "(defco match_0 [n] [:out_0 (match [(math/add n 1) (math/add 1 1)] [0 0] [n 1] [0 _] [\"Fizz\" 0] [_ 0] [\"Buzz\" 3] :else [(math/add 1 n) 4]) :out_1 ()])"
+  "code2": "(match [n m] [0 0] [\"FizzBuzz\" 0] [0 _] [\"Fizz\" 1] [_ 0] [\"Buzz\" 0] :else [n m])",
+  "code": "(match [(math/add n 1) (math/add 1 1)] [0 0] [n 1] [0 _] [\"Fizz\" 0] [_ 0] [\"Buzz\" 3] :else [(math/add 1 n) 4])"
 }
