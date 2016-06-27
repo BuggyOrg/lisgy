@@ -878,44 +878,56 @@ describe('edn', () => {
 
   describe('pattern match', () => {
     it('can parse pattern match', () => {
-      return lisgy.parse_to_json(readParseExamples('match.json').code).then((parsed) => {
-        fs.writeFileSync('test/examples/match_result.json', JSON.stringify(parsed, null, 2))
-        expect(parsed).to.be.ok
+      return lisgy.parse_to_json(readParseExamples('match.json').code, true).then((parsed) => {
+        var cmpGraph = JSON.parse(fs.readFileSync('test/examples/match_result.json'))
+        fs.writeFileSync('test/examples/match.json', JSON.stringify(parsed, null, 2))
+        var curGraph = JSON.parse(fs.readFileSync('test/examples/match.json'))
+        expect(curGraph).to.deep.equal(cmpGraph)
       })
     })
 
     it('can parse pattern match with function input', () => {
       return lisgy.parse_to_json(readParseExamples('match_fnInput.json').code).then((parsed) => {
-        fs.writeFileSync('test/examples/match_fnInput_result.json', JSON.stringify(parsed, null, 2))
-        expect(parsed).to.be.ok
+        var cmpGraph = JSON.parse(fs.readFileSync('test/examples/match_fnInput_result.json'))
+        fs.writeFileSync('test/examples/match_fnInput.json', JSON.stringify(parsed, null, 2))
+        var curGraph = JSON.parse(fs.readFileSync('test/examples/match_fnInput.json'))
+        expect(curGraph).to.deep.equal(cmpGraph)
       })
     })
 
     it('can parse pattern match with function output', () => {
       return lisgy.parse_to_json(readParseExamples('match_fnOutput.json').code).then((parsed) => {
-        fs.writeFileSync('test/examples/match_fnOutput_result.json', JSON.stringify(parsed, null, 2))
-        expect(parsed).to.be.ok
+        var cmpGraph = JSON.parse(fs.readFileSync('test/examples/match_fnOutput_result.json'))
+        fs.writeFileSync('test/examples/match_fnOutput.json', JSON.stringify(parsed, null, 2))
+        var curGraph = JSON.parse(fs.readFileSync('test/examples/match_fnOutput.json'))
+        expect(curGraph).to.deep.equal(cmpGraph)
       })
     })
 
     it('can parse pattern match with function in- and output', () => {
       return lisgy.parse_to_json(readParseExamples('match_fnInOut.json').code).then((parsed) => {
-        fs.writeFileSync('test/examples/match_fnInOut_result.json', JSON.stringify(parsed, null, 2))
-        expect(parsed).to.be.ok
+        var cmpGraph = JSON.parse(fs.readFileSync('test/examples/match_fnInOut_result.json'))
+        fs.writeFileSync('test/examples/match_fnInOut.json', JSON.stringify(parsed, null, 2))
+        var curGraph = JSON.parse(fs.readFileSync('test/examples/match_fnInOut.json'))
+        expect(curGraph).to.deep.equal(cmpGraph)
       })
     })
 
     it('can parse pattern match with multiple outputs', () => {
       return lisgy.parse_to_json(readParseExamples('match_MultipleOutputs.json').code).then((parsed) => {
-        fs.writeFileSync('test/examples/match_MultipleOutputs_result.json', JSON.stringify(parsed, null, 2))
-        expect(parsed).to.be.ok
+        var cmpGraph = JSON.parse(fs.readFileSync('test/examples/match_MultipleOutputs_result.json'))
+        fs.writeFileSync('test/examples/match_MultipleOutputs.json', JSON.stringify(parsed, null, 2))
+        var curGraph = JSON.parse(fs.readFileSync('test/examples/match_MultipleOutputs.json'))
+        expect(curGraph).to.deep.equal(cmpGraph)
       })
     })
 
     it('can parse pattern match with function in pattern', () => {
       return lisgy.parse_to_json(readParseExamples('match_fnPattern.json').code).then((parsed) => {
-        fs.writeFileSync('test/examples/match_fnPattern_result.json', JSON.stringify(parsed, null, 2))
-        expect(parsed).to.be.ok
+        var cmpGraph = JSON.parse(fs.readFileSync('test/examples/match_fnPattern_result.json'))
+        fs.writeFileSync('test/examples/match_fnPattern.json', JSON.stringify(parsed, null, 2))
+        var curGraph = JSON.parse(fs.readFileSync('test/examples/match_fnPattern.json'))
+        expect(curGraph).to.deep.equal(cmpGraph)
       })
     })
   })

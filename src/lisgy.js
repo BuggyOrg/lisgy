@@ -1236,6 +1236,8 @@ export function edn_add_components (ednObj, specialResolver) {
         }
         ignores.pop()
         break
+      case 'match':
+        break
       default:
         log(1, 'used ' + root[0].val)
         functions.push(root[0].val)
