@@ -742,6 +742,7 @@ function parse_edn_to_json (ednObj, inputCode) {
 
           implementation.edges.push(gEdge(variable, demux.name + ':' + demuxC.input[0]))
           break
+
         case 'match':
           var input = data[1].val
           var variables = getVariables(input)
@@ -752,16 +753,16 @@ function parse_edn_to_json (ednObj, inputCode) {
           var matchID = 'match' + '_' + count++
           var matchImplementation = {'nodes': [], 'edges': []}
           matchImplementation.nodes.push(gNode({'v': matchID, 'value': {'inputPorts': {}, 'outputPorts': {}}}))
-          var newVars = []
+          let tempNewVars = []
           for (let port = 0; port < variables[0].length ; port++) {
             var nameVar = variables[0][port].name
-            newVars.push({'name': nameVar, 'id': {nameVar, id: port}, 'val': {'port': nameVar}})
+            tempNewVars.push({'name': nameVar, 'id': {nameVar, id: port}, 'val': {'port': nameVar}})
             matchImplementation.nodes[0].value['inputPorts'][variables[0][port].name] = 'generic'
             if (variables[1]) {
               matchImplementation.edges.push(gEdge(variables[0][port].name, matchID + ':' + variables[0][port].name))
             }
           }
-          vars.push(newVars)
+          vars.push(tempNewVars)
           var innerImplementation = {'nodes': [], 'edges': []}
           var rules = {'name': 'match_rules' + '_' + count++, 'rules': [], 'inputPorts': {}, 'outputPorts': {}}
           var inputs = []
