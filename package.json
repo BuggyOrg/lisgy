@@ -29,7 +29,7 @@
     "wsl-lisp-parser": "^0.1.0"
   },
   "devDependencies": {
-    "@buggyorg/graphtools": "^0.2.16",
+    "@buggyorg/graphtools": "0.2.16",
     "babel-cli": "^6.4.5",
     "babel-preset-es2015": "^6.3.13",
     "babel-register": "^6.4.3",
