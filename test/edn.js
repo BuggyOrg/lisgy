@@ -24,7 +24,7 @@ const resolveFnGet = (name) => {
   if (name in components) {
     return Promise.resolve(_.cloneDeep(components[name]))
   } else {
-    return Promise.reject('Component "' + name + '" undefined')
+    return Promise.reject({message:'\'' + name + '\' Not Found'})
   }
 }
 
@@ -836,6 +836,7 @@ describe('edn', () => {
         expect('This should not happen').to.equal('')
       }).catch((json) => {
         expectError(json)
+        expect(json.errorMessage).to.contain('expected )')
         expect(json.errorLocation).to.deep.equal({'startLine': 2, 'endLine': 2, 'startCol': 26, 'endCol': 27})
       })
     })
@@ -847,7 +848,7 @@ describe('edn', () => {
         expect('This should not happen').to.equal('')
       }).catch((json) => {
         expectError(json)
-        expect(json.errorLocation).to.deep.equal({'startLine': 1, 'endLine': 1, 'startCol': 2, 'endCol': 8})
+        expect(json.errorLocation).to.deep.equal({'startLine': 1, 'endLine': 1, 'startCol': 1, 'endCol': 7})
       })
     })
 
@@ -872,6 +873,15 @@ describe('edn', () => {
         expectError(json)
         expect(json.errorLocation).to.deep.equal({'startLine': 2, 'endLine': 2, 'startCol': 3, 'endCol': 7})
         enableErrorLog()
+      })
+    })
+    
+    it('cant load components', () => {
+      var code = `(test/two (test/broken1 1 2) (test/broken2 3 4))`
+      return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
+        expect('This should not happen').to.equal('')
+      }).catch((err) => {
+        console.error(err.message, err.components)
       })
     })
   })

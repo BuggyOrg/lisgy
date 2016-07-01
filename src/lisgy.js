@@ -62,7 +62,13 @@ function randomString () {
  */
 export function parse_edn (inputCode) {
   log(0, '# parse to edn')
-
+  try {
+    var ednObj = edn.parse('[' + inputCode + ']')
+  } catch (err) {
+    let newErr = new Error('Lisgy parsing error: ' + err)
+    throw newErr
+  }
+  
   let newCode = inputCode
 
   for (const key of Object.keys(allImports.strings)) {
@@ -74,7 +80,7 @@ export function parse_edn (inputCode) {
   try {
     var ednObj = edn.parse(code)
   } catch (err) {
-    let newErr = new Error('Lisgy parsing error: ' + err)
+    let newErr = new Error('Lisgy (import) parsing error: ' + err)
     throw newErr
   }
   var vars = []
@@ -239,9 +245,18 @@ export function checkSyntax (inputCode) {
     let location = message.split('at line ')
     if (location[1]) {
       location = location[1].split('-')
-      let start = location[0].split(':')
-      let end = location[1].split(':')
-      location = {'startLine': parseInt(start[0]), 'startCol': parseInt(start[1]), 'endLine': parseInt(end[0]), 'endCol': parseInt(end[1])}
+      let start = location[0].split(':').map((v) => parseInt(v))
+      let end = location[1].split(':').map((v) => parseInt(v))
+
+      if(start[0] == 1) {
+        start[1]--;
+      }
+      
+      if(end[0] == 1) {
+        end[1]--;
+      }
+
+      location = {'startLine': start[0], 'startCol': start[1], 'endLine': end[0], 'endCol': end[1]}
     } else {
       location = {'startLine': 1, 'startCol': 1, 'endLine': 1, 'endCol': 1}
     }
@@ -503,12 +518,20 @@ function parse_edn_to_json (ednObj, inputCode) {
     if (!location) {
       location = {start: [1, 1], end: [1, 1]}
     }
-    json = {code: inputCode, errorMessage: message, errorLocation: {
-      startLine: parseInt(location.start[0]),
-      startCol: parseInt(location.start[1]),
-      endLine: parseInt(location.end[0]),
-      endCol: parseInt(location.end[1])
-    }}
+
+    let start = location.start.map((v) => parseInt(v))
+    let end = location.end.map((v) => parseInt(v))
+    if(start[0] == 1) {
+      start[1]--;
+    }
+    
+    if(end[0] == 1) {
+      end[1]--;
+    }
+
+    location = {'startLine': start[0], 'startCol': start[1], 'endLine': end[0], 'endCol': end[1]}
+
+    json = {code: inputCode, errorMessage: message, errorLocation: location}
   }
 
   function getLocation (node) {
@@ -1265,13 +1288,17 @@ export function edn_add_components (ednObj, specialResolver) {
   log(0, '## getting the components', functions)
 
   // TODO: remove version number to get the latest version
+  let failedComponents = []
   var names = functions.map((f) => componentApi.get(f).catch((err) => {
-    logError('failed to get the component', err.message)
+    failedComponents.push(f)
+    // logError('failed to get the component', f, err.message)
     return {failed: true, errorMessage: err}
   }))
   var stuff = Promise.all(names).then((arr) => {
     if (arr.some((e) => e.failed)) {
-      throw new Error('Failed to get some components')
+      let err = new Error('Failed to get some components')
+      err.components =  failedComponents
+      throw err
     }
     var newComponents = arr.map((e) => jsonToEdn(e))
     // filter out all already defined components
@@ -1281,7 +1308,7 @@ export function edn_add_components (ednObj, specialResolver) {
     ednObj.val = [].concat(newComponents, ednObj.val)
     return ednObj
   }).catch((err) => {
-    logError('failed to load one component from server', functions)
+    logError('failed to load component(s) from server', err.components)
     throw err
   })
   return stuff
