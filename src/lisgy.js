@@ -280,7 +280,43 @@ export function parse_to_json (inputCode, addMissingComponents, specialResolver)
     return Promise.reject(ednObj)
   }
   if (addMissingComponents) {
-    p = edn_add_components(ednObj, specialResolver)
+    p = edn_add_components(ednObj, specialResolver).catch((error) => {
+      // get the locations of each failed resolved component
+      let locations = []
+      let lastLocation = 0;
+
+      let newlines = []
+      let lastNewline = 0;
+
+      while((lastNewline = inputCode.indexOf('\n', lastNewline + 1)) >= 0) {
+        newlines.push(lastNewline)
+      }
+
+      console.error(newlines)
+
+      let getLocationAtIndex = (startIndex, endIndex) => {
+        let count = 0;
+        let col = 0;
+        do {
+          col = newlines[count++];
+        } while(col > startIndex)
+
+        // TODO
+        start = [0,0]
+        end = [0,0]
+        return {'startLine': start[0], 'startCol': start[1], 'endLine': end[0], 'endCol': end[1]}
+      }
+
+      _.each(error.components, (component) => {
+        let length = component.length
+        while((lastLocation = inputCode.indexOf(component, lastLocation + 1)) >= 0) {
+          locations.push(getLocationAtIndex(lastLocation, lastLocation + length));
+        }
+      })
+      let newError = {'code': inputCode, 'errorMessage': error.message, 'errorLocations': locations}
+      // TODO: return newError and update the locations
+      return Promise.reject(error)
+    })
   } else {
     // NOTE: cleanup
     // return parse_edn_to_json(ednObj, inputCode)
