@@ -875,7 +875,7 @@ describe('edn', () => {
         enableErrorLog()
       })
     })
-    
+
     it('cant load components', () => {
       var code = `(test/two (test/broken1 1 2) (test/broken2 3 4))`
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
@@ -889,6 +889,7 @@ describe('edn', () => {
   describe('pattern match', () => {
     it('can parse pattern match', () => {
       return lisgy.parse_to_json(readParseExamples('match.json').code, true).then((parsed) => {
+        // fs.writeFileSync('test/examples/match_result.json', JSON.stringify(parsed, null, 2))
         var cmpGraph = JSON.parse(fs.readFileSync('test/examples/match_result.json'))
         fs.writeFileSync('test/examples/match.json', JSON.stringify(parsed, null, 2))
         var curGraph = JSON.parse(fs.readFileSync('test/examples/match.json'))
@@ -898,6 +899,7 @@ describe('edn', () => {
 
     it('can parse pattern match with function input', () => {
       return lisgy.parse_to_json(readParseExamples('match_fnInput.json').code).then((parsed) => {
+        // fs.writeFileSync('test/examples/match_fnInput_result.json', JSON.stringify(parsed, null, 2))
         var cmpGraph = JSON.parse(fs.readFileSync('test/examples/match_fnInput_result.json'))
         fs.writeFileSync('test/examples/match_fnInput.json', JSON.stringify(parsed, null, 2))
         var curGraph = JSON.parse(fs.readFileSync('test/examples/match_fnInput.json'))
@@ -907,6 +909,7 @@ describe('edn', () => {
 
     it('can parse pattern match with function output', () => {
       return lisgy.parse_to_json(readParseExamples('match_fnOutput.json').code).then((parsed) => {
+        // fs.writeFileSync('test/examples/match_fnOutput_result.json', JSON.stringify(parsed, null, 2))
         var cmpGraph = JSON.parse(fs.readFileSync('test/examples/match_fnOutput_result.json'))
         fs.writeFileSync('test/examples/match_fnOutput.json', JSON.stringify(parsed, null, 2))
         var curGraph = JSON.parse(fs.readFileSync('test/examples/match_fnOutput.json'))
@@ -934,6 +937,7 @@ describe('edn', () => {
 
     it('can parse pattern match with function in pattern', () => {
       return lisgy.parse_to_json(readParseExamples('match_fnPattern.json').code).then((parsed) => {
+        // fs.writeFileSync('test/examples/match_fnPattern_result.json', JSON.stringify(parsed, null, 2))
         var cmpGraph = JSON.parse(fs.readFileSync('test/examples/match_fnPattern_result.json'))
         fs.writeFileSync('test/examples/match_fnPattern.json', JSON.stringify(parsed, null, 2))
         var curGraph = JSON.parse(fs.readFileSync('test/examples/match_fnPattern.json'))

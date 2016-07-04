@@ -68,7 +68,7 @@ export function parse_edn (inputCode) {
     let newErr = new Error('Lisgy parsing error: ' + err)
     throw newErr
   }
-  
+
   let newCode = inputCode
 
   for (const key of Object.keys(allImports.strings)) {
@@ -251,7 +251,7 @@ export function checkSyntax (inputCode) {
       if(start[0] == 1) {
         start[1]--;
       }
-      
+
       if(end[0] == 1) {
         end[1]--;
       }
@@ -425,7 +425,6 @@ function parse_edn_to_json (ednObj, inputCode) {
         }
       }
     })
-
     // TODO: this is cheating
     json.edges = _.filter(json.edges, (edge) => {
       if (edge.error) {
@@ -560,7 +559,7 @@ function parse_edn_to_json (ednObj, inputCode) {
     if(start[0] == 1) {
       start[1]--;
     }
-    
+
     if(end[0] == 1) {
       end[1]--;
     }
@@ -810,13 +809,14 @@ function parse_edn_to_json (ednObj, inputCode) {
             walk(defco, implementation, inputPorts)
           }
           var matchID = 'match' + '_' + count++
+          var defco_match_node = {'id': matchID, 'inputPorts': {}, 'outputPorts': {}}
           var matchImplementation = {'nodes': [], 'edges': []}
-          matchImplementation.nodes.push(gNode({'v': matchID, 'value': {'inputPorts': {}, 'outputPorts': {}}}))
+
           let tempNewVars = []
           for (let port = 0; port < variables[0].length ; port++) {
             var nameVar = variables[0][port].name
             tempNewVars.push({'name': nameVar, 'id': {nameVar, id: port}, 'val': {'port': nameVar}})
-            matchImplementation.nodes[0].value['inputPorts'][variables[0][port].name] = 'generic'
+            defco_match_node['inputPorts'][variables[0][port].name] = 'generic'
             if (variables[1]) {
               matchImplementation.edges.push(gEdge(variables[0][port].name, matchID + ':' + variables[0][port].name))
             }
@@ -831,7 +831,7 @@ function parse_edn_to_json (ednObj, inputCode) {
               input[i].name = inputs[i].name
               innerImplementation.edges.push(gEdge(inputs[i].name + ':' + inputs[i].port, rules.name + ':' + inputs[i].name))
             } else {
-              matchImplementation.nodes[0].value.inputPorts[inputs[i].port] = 'generic'
+              defco_match_node.inputPorts[inputs[i].port] = 'generic'
               innerImplementation.edges.push(gEdge(inputs[i].port, rules.name + ':' + inputs[i].port))
             }
           }
@@ -899,19 +899,22 @@ function parse_edn_to_json (ednObj, inputCode) {
             }
           }
           for (let o = 0; o < output.length; o++) {
-            matchImplementation.nodes[0].value['outputPorts']['out_' + o] = 'generic'
+            defco_match_node['outputPorts']['out_' + o] = 'generic'
             innerImplementation.edges.push(gEdge('match_rules:' + 'out_' + o, 'out_' + o))
             matchImplementation.edges.push(gEdge(matchID + ':' + 'out_' + o, 'out_' + o))
           }
           innerImplementation.nodes.push(rules)
-          matchImplementation.nodes[0].value['implementation'] = innerImplementation
+          defco_match_node['implementation'] = innerImplementation
           if (variables[1]) {
+            matchImplementation.nodes.push({'v': defco_match_node.id, 'value': {'inputPorts': defco_match_node.inputPorts, 'outputPorts': defco_match_node.outputPorts, 'implementation': defco_match_node.implementation}})
             for (let i = 0; i < nodes.length; i++) {
               if (nodes[i].id === defco.val[1].name) {
                 nodes[i].implementation = matchImplementation
               }
             }
           } else {
+            matchImplementation.nodes.push(gNode({meta: matchID, name: matchID + '_name'}))
+            nodes.push(defco_match_node)
             implementation.nodes = implementation.nodes.concat(matchImplementation.nodes)
             implementation.edges = implementation.edges.concat(matchImplementation.edges)
           }
