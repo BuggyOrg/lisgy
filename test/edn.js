@@ -222,6 +222,51 @@ describe('edn', () => {
         expect(node.data.outputPorts).to.deep.equal({ 'value_0': 'generic' })
       })
     })
+
+    it('new defco used inside component', () => {
+      var code = `(defcop add [s1 s2] [sum])
+        (defco newCo [a b] (add a b))
+        (add (newCo 1 2) 3)`
+      return lisgy.parse_to_json(code)
+      .then((json) => {
+        expectNoError(json)
+
+        expect(json.edges).to.have.length(4)
+        expect(json.nodes).to.have.length(5)
+
+        // TODO
+      })
+    })
+
+    it('new defco used inside lambda', () => {
+      var code = `(defcop add [s1 s2] [sum])
+        (defco newCo [a b] (add a b))
+        (lambda [x y] (newCo 1 2))`
+      return lisgy.parse_to_json(code)
+      .then((json) => {
+        expectNoError(json)
+
+        // logJson(json)
+
+        expect(json.edges).to.have.length(0)
+        expect(json.nodes).to.have.length(2)
+      })
+    })
+
+    it('new defco used inside lambda inside component', () => {
+      var code = `(defcop add [s1 s2] [sum])
+        (defco newCo [a b] (add a b))
+        (add (lambda [x y] (newCo 1 2)) 3)`
+      return lisgy.parse_to_json(code)
+      .then((json) => {
+        expectNoError(json)
+
+        // logJson(json)
+
+        expect(json.edges).to.have.length(2)
+        expect(json.nodes).to.have.length(4)
+      })
+    })
   })
 
   describe('(FN ARG ...) or (FN :PORT ARG ...)', () => {

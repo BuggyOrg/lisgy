@@ -405,8 +405,20 @@ function parse_edn_to_json (ednObj, inputCode) {
   } else if (true) {
     // else add all the new components to the node array
     var filtered = _.filter(nodes, (node) => _.find(json.nodes, (nodeJ) => { return nodeJ.id && nodeJ.id !== node.id }))
+
+    var filteredLambdas = _.filter(nodes, (node) => _.find(json.nodes, (nodeJ) => {
+      // console.error('checking out ', nodeJ)
+      return (nodeJ.meta === 'functional/lambda') && nodeJ.data.implementation && nodeJ.data.implementation.nodes.some((lambdaNode) => {
+        // console.error('lambda checkoing out', lambdaNode)
+        // console.error('to ', node)
+        return lambdaNode.meta && lambdaNode.meta !== node.id
+      })
+    }))
+
     json.nodes = _.concat(_.map(filtered, (node) => { node.name = 'defco_' + node.id; return node }), json.nodes)
+    json.nodes = _.concat(_.map(filteredLambdas, (node) => { node.name = 'defco_' + node.id; return node }), json.nodes)
   }
+
   if (graphlibFormat) {
     json.nodes = _.map(json.nodes, (node) => {
       return {'v': node.name, 'value': node}
