@@ -62,8 +62,9 @@ function randomString () {
  */
 export function parse_edn (inputCode) {
   log(0, '# parse to edn')
+  let ednObj
   try {
-    var ednObj = edn.parse('[' + inputCode + ']')
+    ednObj = edn.parse('[' + inputCode + ']')
   } catch (err) {
     let newErr = new Error('Lisgy parsing error: ' + err)
     throw newErr
@@ -78,7 +79,7 @@ export function parse_edn (inputCode) {
 
   var code = '[' + newCode + ']' // add []
   try {
-    var ednObj = edn.parse(code)
+    ednObj = edn.parse(code)
   } catch (err) {
     let newErr = new Error('Lisgy (import) parsing error: ' + err)
     throw newErr
@@ -248,12 +249,12 @@ export function checkSyntax (inputCode) {
       let start = location[0].split(':').map((v) => parseInt(v))
       let end = location[1].split(':').map((v) => parseInt(v))
 
-      if(start[0] == 1) {
-        start[1]--;
+      if (start[0] === 1) {
+        start[1]--
       }
 
-      if(end[0] == 1) {
-        end[1]--;
+      if (end[0] === 1) {
+        end[1]--
       }
 
       location = {'startLine': start[0], 'startCol': start[1], 'endLine': end[0], 'endCol': end[1]}
@@ -283,37 +284,37 @@ export function parse_to_json (inputCode, addMissingComponents, specialResolver)
     p = edn_add_components(ednObj, specialResolver).catch((error) => {
       // get the locations of each failed resolved component
       let locations = []
-      let lastLocation = 0;
+      let lastLocation = 0
 
       let newlines = []
-      let lastNewline = 0;
+      let lastNewline = 0
 
-      while((lastNewline = inputCode.indexOf('\n', lastNewline + 1)) >= 0) {
+      while ((lastNewline = inputCode.indexOf('\n', lastNewline + 1)) >= 0) {
         newlines.push(lastNewline)
       }
 
       console.error(newlines)
 
       let getLocationAtIndex = (startIndex, endIndex) => {
-        let count = 0;
-        let col = 0;
+        let count = 0
+        let col = 0
         do {
-          col = newlines[count++];
-        } while(col > startIndex)
+          col = newlines[count++]
+        } while (col > startIndex)
 
         // TODO
-        start = [0,0]
-        end = [0,0]
+        let start = [0, 0]
+        let end = [0, 0]
         return {'startLine': start[0], 'startCol': start[1], 'endLine': end[0], 'endCol': end[1]}
       }
 
       _.each(error.components, (component) => {
         let length = component.length
-        while((lastLocation = inputCode.indexOf(component, lastLocation + 1)) >= 0) {
-          locations.push(getLocationAtIndex(lastLocation, lastLocation + length));
+        while ((lastLocation = inputCode.indexOf(component, lastLocation + 1)) >= 0) {
+          locations.push(getLocationAtIndex(lastLocation, lastLocation + length))
         }
       })
-      let newError = {'code': inputCode, 'errorMessage': error.message, 'errorLocations': locations}
+      // let newError = {'code': inputCode, 'errorMessage': error.message, 'errorLocations': locations}
       // TODO: return newError and update the locations
       return Promise.reject(error)
     })
@@ -556,12 +557,12 @@ function parse_edn_to_json (ednObj, inputCode) {
 
     let start = location.start.map((v) => parseInt(v))
     let end = location.end.map((v) => parseInt(v))
-    if(start[0] == 1) {
-      start[1]--;
+    if (start[0] === 1) {
+      start[1]--
     }
 
-    if(end[0] == 1) {
-      end[1]--;
+    if (end[0] === 1) {
+      end[1]--
     }
 
     location = {'startLine': start[0], 'startCol': start[1], 'endLine': end[0], 'endCol': end[1]}
@@ -813,7 +814,7 @@ function parse_edn_to_json (ednObj, inputCode) {
           var matchImplementation = {'nodes': [], 'edges': []}
 
           let tempNewVars = []
-          for (let port = 0; port < variables[0].length ; port++) {
+          for (let port = 0; port < variables[0].length; port++) {
             var nameVar = variables[0][port].name
             tempNewVars.push({'name': nameVar, 'id': {nameVar, id: port}, 'val': {'port': nameVar}})
             defco_match_node['inputPorts'][variables[0][port].name] = 'generic'
@@ -1336,7 +1337,7 @@ export function edn_add_components (ednObj, specialResolver) {
   var stuff = Promise.all(names).then((arr) => {
     if (arr.some((e) => e.failed)) {
       let err = new Error('Failed to get some components')
-      err.components =  failedComponents
+      err.components = failedComponents
       throw err
     }
     var newComponents = arr.map((e) => jsonToEdn(e))
