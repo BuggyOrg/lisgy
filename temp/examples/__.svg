@@ -1,0 +1,55 @@
+<svg id="svgOutput" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" baseprofile="full"><style> /*  */body &gt; * {
+  text-align: center;
+}
+
+table, button, svg, textarea {
+  width: 100%;
+  height: 100%;
+}
+
+td {
+  border: 1px solid #888;
+}
+
+.st-node {
+  stroke: #000;
+}
+
+.st-node.atomic {
+  stroke-width: 3px;
+  fill: #fff;
+}
+
+.st-node.compound {
+  stroke-opacity: 0.5;
+  fill-opacity: 0.2;
+  fill: #000;
+}
+
+text {
+  font-family: sans-serif;
+}
+
+.st-link {
+  stroke: #333;
+  stroke-width: 3px;
+  stroke-opacity: 0.5;
+  fill: none;
+  cursor: pointer;
+}
+
+.st-port {
+  stroke: #000;
+  fill: none;
+  z-index: 42;
+}
+
+.st-port.out {
+  fill: darkred;
+}
+
+.st-port.in {
+  fill: green;
+}
+/*  */ </style><g><path class="st-link" d="M 153.72395833333337 461 L 153.72395833333337 511 "></path><path class="st-link" d="M 153.72395833333337 367 L 153.72395833333337 417 "></path><path class="st-link" d="M 140.14062500000003 273 L 140.14062500000003 323 "></path><path class="st-link" d="M 344.17708333333337 273 L 344.17708333333337 298 L 167.30729166666669 298 L 167.30729166666669 323 "></path><path class="st-link" d="M 344.17708333333337 179 L 344.17708333333337 229 "></path><rect class="st-node compound" width="426.39583333333337" height="562"></rect><g transform="translate(331.72395833333337 140)"><rect class="st-node atomic" width="24.90625" height="34"></rect><rect class="st-port out" x="9.953125" y="34" width="5" height="5"></rect><text x="6.2265625" y="25.5" width="12.453125" height="17">in</text></g><g transform="translate(273.95833333333337 234)"><rect class="st-node atomic" width="140.4375" height="34"></rect><rect class="st-port in" x="67.71875" y="-5" width="5" height="5"></rect><rect class="st-port out" x="67.71875" y="34" width="5" height="5"></rect><text x="35.109375" y="25.5" width="70.21875" height="17">strToNum</text></g><g transform="translate(58.31250000000003 234)"><rect class="st-node atomic" width="163.65625" height="34"></rect><rect class="st-port out" x="79.328125" y="34" width="5" height="5"></rect><text x="40.9140625" y="25.5" width="81.828125" height="17">lambda_inc</text></g><g transform="translate(12 17)"><path class="st-link" d="M 144.75520833333337 145 L 144.75520833333337 159.5 "></path><path class="st-link" d="M 106.265625 51 L 106.265625 101 "></path><path class="st-link" d="M 225.53125 -2.5 L 225.53125 76 L 183.24479166666669 76 L 183.24479166666669 101 "></path><rect class="st-node compound" width="269.72395833333337" height="157"></rect><rect class="st-port in" x="223.03125" y="-5" width="5" height="5"></rect><rect class="st-port out" x="142.25520833333337" y="157" width="5" height="5"></rect><g transform="translate(31.786458333333357 106)"><rect class="st-node atomic" width="225.9375" height="34"></rect><rect class="st-port in" x="148.95833333333331" y="-5" width="5" height="5"></rect><rect class="st-port in" x="71.97916666666664" y="-5" width="5" height="5"></rect><rect class="st-port out" x="110.46875" y="34" width="5" height="5"></rect><text x="56.484375" y="25.5" width="112.96875" height="17">inc_lambda:add</text></g><g transform="translate(12 12)"><rect class="st-node atomic" width="188.53125" height="34"></rect><rect class="st-port out" x="91.765625" y="34" width="5" height="5"></rect><text x="47.1328125" y="25.5" width="94.265625" height="17">inc_lambda:c</text></g><text x="93.94791666666669" y="17" width="81.828125" height="17">inc_lambda</text></g><g transform="translate(115.47395833333337 328)"><rect class="st-node atomic" width="76.5" height="34"></rect><rect class="st-port in" x="22.16666666666666" y="-5" width="5" height="5"></rect><rect class="st-port in" x="49.33333333333333" y="-5" width="5" height="5"></rect><rect class="st-port out" x="35.75" y="34" width="5" height="5"></rect><text x="19.125" y="25.5" width="38.25" height="17">apply</text></g><g transform="translate(83.48958333333337 422)"><rect class="st-node atomic" width="140.46875" height="34"></rect><rect class="st-port in" x="67.734375" y="-5" width="5" height="5"></rect><rect class="st-port out" x="67.734375" y="34" width="5" height="5"></rect><text x="35.1171875" y="25.5" width="70.234375" height="17">numToStr</text></g><g transform="translate(131.48958333333337 516)"><rect class="st-node atomic" width="44.46875" height="34"></rect><rect class="st-port in" x="19.734375" y="-5" width="5" height="5"></rect><text x="11.1171875" y="25.5" width="22.234375" height="17">out</text></g></g></svg>
+

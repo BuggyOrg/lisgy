@@ -886,6 +886,19 @@ describe('edn', () => {
       })
     })
 
+    it('syntax missing ) after import', () => {
+      var code = `(import all)\n(def a b)\n(defcop add [s1 s2] [sum]`
+      return lisgy.parse_to_json(code)
+      .then((json) => {
+        console.error(json)
+        expect('This should not happen').to.equal('')
+      }).catch((json) => {
+        expectError(json)
+        expect(json.errorMessage).to.contain('expected )')
+        expect(json.errorLocation).to.deep.equal({'startLine': 3, 'endLine': 3, 'startCol': 26, 'endCol': 27})
+      })
+    })
+
     it('syntax map', () => {
       var code = `{a b c}`
       return lisgy.parse_to_json(code)

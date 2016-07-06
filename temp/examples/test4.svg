@@ -1,0 +1,51 @@
+<svg id="svgOutput" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" baseprofile="full"><style> /*  */body &gt; * {
+  text-align: center;
+}
+
+table, button, svg, textarea {
+    width: 100%;
+    height: 100%;
+}
+
+td {
+  border: 1px solid #888;
+}
+
+.node {
+  stroke: #000;
+  stroke-width: 3px;
+  fill: #fff;
+}
+
+.node.compound {
+  stroke-opacity: 0.5;
+  fill-opacity: 0.2;
+  fill: #000;
+}
+
+text {
+  font-family: sans-serif;
+}
+
+.link {
+  stroke: #333;
+  stroke-width: 3px;
+  stroke-opacity: 0.5;
+  fill: none;
+  cursor: pointer;
+}
+
+.port {
+    stroke: #000;
+    fill: none;
+    z-index: 42;
+}
+
+.port.out {
+  fill: darkred;
+}
+
+.port.in {
+  fill: green;
+}/*  */ </style><g><g transform="translate(12 17)"><g transform="translate(12 17)"><rect class="node " width="245.53125" height="34"></rect><text x="61.3828125" y="25.5" width="122.765625" height="17">defco_test:add_0</text><rect class="port in" x="162.02083333333331" y="-5" width="5" height="5"></rect><rect class="port in" x="78.51041666666664" y="-5" width="5" height="5"></rect><rect class="port out" x="120.265625" y="34" width="5" height="5"></rect></g><rect class="node compound" width="269.53125" height="68"></rect><text x="97.8515625" y="17" width="73.828125" height="17">defco_test</text><path class="link" d="M93.01041666666664 0 L93.01041666666664 12 "></path><path class="link" d="M134.765625 56 L134.765625 68 "></path><rect class="port in" x="42" y="-5" width="5" height="5"></rect><rect class="port in" x="27" y="-5" width="5" height="5"></rect><rect class="port out" x="12" y="-5" width="5" height="5"></rect></g><rect class="node compound" width="293.53125" height="97"></rect></g></svg>
+
