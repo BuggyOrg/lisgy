@@ -563,6 +563,20 @@ describe('edn', () => {
         expect(utils.getAll(utils.finalize(json), 'stdin')).to.have.length(1)
       })
     })
+
+    it('two edges from one node', () => {
+      var code = `
+        (defcop add [s1 s2] [sum])
+        (let [x 3] (add x x))`
+
+      return lisgy.parse_to_json(code)
+      .then((json) => {
+        expectNoError(json)
+        expect(json.nodes).to.have.length(2)
+        expect(json.edges).to.have.length(2)
+        expect(utils.getAll(utils.finalize(json), 'add')).to.have.length(1)
+      })
+    })
   })
 
   describe('if', () => {
