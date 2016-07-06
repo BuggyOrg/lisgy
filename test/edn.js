@@ -44,6 +44,17 @@ let expectNoError = (json) => { expect(json.errorMessage || 'none').to.equal('no
 let expectError = (json) => { expect(json.errorMessage || 'none').to.equal(json.errorMessage) }
 
 describe('edn', () => {
+  it('utf8 symbols', () => {
+    var code = '(defcop … [s1 s2] [sum])(defco ® [¾ ½] [:¦ (… ¾ (… ½ 3))])'
+    return lisgy.parse_to_json(code)
+    .then((json) => {
+      expectNoError(json)
+      // TODO: add checks for nodes & edges ?
+    }).catch((json) => {
+      expect('This should not happen').to.equal('')
+    })
+  })
+
   it('defco fail on missing defcop', () => {
     disableErrorLog()
     var code = '(defco newCo1 [a b] [:value (math/less a (math/add b 3))])'
@@ -910,16 +921,17 @@ describe('edn', () => {
       })
     })
 
-    it('syntax symbol', () => {
-      var code = `(ä test)`
-      return lisgy.parse_to_json(code)
-      .then((json) => {
-        expect('This should not happen').to.equal('')
-      }).catch((json) => {
-        expectError(json)
-        expect(json.errorLocation).to.deep.equal({'startLine': 1, 'endLine': 1, 'startCol': 1, 'endCol': 1})
-      })
-    })
+    // TODO: I dont know how a symbol syntax error looks now with utf8 support
+    // it('syntax symbol', () => {
+    //   var code = `(ä test)`
+    //   return lisgy.parse_to_json(code)
+    //   .then((json) => {
+    //     expect('This should not happen').to.equal('')
+    //   }).catch((json) => {
+    //     expectError(json)
+    //     expect(json.errorLocation).to.deep.equal({'startLine': 1, 'endLine': 1, 'startCol': 1, 'endCol': 1})
+    //   })
+    // })
 
     it('ports', () => {
       var code = `(defcop add [s1 s2] [sum])\n (add 1 2 3)`
