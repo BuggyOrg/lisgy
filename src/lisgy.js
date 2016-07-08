@@ -60,7 +60,7 @@ function randomString () {
 /**
  * Parse the code to edn, handels a few partial special cases
  */
-export function parse_edn (inputCode) {
+export function parse_edn (inputCode) { // eslint-disable-line camelcase
   log(0, '# parse to edn')
   let ednObj
   try {
@@ -226,7 +226,7 @@ export function parse_edn (inputCode) {
 
 export function parseToJson (inputCode, addMissingComponents, specialResolver) {
   return new Promise((resolve) => {
-    resolve(parse_to_json(inputCode, addMissingComponents, specialResolver))
+    resolve(parse_to_json(inputCode, addMissingComponents, specialResolver)) // eslint-disable-line camelcase
   })
 }
 
@@ -273,7 +273,7 @@ export function checkSyntax (inputCode) {
  * @parm {Object} Special resolver to use
  * @return {Promise}
  */
-export function parse_to_json (inputCode, addMissingComponents, specialResolver) {
+export function parse_to_json (inputCode, addMissingComponents, specialResolver) { // eslint-disable-line camelcase
   var ednObj = checkSyntax(inputCode)
 
   var p = Promise.resolve(ednObj)
@@ -320,10 +320,10 @@ export function parse_to_json (inputCode, addMissingComponents, specialResolver)
     })
   } else {
     // NOTE: cleanup
-    // return parse_edn_to_json(ednObj, inputCode)
+    // return parseEDNtoJSON(ednObj, inputCode)
   }
   return p.then((edn) => {
-    var jsonObj = parse_edn_to_json(edn, inputCode)
+    var jsonObj = parseEDNtoJSON(edn, inputCode)
     if (jsonObj.errorMessage) {
       return Promise.reject(jsonObj)
     }
@@ -331,7 +331,7 @@ export function parse_to_json (inputCode, addMissingComponents, specialResolver)
   })
 }
 
-function parse_edn_to_json (ednObj, inputCode) {
+function parseEDNtoJSON (ednObj, inputCode) {
   log(0, '# parsing to json')
   var json = {code: inputCode}
   var nodes = []
@@ -696,11 +696,11 @@ function parse_edn_to_json (ednObj, inputCode) {
       var name = data[0].name
       switch (name) {
         case 'def':
-          // (def NAME OLD_NAME)
-          var new_name = data[1].val
-          var old_name = data[2].val
-          defines[new_name] = old_name
-          log(1, 'def map from ' + old_name + ' to ' + new_name)
+          // (def NAME oldName)
+          var newName = data[1].val
+          var oldName = data[2].val
+          defines[newName] = oldName
+          log(1, 'def map from ' + oldName + ' to ' + newName)
           return
         case 'defco':
           createComponent(root)
@@ -822,14 +822,14 @@ function parse_edn_to_json (ednObj, inputCode) {
             walk(defco, implementation, inputPorts)
           }
           var matchID = 'match' + '_' + count++
-          var defco_match_node = {'id': matchID, 'inputPorts': {}, 'outputPorts': {}}
+          var defcoMatchNode = {'id': matchID, 'inputPorts': {}, 'outputPorts': {}}
           var matchImplementation = {'nodes': [], 'edges': []}
 
           let tempNewVars = []
           for (let port = 0; port < variables[0].length; port++) {
             var nameVar = variables[0][port].name
             tempNewVars.push({'name': nameVar, 'id': {nameVar, id: port}, 'val': {'port': nameVar}})
-            defco_match_node['inputPorts'][variables[0][port].name] = 'generic'
+            defcoMatchNode['inputPorts'][variables[0][port].name] = 'generic'
             if (variables[1]) {
               matchImplementation.edges.push(gEdge(variables[0][port].name, matchID + ':' + variables[0][port].name))
             }
@@ -844,7 +844,7 @@ function parse_edn_to_json (ednObj, inputCode) {
               input[i].name = inputs[i].name
               innerImplementation.edges.push(gEdge(inputs[i].name + ':' + inputs[i].port, rules.name + ':' + inputs[i].name))
             } else {
-              defco_match_node.inputPorts[inputs[i].port] = 'generic'
+              defcoMatchNode.inputPorts[inputs[i].port] = 'generic'
               innerImplementation.edges.push(gEdge(inputs[i].port, rules.name + ':' + inputs[i].port))
             }
           }
@@ -871,7 +871,7 @@ function parse_edn_to_json (ednObj, inputCode) {
                   }
                 } else if (pattern[j] instanceof edn.List) {
                   pattern[j] = new edn.List([ new edn.Symbol('defco'), new edn.Symbol('pattern_' + i + '_fn_' + j), new edn.Vector(variables[0]), new edn.Vector([new edn.Keyword(':out'), pattern[j]]) ])
-                  var fun = parse_edn_to_json(new edn.List([pattern[j]]), inputPorts)
+                  var fun = parseEDNtoJSON(new edn.List([pattern[j]]), inputPorts)
                   innerImplementation.nodes = innerImplementation.nodes.concat(fun.nodes)
                   rules.rules[rules.rules.length - 1]['inputs'].push({'variable': true, 'type': 'generic', 'value': 'p_' + i + '_' + j, 'name': input[j].name})
                   for (let inp = 0; inp < variables[0].length; inp++) {
@@ -896,7 +896,7 @@ function parse_edn_to_json (ednObj, inputCode) {
                   }
                 } else {
                   output[o] = new edn.List([ new edn.Symbol('defco'), new edn.Symbol(outputName + '_fn_' + i), new edn.Vector(variables[0]), new edn.Vector([new edn.Keyword(':' + outputName), output[o]]) ])
-                  var func = parse_edn_to_json(new edn.List([output[o]]), inputPorts)
+                  var func = parseEDNtoJSON(new edn.List([output[o]]), inputPorts)
                   innerImplementation.nodes = innerImplementation.nodes.concat(func.nodes)
                   rules.rules[rules.rules.length - 1]['outputs'].push({'variable': true, 'type': 'generic', 'value': 'r' + i, 'name': outputName})
                   for (let inp = 0; inp < variables[0].length; inp++) {
@@ -912,14 +912,14 @@ function parse_edn_to_json (ednObj, inputCode) {
             }
           }
           for (let o = 0; o < output.length; o++) {
-            defco_match_node['outputPorts']['out_' + o] = 'generic'
+            defcoMatchNode['outputPorts']['out_' + o] = 'generic'
             innerImplementation.edges.push(gEdge('match_rules:' + 'out_' + o, 'out_' + o))
             matchImplementation.edges.push(gEdge(matchID + ':' + 'out_' + o, 'out_' + o))
           }
           innerImplementation.nodes.push(rules)
-          defco_match_node['implementation'] = innerImplementation
+          defcoMatchNode['implementation'] = innerImplementation
           if (variables[1]) {
-            matchImplementation.nodes.push({'v': defco_match_node.id, 'value': {'inputPorts': defco_match_node.inputPorts, 'outputPorts': defco_match_node.outputPorts, 'implementation': defco_match_node.implementation}})
+            matchImplementation.nodes.push({'v': defcoMatchNode.id, 'value': {'inputPorts': defcoMatchNode.inputPorts, 'outputPorts': defcoMatchNode.outputPorts, 'implementation': defcoMatchNode.implementation}})
             for (let i = 0; i < nodes.length; i++) {
               if (nodes[i].id === defco.val[1].name) {
                 nodes[i].implementation = matchImplementation
@@ -927,7 +927,7 @@ function parse_edn_to_json (ednObj, inputCode) {
             }
           } else {
             matchImplementation.nodes.push(gNode({meta: matchID, name: matchID + '_name'}))
-            nodes.push(defco_match_node)
+            nodes.push(defcoMatchNode)
             implementation.nodes = implementation.nodes.concat(matchImplementation.nodes)
             implementation.edges = implementation.edges.concat(matchImplementation.edges)
           }
@@ -1181,7 +1181,7 @@ function contains (a, obj) {
 /**
  * TODO: implement
  */
-export function parse_to_edn (json) {
+export function parse_to_edn (json) { // eslint-disable-line camelcase
   log(0, '# parsing to edn')
   return new edn.List([edn.sym('a'), edn.sym('b'), new edn.List([edn.sym('c'), edn.sym('d')])])
 }
@@ -1189,7 +1189,7 @@ export function parse_to_edn (json) {
 /**
  * TODO: implement
  */
-export function encode_edn (ednObj) {
+export function encode_edn (ednObj) { // eslint-disable-line camelcase
   log(0, '# encode to edn')
   var code = edn.encode(ednObj)
   code = code.slice(1, code.length - 1)
@@ -1216,7 +1216,7 @@ export function jsonToEdn (obj) {
 /**
  * Add missing components ports from the server
  */
-export function edn_add_components (ednObj, specialResolver) {
+export function edn_add_components (ednObj, specialResolver) { // eslint-disable-line camelcase
   log(0, '# adding components')
   var functions = []
   var definedComponents = []
@@ -1248,17 +1248,17 @@ export function edn_add_components (ednObj, specialResolver) {
       case 'import':
         break
       case 'def':
-        // (def NAME OLD_NAME)
-        var new_name = root[1].val
-        var old_name = root[2].val
+        // (def NAME oldName)
+        var newName = root[1].val
+        var oldName = root[2].val
 
-        if (defines[old_name]) {
-          log(1, 'using old def ' + defines[old_name] + ' and not ' + old_name)
-          old_name = defines[old_name]
+        if (defines[oldName]) {
+          log(1, 'using old def ' + defines[oldName] + ' and not ' + oldName)
+          oldName = defines[oldName]
         }
 
-        defines[new_name] = old_name
-        log(1, 'def map from ' + old_name + ' to ' + new_name)
+        defines[newName] = oldName
+        log(1, 'def map from ' + oldName + ' to ' + newName)
         break
       case 'defcop':
         definedComponents.push(root[1].val)
