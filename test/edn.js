@@ -2,6 +2,7 @@
 
 import fs from 'fs'
 import {utils} from '@buggyorg/graphtools'
+import {graph as graphAPI} from '@buggyorg/graphtools'
 import * as chai from 'chai'
 import * as lisgy from '../src/lisgy.js'
 import * as components from './components.json'
@@ -403,7 +404,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(7) // 2 'add' nodes and 5 'const' nodes
         expect(json.edges).to.have.length(6)
 
-        let final = utils.finalize(json)
+        let final = graphAPI.importJSON(json)
         expect(utils.getAll(final, 'add')).to.have.length(1)
         expect(utils.getAll(final, 'fnc')).to.have.length(1)
         expect(utils.getAll(final, 'std/const')).to.have.length(3)
@@ -424,7 +425,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(6) // 3 'add' nodes and 3 'const' nodes
         expect(json.edges).to.have.length(6)
 
-        let final = utils.finalize(json)
+        let final = graphAPI.importJSON(json)
         expect(utils.getAll(final, 'add')).to.have.length(3)
       })
     })
@@ -442,7 +443,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(6)
         expect(json.edges).to.have.length(6)
 
-        let final = utils.finalize(json)
+        let final = graphAPI.importJSON(json)
         expect(utils.getAll(final, 'add')).to.have.length(3)
       })
     })
@@ -468,7 +469,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(6)
         expect(json.edges).to.have.length(4)
 
-        let final = utils.finalize(json)
+        let final = graphAPI.importJSON(json)
         expect(utils.getAll(final, 'add')).to.have.length(2)
       })
     })
@@ -487,7 +488,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(8)
         expect(json.edges).to.have.length(8)
 
-        let final = utils.finalize(json)
+        let final = graphAPI.importJSON(json)
         expect(utils.getAll(final, 'add')).to.have.length(4)
       })
     })
@@ -504,7 +505,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(5)
         expect(json.edges).to.have.length(4)
 
-        let final = utils.finalize(json)
+        let final = graphAPI.importJSON(json)
         expect(utils.getAll(final, 'add')).to.have.length(2)
       })
     })
@@ -560,7 +561,7 @@ describe('edn', () => {
       return lisgy.parse_to_json(code)
       .then((json) => {
         expectNoError(json)
-        expect(utils.getAll(utils.finalize(json), 'stdin')).to.have.length(1)
+        expect(utils.getAll(graphAPI.importJSON(json), 'stdin')).to.have.length(1)
       })
     })
 
@@ -574,7 +575,7 @@ describe('edn', () => {
         expectNoError(json)
         expect(json.nodes).to.have.length(2)
         expect(json.edges).to.have.length(2)
-        expect(utils.getAll(utils.finalize(json), 'add')).to.have.length(1)
+        expect(utils.getAll(graphAPI.importJSON(json), 'add')).to.have.length(1)
       })
     })
   })
@@ -615,7 +616,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(3)
         expect(json.edges).to.have.length(2)
 
-        let finalized = utils.finalize(json)
+        let finalized = graphAPI.importJSON(json)
         expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
         expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
         expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
@@ -645,7 +646,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(3)
         expect(json.edges).to.have.length(2)
 
-        let finalized = utils.finalize(json)
+        let finalized = graphAPI.importJSON(json)
         expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
         expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
         expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
@@ -660,7 +661,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(1)
         expect(json.edges).to.have.length(0)
 
-        let finalized = utils.finalize(json)
+        let finalized = graphAPI.importJSON(json)
         expect(utils.getAll(finalized, 'functional/lambda')).to.have.length(1)
       })
     })
@@ -676,7 +677,7 @@ describe('edn', () => {
         expect(json.nodes[0].value.implementation.nodes).to.have.length(1)
         expect(json.nodes[0].value.implementation.edges).to.have.length(3)
 
-        let finalized = utils.finalize(json)
+        let finalized = graphAPI.importJSON(json)
         expect(utils.getAll(finalized, 'new')).to.have.length(1)
       })
     })
@@ -689,7 +690,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(3)
         expect(json.edges).to.have.length(2)
 
-        let finalized = utils.finalize(json)
+        let finalized = graphAPI.importJSON(json)
         expect(utils.getAll(finalized, 'new')).to.have.length(1)
         expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
         expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
@@ -704,7 +705,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(5)
         expect(json.edges).to.have.length(4)
 
-        let finalized = utils.finalize(json)
+        let finalized = graphAPI.importJSON(json)
         expect(utils.getAll(finalized, 'new')).to.have.length(1)
         expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
         expect(utils.getAll(finalized, 'math/const')).to.have.length(3)
@@ -719,7 +720,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(5)
         expect(json.edges).to.have.length(4)
 
-        let finalized = utils.finalize(json)
+        let finalized = graphAPI.importJSON(json)
         expect(utils.getAll(finalized, 'new')).to.have.length(1)
         expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
         expect(utils.getAll(finalized, 'math/const')).to.have.length(3)
@@ -734,7 +735,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(4)
         expect(json.edges).to.have.length(3)
 
-        let finalized = utils.finalize(json)
+        let finalized = graphAPI.importJSON(json)
         expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
         expect(utils.getAll(finalized, 'test/three')).to.have.length(1)
         expect(utils.getAll(finalized, 'std/const')).to.have.length(2)
