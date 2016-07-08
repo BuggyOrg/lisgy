@@ -420,6 +420,7 @@ function parseEDNtoJSON (ednObj, inputCode) {
   }
 
   if (graphlibFormat) {
+    json.options = {directed:true, multigraph: true, compound: true}
     json.nodes = _.map(json.nodes, (node) => {
       return {'v': node.name, 'value': node}
     })
@@ -432,6 +433,7 @@ function parseEDNtoJSON (ednObj, inputCode) {
       return {
         'v': from[0],
         'w': to[0],
+        'name': from[0] + '@' + from[1] + '->' + to[0] + '@' + to[1],
         'value': {
           'outPort': from[1],
           'inPort': to[1]
