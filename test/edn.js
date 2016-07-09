@@ -573,8 +573,9 @@ describe('edn', () => {
       return lisgy.parse_to_json(code)
       .then((json) => {
         expectNoError(json)
-        expect(json.nodes).to.have.length(2)
-        expect(json.edges).to.have.length(2)
+        var gr = graphAPI.importJSON(json)
+        expect(gr.nodes()).to.have.length(2)
+        expect(gr.edges()).to.have.length(2)
         expect(utils.getAll(graphAPI.importJSON(json), 'add')).to.have.length(1)
       })
     })
