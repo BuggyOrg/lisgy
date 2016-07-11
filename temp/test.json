@@ -1,0 +1,1989 @@
+{
+  "id": "root",
+  "children": [
+    {
+      "id": "defco_if",
+      "labels": [
+        {
+          "text": "defco_if"
+        }
+      ],
+      "ports": [
+        {
+          "id": "defco_if_check_in",
+          "meta": {
+            "type": "generic",
+            "name": "check"
+          }
+        },
+        {
+          "id": "defco_if_truePath_in",
+          "meta": {
+            "type": "generic",
+            "name": "truePath"
+          }
+        },
+        {
+          "id": "defco_if_falsePath_in",
+          "meta": {
+            "type": "generic",
+            "name": "falsePath"
+          }
+        },
+        {
+          "id": "defco_if_value_out",
+          "meta": {
+            "type": "generic",
+            "name": "value"
+          }
+        }
+      ],
+      "meta": {
+        "id": "if",
+        "inputPorts": {
+          "check": "generic",
+          "truePath": "generic",
+          "falsePath": "generic"
+        },
+        "outputPorts": {
+          "value": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "id": "logic/mux",
+              "inputPorts": {
+                "input1": "generic",
+                "input2": "generic",
+                "control": "bool"
+              },
+              "outputPorts": {
+                "output": "generic"
+              },
+              "atomic": true,
+              "version": "0.1.0",
+              "path": [
+                {
+                  "meta": "if",
+                  "branch": "defco_if",
+                  "path": []
+                }
+              ],
+              "parent": "defco_if",
+              "branchPath": "defco_if:mux_0",
+              "branch": "mux_0",
+              "recursive": false
+            }
+          ],
+          "edges": [
+            {
+              "from": "truePath",
+              "to": "mux_0:input1"
+            },
+            {
+              "from": "falsePath",
+              "to": "mux_0:input2"
+            },
+            {
+              "from": "check",
+              "to": "mux_0:control"
+            },
+            {
+              "from": "mux_0:output",
+              "to": "value"
+            }
+          ]
+        },
+        "name": "defco_if",
+        "externalComponent": true,
+        "path": [],
+        "branchPath": "defco_if",
+        "branch": "defco_if",
+        "recursive": false
+      },
+      "children": [
+        {
+          "id": "defco_if:mux_0",
+          "labels": [
+            {
+              "text": "defco_if:mux_0"
+            }
+          ],
+          "ports": [
+            {
+              "id": "defco_if:mux_0_input1_in",
+              "meta": {
+                "type": "generic",
+                "name": "input1"
+              }
+            },
+            {
+              "id": "defco_if:mux_0_input2_in",
+              "meta": {
+                "type": "generic",
+                "name": "input2"
+              }
+            },
+            {
+              "id": "defco_if:mux_0_control_in",
+              "meta": {
+                "type": "bool",
+                "name": "control"
+              }
+            },
+            {
+              "id": "defco_if:mux_0_output_out",
+              "meta": {
+                "type": "generic",
+                "name": "output"
+              }
+            }
+          ],
+          "meta": {
+            "id": "logic/mux",
+            "inputPorts": {
+              "input1": "generic",
+              "input2": "generic",
+              "control": "bool"
+            },
+            "outputPorts": {
+              "output": "generic"
+            },
+            "atomic": true,
+            "version": "0.1.0",
+            "path": [
+              {
+                "meta": "if",
+                "branch": "defco_if",
+                "path": []
+              }
+            ],
+            "parent": "defco_if",
+            "branchPath": "defco_if:mux_0",
+            "branch": "mux_0",
+            "recursive": false
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "defco_ifdefco_if:mux_0",
+          "source": "defco_if",
+          "sourcePort": "defco_if_truePath_in",
+          "target": "defco_if:mux_0",
+          "targetPort": "defco_if:mux_0_input1_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "generic",
+            "sourceNode": "defco_if",
+            "sourcePort": "truePath",
+            "targetNode": "defco_if:mux_0",
+            "targetPort": "input1"
+          }
+        },
+        {
+          "id": "defco_ifdefco_if:mux_0",
+          "source": "defco_if",
+          "sourcePort": "defco_if_falsePath_in",
+          "target": "defco_if:mux_0",
+          "targetPort": "defco_if:mux_0_input2_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "generic",
+            "sourceNode": "defco_if",
+            "sourcePort": "falsePath",
+            "targetNode": "defco_if:mux_0",
+            "targetPort": "input2"
+          }
+        },
+        {
+          "id": "defco_ifdefco_if:mux_0",
+          "source": "defco_if",
+          "sourcePort": "defco_if_check_in",
+          "target": "defco_if:mux_0",
+          "targetPort": "defco_if:mux_0_control_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "bool",
+            "sourceNode": "defco_if",
+            "sourcePort": "check",
+            "targetNode": "defco_if:mux_0",
+            "targetPort": "control"
+          }
+        },
+        {
+          "id": "defco_if:mux_0defco_if",
+          "source": "defco_if:mux_0",
+          "sourcePort": "defco_if:mux_0_output_out",
+          "target": "defco_if",
+          "targetPort": "defco_if_value_out",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "generic",
+            "sourceNode": "defco_if:mux_0",
+            "sourcePort": "output",
+            "targetNode": "defco_if",
+            "targetPort": "value"
+          }
+        }
+      ]
+    },
+    {
+      "id": "defco_x4",
+      "labels": [
+        {
+          "text": "defco_x4"
+        }
+      ],
+      "ports": [
+        {
+          "id": "defco_x4_x_in",
+          "meta": {
+            "type": "generic",
+            "name": "x"
+          }
+        },
+        {
+          "id": "defco_x4_out_out",
+          "meta": {
+            "type": "generic",
+            "name": "out"
+          }
+        }
+      ],
+      "meta": {
+        "id": "x4",
+        "inputPorts": {
+          "x": "generic"
+        },
+        "outputPorts": {
+          "out": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "id": "math/multiply",
+              "version": "0.2.0",
+              "inputPorts": {
+                "m1": "number",
+                "m2": "number"
+              },
+              "outputPorts": {
+                "product": "number"
+              },
+              "atomic": true,
+              "path": [
+                {
+                  "meta": "x4",
+                  "branch": "defco_x4",
+                  "path": []
+                }
+              ],
+              "parent": "defco_x4",
+              "branchPath": "defco_x4:multiply_1",
+              "branch": "multiply_1",
+              "recursive": false
+            },
+            {
+              "id": "math/multiply",
+              "version": "0.2.0",
+              "inputPorts": {
+                "m1": "number",
+                "m2": "number"
+              },
+              "outputPorts": {
+                "product": "number"
+              },
+              "atomic": true,
+              "path": [
+                {
+                  "meta": "x4",
+                  "branch": "defco_x4",
+                  "path": []
+                }
+              ],
+              "parent": "defco_x4",
+              "branchPath": "defco_x4:multiply_2",
+              "branch": "multiply_2",
+              "recursive": false
+            },
+            {
+              "id": "math/multiply",
+              "version": "0.2.0",
+              "inputPorts": {
+                "m1": "number",
+                "m2": "number"
+              },
+              "outputPorts": {
+                "product": "number"
+              },
+              "atomic": true,
+              "path": [
+                {
+                  "meta": "x4",
+                  "branch": "defco_x4",
+                  "path": []
+                }
+              ],
+              "parent": "defco_x4",
+              "branchPath": "defco_x4:multiply_3",
+              "branch": "multiply_3",
+              "recursive": false
+            }
+          ],
+          "edges": [
+            {
+              "from": "x",
+              "to": "multiply_1:m1"
+            },
+            {
+              "from": "x",
+              "to": "multiply_2:m1"
+            },
+            {
+              "from": "x",
+              "to": "multiply_3:m1"
+            },
+            {
+              "from": "x",
+              "to": "multiply_3:m2"
+            },
+            {
+              "from": "multiply_3:product",
+              "to": "multiply_2:m2"
+            },
+            {
+              "from": "multiply_2:product",
+              "to": "multiply_1:m2"
+            },
+            {
+              "from": "multiply_1:product",
+              "to": "out"
+            }
+          ]
+        },
+        "name": "defco_x4",
+        "externalComponent": true,
+        "path": [],
+        "branchPath": "defco_x4",
+        "branch": "defco_x4",
+        "recursive": false
+      },
+      "children": [
+        {
+          "id": "defco_x4:multiply_1",
+          "labels": [
+            {
+              "text": "defco_x4:multiply_1"
+            }
+          ],
+          "ports": [
+            {
+              "id": "defco_x4:multiply_1_m1_in",
+              "meta": {
+                "type": "number",
+                "name": "m1"
+              }
+            },
+            {
+              "id": "defco_x4:multiply_1_m2_in",
+              "meta": {
+                "type": "number",
+                "name": "m2"
+              }
+            },
+            {
+              "id": "defco_x4:multiply_1_product_out",
+              "meta": {
+                "type": "number",
+                "name": "product"
+              }
+            }
+          ],
+          "meta": {
+            "id": "math/multiply",
+            "version": "0.2.0",
+            "inputPorts": {
+              "m1": "number",
+              "m2": "number"
+            },
+            "outputPorts": {
+              "product": "number"
+            },
+            "atomic": true,
+            "path": [
+              {
+                "meta": "x4",
+                "branch": "defco_x4",
+                "path": []
+              }
+            ],
+            "parent": "defco_x4",
+            "branchPath": "defco_x4:multiply_1",
+            "branch": "multiply_1",
+            "recursive": false
+          }
+        },
+        {
+          "id": "defco_x4:multiply_2",
+          "labels": [
+            {
+              "text": "defco_x4:multiply_2"
+            }
+          ],
+          "ports": [
+            {
+              "id": "defco_x4:multiply_2_m1_in",
+              "meta": {
+                "type": "number",
+                "name": "m1"
+              }
+            },
+            {
+              "id": "defco_x4:multiply_2_m2_in",
+              "meta": {
+                "type": "number",
+                "name": "m2"
+              }
+            },
+            {
+              "id": "defco_x4:multiply_2_product_out",
+              "meta": {
+                "type": "number",
+                "name": "product"
+              }
+            }
+          ],
+          "meta": {
+            "id": "math/multiply",
+            "version": "0.2.0",
+            "inputPorts": {
+              "m1": "number",
+              "m2": "number"
+            },
+            "outputPorts": {
+              "product": "number"
+            },
+            "atomic": true,
+            "path": [
+              {
+                "meta": "x4",
+                "branch": "defco_x4",
+                "path": []
+              }
+            ],
+            "parent": "defco_x4",
+            "branchPath": "defco_x4:multiply_2",
+            "branch": "multiply_2",
+            "recursive": false
+          }
+        },
+        {
+          "id": "defco_x4:multiply_3",
+          "labels": [
+            {
+              "text": "defco_x4:multiply_3"
+            }
+          ],
+          "ports": [
+            {
+              "id": "defco_x4:multiply_3_m1_in",
+              "meta": {
+                "type": "number",
+                "name": "m1"
+              }
+            },
+            {
+              "id": "defco_x4:multiply_3_m2_in",
+              "meta": {
+                "type": "number",
+                "name": "m2"
+              }
+            },
+            {
+              "id": "defco_x4:multiply_3_product_out",
+              "meta": {
+                "type": "number",
+                "name": "product"
+              }
+            }
+          ],
+          "meta": {
+            "id": "math/multiply",
+            "version": "0.2.0",
+            "inputPorts": {
+              "m1": "number",
+              "m2": "number"
+            },
+            "outputPorts": {
+              "product": "number"
+            },
+            "atomic": true,
+            "path": [
+              {
+                "meta": "x4",
+                "branch": "defco_x4",
+                "path": []
+              }
+            ],
+            "parent": "defco_x4",
+            "branchPath": "defco_x4:multiply_3",
+            "branch": "multiply_3",
+            "recursive": false
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "defco_x4defco_x4:multiply_1",
+          "source": "defco_x4",
+          "sourcePort": "defco_x4_x_in",
+          "target": "defco_x4:multiply_1",
+          "targetPort": "defco_x4:multiply_1_m1_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "number",
+            "sourceNode": "defco_x4",
+            "sourcePort": "x",
+            "targetNode": "defco_x4:multiply_1",
+            "targetPort": "m1"
+          }
+        },
+        {
+          "id": "defco_x4defco_x4:multiply_2",
+          "source": "defco_x4",
+          "sourcePort": "defco_x4_x_in",
+          "target": "defco_x4:multiply_2",
+          "targetPort": "defco_x4:multiply_2_m1_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "number",
+            "sourceNode": "defco_x4",
+            "sourcePort": "x",
+            "targetNode": "defco_x4:multiply_2",
+            "targetPort": "m1"
+          }
+        },
+        {
+          "id": "defco_x4defco_x4:multiply_3",
+          "source": "defco_x4",
+          "sourcePort": "defco_x4_x_in",
+          "target": "defco_x4:multiply_3",
+          "targetPort": "defco_x4:multiply_3_m1_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "number",
+            "sourceNode": "defco_x4",
+            "sourcePort": "x",
+            "targetNode": "defco_x4:multiply_3",
+            "targetPort": "m1"
+          }
+        },
+        {
+          "id": "defco_x4defco_x4:multiply_3",
+          "source": "defco_x4",
+          "sourcePort": "defco_x4_x_in",
+          "target": "defco_x4:multiply_3",
+          "targetPort": "defco_x4:multiply_3_m2_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "number",
+            "sourceNode": "defco_x4",
+            "sourcePort": "x",
+            "targetNode": "defco_x4:multiply_3",
+            "targetPort": "m2"
+          }
+        },
+        {
+          "id": "defco_x4:multiply_3defco_x4:multiply_2",
+          "source": "defco_x4:multiply_3",
+          "sourcePort": "defco_x4:multiply_3_product_out",
+          "target": "defco_x4:multiply_2",
+          "targetPort": "defco_x4:multiply_2_m2_in",
+          "meta": {
+            "sourceType": "number",
+            "targetType": "number",
+            "sourceNode": "defco_x4:multiply_3",
+            "sourcePort": "product",
+            "targetNode": "defco_x4:multiply_2",
+            "targetPort": "m2"
+          }
+        },
+        {
+          "id": "defco_x4:multiply_2defco_x4:multiply_1",
+          "source": "defco_x4:multiply_2",
+          "sourcePort": "defco_x4:multiply_2_product_out",
+          "target": "defco_x4:multiply_1",
+          "targetPort": "defco_x4:multiply_1_m2_in",
+          "meta": {
+            "sourceType": "number",
+            "targetType": "number",
+            "sourceNode": "defco_x4:multiply_2",
+            "sourcePort": "product",
+            "targetNode": "defco_x4:multiply_1",
+            "targetPort": "m2"
+          }
+        },
+        {
+          "id": "defco_x4:multiply_1defco_x4",
+          "source": "defco_x4:multiply_1",
+          "sourcePort": "defco_x4:multiply_1_product_out",
+          "target": "defco_x4",
+          "targetPort": "defco_x4_out_out",
+          "meta": {
+            "sourceType": "number",
+            "targetType": "generic",
+            "sourceNode": "defco_x4:multiply_1",
+            "sourcePort": "product",
+            "targetNode": "defco_x4",
+            "targetPort": "out"
+          }
+        }
+      ]
+    },
+    {
+      "id": "if_4",
+      "labels": [
+        {
+          "text": "if_4"
+        }
+      ],
+      "ports": [
+        {
+          "id": "if_4_check_in",
+          "meta": {
+            "type": "generic",
+            "name": "check"
+          }
+        },
+        {
+          "id": "if_4_truePath_in",
+          "meta": {
+            "type": "generic",
+            "name": "truePath"
+          }
+        },
+        {
+          "id": "if_4_falsePath_in",
+          "meta": {
+            "type": "generic",
+            "name": "falsePath"
+          }
+        },
+        {
+          "id": "if_4_value_out",
+          "meta": {
+            "type": "generic",
+            "name": "value"
+          }
+        }
+      ],
+      "meta": {
+        "id": "if",
+        "inputPorts": {
+          "check": "generic",
+          "truePath": "generic",
+          "falsePath": "generic"
+        },
+        "outputPorts": {
+          "value": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "id": "logic/mux",
+              "inputPorts": {
+                "input1": "generic",
+                "input2": "generic",
+                "control": "bool"
+              },
+              "outputPorts": {
+                "output": "generic"
+              },
+              "atomic": true,
+              "version": "0.1.0",
+              "path": [
+                {
+                  "meta": "if",
+                  "branch": "if_4",
+                  "path": []
+                }
+              ],
+              "parent": "if_4",
+              "branchPath": "if_4:mux_0",
+              "branch": "mux_0",
+              "recursive": false
+            }
+          ],
+          "edges": [
+            {
+              "from": "truePath",
+              "to": "mux_0:input1"
+            },
+            {
+              "from": "falsePath",
+              "to": "mux_0:input2"
+            },
+            {
+              "from": "check",
+              "to": "mux_0:control"
+            },
+            {
+              "from": "mux_0:output",
+              "to": "value"
+            }
+          ]
+        },
+        "name": "if_4",
+        "externalComponent": true,
+        "path": [],
+        "branchPath": "if_4",
+        "branch": "if_4",
+        "recursive": false
+      },
+      "children": [
+        {
+          "id": "if_4:mux_0",
+          "labels": [
+            {
+              "text": "if_4:mux_0"
+            }
+          ],
+          "ports": [
+            {
+              "id": "if_4:mux_0_input1_in",
+              "meta": {
+                "type": "generic",
+                "name": "input1"
+              }
+            },
+            {
+              "id": "if_4:mux_0_input2_in",
+              "meta": {
+                "type": "generic",
+                "name": "input2"
+              }
+            },
+            {
+              "id": "if_4:mux_0_control_in",
+              "meta": {
+                "type": "bool",
+                "name": "control"
+              }
+            },
+            {
+              "id": "if_4:mux_0_output_out",
+              "meta": {
+                "type": "generic",
+                "name": "output"
+              }
+            }
+          ],
+          "meta": {
+            "id": "logic/mux",
+            "inputPorts": {
+              "input1": "generic",
+              "input2": "generic",
+              "control": "bool"
+            },
+            "outputPorts": {
+              "output": "generic"
+            },
+            "atomic": true,
+            "version": "0.1.0",
+            "path": [
+              {
+                "meta": "if",
+                "branch": "if_4",
+                "path": []
+              }
+            ],
+            "parent": "if_4",
+            "branchPath": "if_4:mux_0",
+            "branch": "mux_0",
+            "recursive": false
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "if_4if_4:mux_0",
+          "source": "if_4",
+          "sourcePort": "if_4_truePath_in",
+          "target": "if_4:mux_0",
+          "targetPort": "if_4:mux_0_input1_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "generic",
+            "sourceNode": "if_4",
+            "sourcePort": "truePath",
+            "targetNode": "if_4:mux_0",
+            "targetPort": "input1"
+          }
+        },
+        {
+          "id": "if_4if_4:mux_0",
+          "source": "if_4",
+          "sourcePort": "if_4_falsePath_in",
+          "target": "if_4:mux_0",
+          "targetPort": "if_4:mux_0_input2_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "generic",
+            "sourceNode": "if_4",
+            "sourcePort": "falsePath",
+            "targetNode": "if_4:mux_0",
+            "targetPort": "input2"
+          }
+        },
+        {
+          "id": "if_4if_4:mux_0",
+          "source": "if_4",
+          "sourcePort": "if_4_check_in",
+          "target": "if_4:mux_0",
+          "targetPort": "if_4:mux_0_control_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "bool",
+            "sourceNode": "if_4",
+            "sourcePort": "check",
+            "targetNode": "if_4:mux_0",
+            "targetPort": "control"
+          }
+        },
+        {
+          "id": "if_4:mux_0if_4",
+          "source": "if_4:mux_0",
+          "sourcePort": "if_4:mux_0_output_out",
+          "target": "if_4",
+          "targetPort": "if_4_value_out",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "generic",
+            "sourceNode": "if_4:mux_0",
+            "sourcePort": "output",
+            "targetNode": "if_4",
+            "targetPort": "value"
+          }
+        }
+      ]
+    },
+    {
+      "id": "less_5",
+      "labels": [
+        {
+          "text": "less_5"
+        }
+      ],
+      "ports": [
+        {
+          "id": "less_5_isLess_in",
+          "meta": {
+            "type": "number",
+            "name": "isLess"
+          }
+        },
+        {
+          "id": "less_5_than_in",
+          "meta": {
+            "type": "number",
+            "name": "than"
+          }
+        },
+        {
+          "id": "less_5_value_out",
+          "meta": {
+            "type": "bool",
+            "name": "value"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/less",
+        "version": "0.1.1",
+        "inputPorts": {
+          "isLess": "number",
+          "than": "number"
+        },
+        "outputPorts": {
+          "value": "bool"
+        },
+        "atomic": true,
+        "path": [],
+        "branchPath": "less_5",
+        "branch": "less_5",
+        "name": "less_5",
+        "recursive": false
+      }
+    },
+    {
+      "id": "const(2)_6",
+      "labels": [
+        {
+          "text": "const(2)_6"
+        }
+      ],
+      "ports": [
+        {
+          "id": "const(2)_6_output_out",
+          "meta": {
+            "type": "number",
+            "name": "output"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/const",
+        "version": "0.2.0",
+        "inputPorts": {},
+        "outputPorts": {
+          "output": "number"
+        },
+        "atomic": true,
+        "path": [],
+        "params": {
+          "value": 2
+        },
+        "branchPath": "const(2)_6",
+        "branch": "const(2)_6",
+        "name": "const(2)_6",
+        "recursive": false
+      }
+    },
+    {
+      "id": "const(3)_7",
+      "labels": [
+        {
+          "text": "const(3)_7"
+        }
+      ],
+      "ports": [
+        {
+          "id": "const(3)_7_output_out",
+          "meta": {
+            "type": "number",
+            "name": "output"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/const",
+        "version": "0.2.0",
+        "inputPorts": {},
+        "outputPorts": {
+          "output": "number"
+        },
+        "atomic": true,
+        "path": [],
+        "params": {
+          "value": 3
+        },
+        "branchPath": "const(3)_7",
+        "branch": "const(3)_7",
+        "name": "const(3)_7",
+        "recursive": false
+      }
+    },
+    {
+      "id": "x4_8",
+      "labels": [
+        {
+          "text": "x4_8"
+        }
+      ],
+      "ports": [
+        {
+          "id": "x4_8_x_in",
+          "meta": {
+            "type": "generic",
+            "name": "x"
+          }
+        },
+        {
+          "id": "x4_8_out_out",
+          "meta": {
+            "type": "generic",
+            "name": "out"
+          }
+        }
+      ],
+      "meta": {
+        "id": "x4",
+        "inputPorts": {
+          "x": "generic"
+        },
+        "outputPorts": {
+          "out": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "id": "math/multiply",
+              "version": "0.2.0",
+              "inputPorts": {
+                "m1": "number",
+                "m2": "number"
+              },
+              "outputPorts": {
+                "product": "number"
+              },
+              "atomic": true,
+              "path": [
+                {
+                  "meta": "x4",
+                  "branch": "x4_8",
+                  "path": []
+                }
+              ],
+              "parent": "x4_8",
+              "branchPath": "x4_8:multiply_1",
+              "branch": "multiply_1",
+              "recursive": false
+            },
+            {
+              "id": "math/multiply",
+              "version": "0.2.0",
+              "inputPorts": {
+                "m1": "number",
+                "m2": "number"
+              },
+              "outputPorts": {
+                "product": "number"
+              },
+              "atomic": true,
+              "path": [
+                {
+                  "meta": "x4",
+                  "branch": "x4_8",
+                  "path": []
+                }
+              ],
+              "parent": "x4_8",
+              "branchPath": "x4_8:multiply_2",
+              "branch": "multiply_2",
+              "recursive": false
+            },
+            {
+              "id": "math/multiply",
+              "version": "0.2.0",
+              "inputPorts": {
+                "m1": "number",
+                "m2": "number"
+              },
+              "outputPorts": {
+                "product": "number"
+              },
+              "atomic": true,
+              "path": [
+                {
+                  "meta": "x4",
+                  "branch": "x4_8",
+                  "path": []
+                }
+              ],
+              "parent": "x4_8",
+              "branchPath": "x4_8:multiply_3",
+              "branch": "multiply_3",
+              "recursive": false
+            }
+          ],
+          "edges": [
+            {
+              "from": "x",
+              "to": "multiply_1:m1"
+            },
+            {
+              "from": "x",
+              "to": "multiply_2:m1"
+            },
+            {
+              "from": "x",
+              "to": "multiply_3:m1"
+            },
+            {
+              "from": "x",
+              "to": "multiply_3:m2"
+            },
+            {
+              "from": "multiply_3:product",
+              "to": "multiply_2:m2"
+            },
+            {
+              "from": "multiply_2:product",
+              "to": "multiply_1:m2"
+            },
+            {
+              "from": "multiply_1:product",
+              "to": "out"
+            }
+          ]
+        },
+        "name": "x4_8",
+        "externalComponent": true,
+        "path": [],
+        "branchPath": "x4_8",
+        "branch": "x4_8",
+        "recursive": false
+      },
+      "children": [
+        {
+          "id": "x4_8:multiply_1",
+          "labels": [
+            {
+              "text": "x4_8:multiply_1"
+            }
+          ],
+          "ports": [
+            {
+              "id": "x4_8:multiply_1_m1_in",
+              "meta": {
+                "type": "number",
+                "name": "m1"
+              }
+            },
+            {
+              "id": "x4_8:multiply_1_m2_in",
+              "meta": {
+                "type": "number",
+                "name": "m2"
+              }
+            },
+            {
+              "id": "x4_8:multiply_1_product_out",
+              "meta": {
+                "type": "number",
+                "name": "product"
+              }
+            }
+          ],
+          "meta": {
+            "id": "math/multiply",
+            "version": "0.2.0",
+            "inputPorts": {
+              "m1": "number",
+              "m2": "number"
+            },
+            "outputPorts": {
+              "product": "number"
+            },
+            "atomic": true,
+            "path": [
+              {
+                "meta": "x4",
+                "branch": "x4_8",
+                "path": []
+              }
+            ],
+            "parent": "x4_8",
+            "branchPath": "x4_8:multiply_1",
+            "branch": "multiply_1",
+            "recursive": false
+          }
+        },
+        {
+          "id": "x4_8:multiply_2",
+          "labels": [
+            {
+              "text": "x4_8:multiply_2"
+            }
+          ],
+          "ports": [
+            {
+              "id": "x4_8:multiply_2_m1_in",
+              "meta": {
+                "type": "number",
+                "name": "m1"
+              }
+            },
+            {
+              "id": "x4_8:multiply_2_m2_in",
+              "meta": {
+                "type": "number",
+                "name": "m2"
+              }
+            },
+            {
+              "id": "x4_8:multiply_2_product_out",
+              "meta": {
+                "type": "number",
+                "name": "product"
+              }
+            }
+          ],
+          "meta": {
+            "id": "math/multiply",
+            "version": "0.2.0",
+            "inputPorts": {
+              "m1": "number",
+              "m2": "number"
+            },
+            "outputPorts": {
+              "product": "number"
+            },
+            "atomic": true,
+            "path": [
+              {
+                "meta": "x4",
+                "branch": "x4_8",
+                "path": []
+              }
+            ],
+            "parent": "x4_8",
+            "branchPath": "x4_8:multiply_2",
+            "branch": "multiply_2",
+            "recursive": false
+          }
+        },
+        {
+          "id": "x4_8:multiply_3",
+          "labels": [
+            {
+              "text": "x4_8:multiply_3"
+            }
+          ],
+          "ports": [
+            {
+              "id": "x4_8:multiply_3_m1_in",
+              "meta": {
+                "type": "number",
+                "name": "m1"
+              }
+            },
+            {
+              "id": "x4_8:multiply_3_m2_in",
+              "meta": {
+                "type": "number",
+                "name": "m2"
+              }
+            },
+            {
+              "id": "x4_8:multiply_3_product_out",
+              "meta": {
+                "type": "number",
+                "name": "product"
+              }
+            }
+          ],
+          "meta": {
+            "id": "math/multiply",
+            "version": "0.2.0",
+            "inputPorts": {
+              "m1": "number",
+              "m2": "number"
+            },
+            "outputPorts": {
+              "product": "number"
+            },
+            "atomic": true,
+            "path": [
+              {
+                "meta": "x4",
+                "branch": "x4_8",
+                "path": []
+              }
+            ],
+            "parent": "x4_8",
+            "branchPath": "x4_8:multiply_3",
+            "branch": "multiply_3",
+            "recursive": false
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "x4_8x4_8:multiply_1",
+          "source": "x4_8",
+          "sourcePort": "x4_8_x_in",
+          "target": "x4_8:multiply_1",
+          "targetPort": "x4_8:multiply_1_m1_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "number",
+            "sourceNode": "x4_8",
+            "sourcePort": "x",
+            "targetNode": "x4_8:multiply_1",
+            "targetPort": "m1"
+          }
+        },
+        {
+          "id": "x4_8x4_8:multiply_2",
+          "source": "x4_8",
+          "sourcePort": "x4_8_x_in",
+          "target": "x4_8:multiply_2",
+          "targetPort": "x4_8:multiply_2_m1_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "number",
+            "sourceNode": "x4_8",
+            "sourcePort": "x",
+            "targetNode": "x4_8:multiply_2",
+            "targetPort": "m1"
+          }
+        },
+        {
+          "id": "x4_8x4_8:multiply_3",
+          "source": "x4_8",
+          "sourcePort": "x4_8_x_in",
+          "target": "x4_8:multiply_3",
+          "targetPort": "x4_8:multiply_3_m1_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "number",
+            "sourceNode": "x4_8",
+            "sourcePort": "x",
+            "targetNode": "x4_8:multiply_3",
+            "targetPort": "m1"
+          }
+        },
+        {
+          "id": "x4_8x4_8:multiply_3",
+          "source": "x4_8",
+          "sourcePort": "x4_8_x_in",
+          "target": "x4_8:multiply_3",
+          "targetPort": "x4_8:multiply_3_m2_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "number",
+            "sourceNode": "x4_8",
+            "sourcePort": "x",
+            "targetNode": "x4_8:multiply_3",
+            "targetPort": "m2"
+          }
+        },
+        {
+          "id": "x4_8:multiply_3x4_8:multiply_2",
+          "source": "x4_8:multiply_3",
+          "sourcePort": "x4_8:multiply_3_product_out",
+          "target": "x4_8:multiply_2",
+          "targetPort": "x4_8:multiply_2_m2_in",
+          "meta": {
+            "sourceType": "number",
+            "targetType": "number",
+            "sourceNode": "x4_8:multiply_3",
+            "sourcePort": "product",
+            "targetNode": "x4_8:multiply_2",
+            "targetPort": "m2"
+          }
+        },
+        {
+          "id": "x4_8:multiply_2x4_8:multiply_1",
+          "source": "x4_8:multiply_2",
+          "sourcePort": "x4_8:multiply_2_product_out",
+          "target": "x4_8:multiply_1",
+          "targetPort": "x4_8:multiply_1_m2_in",
+          "meta": {
+            "sourceType": "number",
+            "targetType": "number",
+            "sourceNode": "x4_8:multiply_2",
+            "sourcePort": "product",
+            "targetNode": "x4_8:multiply_1",
+            "targetPort": "m2"
+          }
+        },
+        {
+          "id": "x4_8:multiply_1x4_8",
+          "source": "x4_8:multiply_1",
+          "sourcePort": "x4_8:multiply_1_product_out",
+          "target": "x4_8",
+          "targetPort": "x4_8_out_out",
+          "meta": {
+            "sourceType": "number",
+            "targetType": "generic",
+            "sourceNode": "x4_8:multiply_1",
+            "sourcePort": "product",
+            "targetNode": "x4_8",
+            "targetPort": "out"
+          }
+        }
+      ]
+    },
+    {
+      "id": "const(42)_9",
+      "labels": [
+        {
+          "text": "const(42)_9"
+        }
+      ],
+      "ports": [
+        {
+          "id": "const(42)_9_output_out",
+          "meta": {
+            "type": "number",
+            "name": "output"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/const",
+        "version": "0.2.0",
+        "inputPorts": {},
+        "outputPorts": {
+          "output": "number"
+        },
+        "atomic": true,
+        "path": [],
+        "params": {
+          "value": 42
+        },
+        "branchPath": "const(42)_9",
+        "branch": "const(42)_9",
+        "name": "const(42)_9",
+        "recursive": false
+      }
+    },
+    {
+      "id": "x4_10",
+      "labels": [
+        {
+          "text": "x4_10"
+        }
+      ],
+      "ports": [
+        {
+          "id": "x4_10_x_in",
+          "meta": {
+            "type": "generic",
+            "name": "x"
+          }
+        },
+        {
+          "id": "x4_10_out_out",
+          "meta": {
+            "type": "generic",
+            "name": "out"
+          }
+        }
+      ],
+      "meta": {
+        "id": "x4",
+        "inputPorts": {
+          "x": "generic"
+        },
+        "outputPorts": {
+          "out": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "id": "math/multiply",
+              "version": "0.2.0",
+              "inputPorts": {
+                "m1": "number",
+                "m2": "number"
+              },
+              "outputPorts": {
+                "product": "number"
+              },
+              "atomic": true,
+              "path": [
+                {
+                  "meta": "x4",
+                  "branch": "x4_10",
+                  "path": []
+                }
+              ],
+              "parent": "x4_10",
+              "branchPath": "x4_10:multiply_1",
+              "branch": "multiply_1",
+              "recursive": false
+            },
+            {
+              "id": "math/multiply",
+              "version": "0.2.0",
+              "inputPorts": {
+                "m1": "number",
+                "m2": "number"
+              },
+              "outputPorts": {
+                "product": "number"
+              },
+              "atomic": true,
+              "path": [
+                {
+                  "meta": "x4",
+                  "branch": "x4_10",
+                  "path": []
+                }
+              ],
+              "parent": "x4_10",
+              "branchPath": "x4_10:multiply_2",
+              "branch": "multiply_2",
+              "recursive": false
+            },
+            {
+              "id": "math/multiply",
+              "version": "0.2.0",
+              "inputPorts": {
+                "m1": "number",
+                "m2": "number"
+              },
+              "outputPorts": {
+                "product": "number"
+              },
+              "atomic": true,
+              "path": [
+                {
+                  "meta": "x4",
+                  "branch": "x4_10",
+                  "path": []
+                }
+              ],
+              "parent": "x4_10",
+              "branchPath": "x4_10:multiply_3",
+              "branch": "multiply_3",
+              "recursive": false
+            }
+          ],
+          "edges": [
+            {
+              "from": "x",
+              "to": "multiply_1:m1"
+            },
+            {
+              "from": "x",
+              "to": "multiply_2:m1"
+            },
+            {
+              "from": "x",
+              "to": "multiply_3:m1"
+            },
+            {
+              "from": "x",
+              "to": "multiply_3:m2"
+            },
+            {
+              "from": "multiply_3:product",
+              "to": "multiply_2:m2"
+            },
+            {
+              "from": "multiply_2:product",
+              "to": "multiply_1:m2"
+            },
+            {
+              "from": "multiply_1:product",
+              "to": "out"
+            }
+          ]
+        },
+        "name": "x4_10",
+        "externalComponent": true,
+        "path": [],
+        "branchPath": "x4_10",
+        "branch": "x4_10",
+        "recursive": false
+      },
+      "children": [
+        {
+          "id": "x4_10:multiply_1",
+          "labels": [
+            {
+              "text": "x4_10:multiply_1"
+            }
+          ],
+          "ports": [
+            {
+              "id": "x4_10:multiply_1_m1_in",
+              "meta": {
+                "type": "number",
+                "name": "m1"
+              }
+            },
+            {
+              "id": "x4_10:multiply_1_m2_in",
+              "meta": {
+                "type": "number",
+                "name": "m2"
+              }
+            },
+            {
+              "id": "x4_10:multiply_1_product_out",
+              "meta": {
+                "type": "number",
+                "name": "product"
+              }
+            }
+          ],
+          "meta": {
+            "id": "math/multiply",
+            "version": "0.2.0",
+            "inputPorts": {
+              "m1": "number",
+              "m2": "number"
+            },
+            "outputPorts": {
+              "product": "number"
+            },
+            "atomic": true,
+            "path": [
+              {
+                "meta": "x4",
+                "branch": "x4_10",
+                "path": []
+              }
+            ],
+            "parent": "x4_10",
+            "branchPath": "x4_10:multiply_1",
+            "branch": "multiply_1",
+            "recursive": false
+          }
+        },
+        {
+          "id": "x4_10:multiply_2",
+          "labels": [
+            {
+              "text": "x4_10:multiply_2"
+            }
+          ],
+          "ports": [
+            {
+              "id": "x4_10:multiply_2_m1_in",
+              "meta": {
+                "type": "number",
+                "name": "m1"
+              }
+            },
+            {
+              "id": "x4_10:multiply_2_m2_in",
+              "meta": {
+                "type": "number",
+                "name": "m2"
+              }
+            },
+            {
+              "id": "x4_10:multiply_2_product_out",
+              "meta": {
+                "type": "number",
+                "name": "product"
+              }
+            }
+          ],
+          "meta": {
+            "id": "math/multiply",
+            "version": "0.2.0",
+            "inputPorts": {
+              "m1": "number",
+              "m2": "number"
+            },
+            "outputPorts": {
+              "product": "number"
+            },
+            "atomic": true,
+            "path": [
+              {
+                "meta": "x4",
+                "branch": "x4_10",
+                "path": []
+              }
+            ],
+            "parent": "x4_10",
+            "branchPath": "x4_10:multiply_2",
+            "branch": "multiply_2",
+            "recursive": false
+          }
+        },
+        {
+          "id": "x4_10:multiply_3",
+          "labels": [
+            {
+              "text": "x4_10:multiply_3"
+            }
+          ],
+          "ports": [
+            {
+              "id": "x4_10:multiply_3_m1_in",
+              "meta": {
+                "type": "number",
+                "name": "m1"
+              }
+            },
+            {
+              "id": "x4_10:multiply_3_m2_in",
+              "meta": {
+                "type": "number",
+                "name": "m2"
+              }
+            },
+            {
+              "id": "x4_10:multiply_3_product_out",
+              "meta": {
+                "type": "number",
+                "name": "product"
+              }
+            }
+          ],
+          "meta": {
+            "id": "math/multiply",
+            "version": "0.2.0",
+            "inputPorts": {
+              "m1": "number",
+              "m2": "number"
+            },
+            "outputPorts": {
+              "product": "number"
+            },
+            "atomic": true,
+            "path": [
+              {
+                "meta": "x4",
+                "branch": "x4_10",
+                "path": []
+              }
+            ],
+            "parent": "x4_10",
+            "branchPath": "x4_10:multiply_3",
+            "branch": "multiply_3",
+            "recursive": false
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "x4_10x4_10:multiply_1",
+          "source": "x4_10",
+          "sourcePort": "x4_10_x_in",
+          "target": "x4_10:multiply_1",
+          "targetPort": "x4_10:multiply_1_m1_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "number",
+            "sourceNode": "x4_10",
+            "sourcePort": "x",
+            "targetNode": "x4_10:multiply_1",
+            "targetPort": "m1"
+          }
+        },
+        {
+          "id": "x4_10x4_10:multiply_2",
+          "source": "x4_10",
+          "sourcePort": "x4_10_x_in",
+          "target": "x4_10:multiply_2",
+          "targetPort": "x4_10:multiply_2_m1_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "number",
+            "sourceNode": "x4_10",
+            "sourcePort": "x",
+            "targetNode": "x4_10:multiply_2",
+            "targetPort": "m1"
+          }
+        },
+        {
+          "id": "x4_10x4_10:multiply_3",
+          "source": "x4_10",
+          "sourcePort": "x4_10_x_in",
+          "target": "x4_10:multiply_3",
+          "targetPort": "x4_10:multiply_3_m1_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "number",
+            "sourceNode": "x4_10",
+            "sourcePort": "x",
+            "targetNode": "x4_10:multiply_3",
+            "targetPort": "m1"
+          }
+        },
+        {
+          "id": "x4_10x4_10:multiply_3",
+          "source": "x4_10",
+          "sourcePort": "x4_10_x_in",
+          "target": "x4_10:multiply_3",
+          "targetPort": "x4_10:multiply_3_m2_in",
+          "meta": {
+            "sourceType": "generic",
+            "targetType": "number",
+            "sourceNode": "x4_10",
+            "sourcePort": "x",
+            "targetNode": "x4_10:multiply_3",
+            "targetPort": "m2"
+          }
+        },
+        {
+          "id": "x4_10:multiply_3x4_10:multiply_2",
+          "source": "x4_10:multiply_3",
+          "sourcePort": "x4_10:multiply_3_product_out",
+          "target": "x4_10:multiply_2",
+          "targetPort": "x4_10:multiply_2_m2_in",
+          "meta": {
+            "sourceType": "number",
+            "targetType": "number",
+            "sourceNode": "x4_10:multiply_3",
+            "sourcePort": "product",
+            "targetNode": "x4_10:multiply_2",
+            "targetPort": "m2"
+          }
+        },
+        {
+          "id": "x4_10:multiply_2x4_10:multiply_1",
+          "source": "x4_10:multiply_2",
+          "sourcePort": "x4_10:multiply_2_product_out",
+          "target": "x4_10:multiply_1",
+          "targetPort": "x4_10:multiply_1_m2_in",
+          "meta": {
+            "sourceType": "number",
+            "targetType": "number",
+            "sourceNode": "x4_10:multiply_2",
+            "sourcePort": "product",
+            "targetNode": "x4_10:multiply_1",
+            "targetPort": "m2"
+          }
+        },
+        {
+          "id": "x4_10:multiply_1x4_10",
+          "source": "x4_10:multiply_1",
+          "sourcePort": "x4_10:multiply_1_product_out",
+          "target": "x4_10",
+          "targetPort": "x4_10_out_out",
+          "meta": {
+            "sourceType": "number",
+            "targetType": "generic",
+            "sourceNode": "x4_10:multiply_1",
+            "sourcePort": "product",
+            "targetNode": "x4_10",
+            "targetPort": "out"
+          }
+        }
+      ]
+    },
+    {
+      "id": "const(2)_11",
+      "labels": [
+        {
+          "text": "const(2)_11"
+        }
+      ],
+      "ports": [
+        {
+          "id": "const(2)_11_output_out",
+          "meta": {
+            "type": "number",
+            "name": "output"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/const",
+        "version": "0.2.0",
+        "inputPorts": {},
+        "outputPorts": {
+          "output": "number"
+        },
+        "atomic": true,
+        "path": [],
+        "params": {
+          "value": 2
+        },
+        "branchPath": "const(2)_11",
+        "branch": "const(2)_11",
+        "name": "const(2)_11",
+        "recursive": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "const(2)_6less_5",
+      "source": "const(2)_6",
+      "sourcePort": "const(2)_6_output_out",
+      "target": "less_5",
+      "targetPort": "less_5_isLess_in",
+      "meta": {
+        "sourceType": "number",
+        "targetType": "number",
+        "sourceNode": "const(2)_6",
+        "sourcePort": "output",
+        "targetNode": "less_5",
+        "targetPort": "isLess"
+      }
+    },
+    {
+      "id": "const(3)_7less_5",
+      "source": "const(3)_7",
+      "sourcePort": "const(3)_7_output_out",
+      "target": "less_5",
+      "targetPort": "less_5_than_in",
+      "meta": {
+        "sourceType": "number",
+        "targetType": "number",
+        "sourceNode": "const(3)_7",
+        "sourcePort": "output",
+        "targetNode": "less_5",
+        "targetPort": "than"
+      }
+    },
+    {
+      "id": "less_5if_4",
+      "source": "less_5",
+      "sourcePort": "less_5_value_out",
+      "target": "if_4",
+      "targetPort": "if_4_check_in",
+      "meta": {
+        "sourceType": "bool",
+        "targetType": "generic",
+        "sourceNode": "less_5",
+        "sourcePort": "value",
+        "targetNode": "if_4",
+        "targetPort": "check"
+      }
+    },
+    {
+      "id": "const(42)_9x4_8",
+      "source": "const(42)_9",
+      "sourcePort": "const(42)_9_output_out",
+      "target": "x4_8",
+      "targetPort": "x4_8_x_in",
+      "meta": {
+        "sourceType": "number",
+        "targetType": "generic",
+        "sourceNode": "const(42)_9",
+        "sourcePort": "output",
+        "targetNode": "x4_8",
+        "targetPort": "x"
+      }
+    },
+    {
+      "id": "x4_8if_4",
+      "source": "x4_8",
+      "sourcePort": "x4_8_out_out",
+      "target": "if_4",
+      "targetPort": "if_4_truePath_in",
+      "meta": {
+        "sourceType": "generic",
+        "targetType": "generic",
+        "sourceNode": "x4_8",
+        "sourcePort": "out",
+        "targetNode": "if_4",
+        "targetPort": "truePath"
+      }
+    },
+    {
+      "id": "const(2)_11x4_10",
+      "source": "const(2)_11",
+      "sourcePort": "const(2)_11_output_out",
+      "target": "x4_10",
+      "targetPort": "x4_10_x_in",
+      "meta": {
+        "sourceType": "number",
+        "targetType": "generic",
+        "sourceNode": "const(2)_11",
+        "sourcePort": "output",
+        "targetNode": "x4_10",
+        "targetPort": "x"
+      }
+    },
+    {
+      "id": "x4_10if_4",
+      "source": "x4_10",
+      "sourcePort": "x4_10_out_out",
+      "target": "if_4",
+      "targetPort": "if_4_falsePath_in",
+      "meta": {
+        "sourceType": "generic",
+        "targetType": "generic",
+        "sourceNode": "x4_10",
+        "sourcePort": "out",
+        "targetNode": "if_4",
+        "targetPort": "falsePath"
+      }
+    }
+  ]
+}

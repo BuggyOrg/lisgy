@@ -1,0 +1,51 @@
+<svg id="svgOutput" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" baseprofile="full"><style> /*  */body &gt; * {
+  text-align: center;
+}
+
+table, button, svg, textarea {
+    width: 100%;
+    height: 100%;
+}
+
+td {
+  border: 1px solid #888;
+}
+
+.node {
+  stroke: #000;
+  stroke-width: 3px;
+  fill: #fff;
+}
+
+.node.compound {
+  stroke-opacity: 0.5;
+  fill-opacity: 0.2;
+  fill: #000;
+}
+
+text {
+  font-family: sans-serif;
+}
+
+.link {
+  stroke: #333;
+  stroke-width: 3px;
+  stroke-opacity: 0.5;
+  fill: none;
+  cursor: pointer;
+}
+
+.port {
+    stroke: #000;
+    fill: none;
+    z-index: 42;
+}
+
+.port.out {
+  fill: darkred;
+}
+
+.port.in {
+  fill: green;
+}/*  */ </style><g><g transform="translate(82.97395833333333 200)"><g transform="translate(212.34375 17)"><rect class="node " width="156.5625" height="34"></rect><text x="39.140625" y="25.5" width="78.28125" height="17">test_2:le_0</text><rect class="port in" x="102.70833333333334" y="-5" width="5" height="5"></rect><rect class="port in" x="48.85416666666668" y="-5" width="5" height="5"></rect><rect class="port out" x="75.78125" y="34" width="5" height="5"></rect></g><g transform="translate(12 17)"><rect class="node " width="150.34375" height="34"></rect><text x="37.5859375" y="25.5" width="75.171875" height="17">test_2:+_1</text><rect class="port in" x="98.5625" y="-5" width="5" height="5"></rect><rect class="port in" x="46.78125" y="-5" width="5" height="5"></rect><rect class="port out" x="72.671875" y="34" width="5" height="5"></rect></g><rect class="node compound" width="380.90625" height="68"></rect><text x="168.6640625" y="17" width="43.578125" height="17">test_2</text><path class="link" d="M263.6979166666667 0 L263.6979166666667 12 "></path><path class="link" d="M290.625 56 L290.625 68 "></path><path class="link" d="M61.28125 0 L61.28125 12 "></path><path class="link" d="M87.171875 56 L87.17187499999999 68 "></path><rect class="port in" x="27" y="-5" width="5" height="5"></rect><rect class="port in" x="12" y="-5" width="5" height="5"></rect><rect class="port out" x="42" y="-5" width="5" height="5"></rect><rect class="port out" x="273.6979166666667" y="-5" width="5" height="5"></rect></g><g transform="translate(174.61458333333331 106)"><rect class="node " width="168.96875" height="34"></rect><text x="42.2421875" y="25.5" width="84.484375" height="17">const(10)_3</text><rect class="port out" x="81.984375" y="34" width="5" height="5"></rect></g><g transform="translate(70.33333333333333 106)"><rect class="node " width="54.28125" height="34"></rect><text x="13.5703125" y="25.5" width="27.140625" height="17">+_4</text><rect class="port in" x="14.760416666666671" y="-5" width="5" height="5"></rect><rect class="port in" x="34.520833333333336" y="-5" width="5" height="5"></rect><rect class="port out" x="24.640625" y="34" width="5" height="5"></rect></g><g transform="translate(12 12)"><rect class="node " width="151.1875" height="34"></rect><text x="37.796875" y="25.5" width="75.59375" height="17">const(3)_5</text><rect class="port out" x="73.09375" y="34" width="5" height="5"></rect></g><g transform="translate(213.1875 12)"><rect class="node " width="168.96875" height="34"></rect><text x="42.2421875" y="25.5" width="84.484375" height="17">const(20)_6</text><rect class="port out" x="81.984375" y="34" width="5" height="5"></rect></g><rect class="node compound" width="475.8802083333333" height="280"></rect><path class="link" d="M259.0989583333333 145 L259.0989583333333 170 L112.47395833333333 170 L112.47395833333333 197.5 "></path><path class="link" d="M87.59375 51 L87.59375 101 "></path><path class="link" d="M297.671875 51 L297.671875 76 L107.35416666666666 76 L107.35416666666666 101 "></path><path class="link" d="M97.47395833333333 145 L97.47395833333333 197.5 "></path></g></svg>
+

@@ -1,0 +1,129 @@
+{
+  "code": "(defcop math/less [isLess than] [value])(defcop math/add [s1 s2] [sum])(def le math/less)(def + math/add)(defco test [a b] [:le (le a b) :ad (+ a b)]) (test 10 (+ 3 20))",
+  "nodes": [
+    {
+      "v": "test_2",
+      "value": {
+        "name": "test_2",
+        "id": "test",
+        "inputPorts": {
+          "a": "generic",
+          "b": "generic"
+        },
+        "outputPorts": {
+          "le": "generic",
+          "ad": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "meta": "math/less",
+              "name": "le_0"
+            },
+            {
+              "meta": "math/add",
+              "name": "+_1"
+            }
+          ],
+          "edges": [
+            {
+              "from": "a",
+              "to": "le_0:isLess"
+            },
+            {
+              "from": "b",
+              "to": "le_0:than"
+            },
+            {
+              "from": "le_0:value",
+              "to": "le"
+            },
+            {
+              "from": "a",
+              "to": "+_1:s1"
+            },
+            {
+              "from": "b",
+              "to": "+_1:s2"
+            },
+            {
+              "from": "+_1:sum",
+              "to": "ad"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "v": "const(10)_3",
+      "value": {
+        "meta": "math/const",
+        "name": "const(10)_3",
+        "params": {
+          "value": 10
+        }
+      }
+    },
+    {
+      "v": "+_4",
+      "value": {
+        "meta": "math/add",
+        "name": "+_4"
+      }
+    },
+    {
+      "v": "const(3)_5",
+      "value": {
+        "meta": "math/const",
+        "name": "const(3)_5",
+        "params": {
+          "value": 3
+        }
+      }
+    },
+    {
+      "v": "const(20)_6",
+      "value": {
+        "meta": "math/const",
+        "name": "const(20)_6",
+        "params": {
+          "value": 20
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "v": "const(10)_3",
+      "w": "test_2",
+      "value": {
+        "outPort": "output",
+        "inPort": "a"
+      }
+    },
+    {
+      "v": "const(3)_5",
+      "w": "+_4",
+      "value": {
+        "outPort": "output",
+        "inPort": "s1"
+      }
+    },
+    {
+      "v": "const(20)_6",
+      "w": "+_4",
+      "value": {
+        "outPort": "output",
+        "inPort": "s2"
+      }
+    },
+    {
+      "v": "+_4",
+      "w": "test_2",
+      "value": {
+        "outPort": "sum",
+        "inPort": "b"
+      }
+    }
+  ]
+}

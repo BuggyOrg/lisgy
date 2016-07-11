@@ -2,6 +2,7 @@
 
 import fs from 'fs'
 import {utils} from '@buggyorg/graphtools'
+import {graph as graphAPI} from '@buggyorg/graphtools'
 import * as chai from 'chai'
 import * as lisgy from '../src/lisgy.js'
 import * as components from './components.json'
@@ -45,6 +46,17 @@ let expectNoError = (json) => { expect(json.errorMessage || 'none').to.equal('no
 let expectError = (json) => { expect(json.errorMessage || 'none').to.equal(json.errorMessage) }
 
 describe('edn', () => {
+  it('utf8 symbols', () => {
+    var code = '(defcop … [s1 s2] [sum])(defco ® [¾ ½] [:¦ (… ¾ (… ½ 3))])'
+    return lisgy.parse_to_json(code)
+    .then((json) => {
+      expectNoError(json)
+      // TODO: add checks for nodes & edges ?
+    }).catch((json) => {
+      expect('This should not happen').to.equal('')
+    })
+  })
+
   it('defco fail on missing defcop', () => {
     disableErrorLog()
     var code = '(defco newCo1 [a b] [:value (math/less a (math/add b 3))])'
@@ -223,6 +235,51 @@ describe('edn', () => {
         expect(node.data.outputPorts).to.deep.equal({ 'value_0': 'generic' })
       })
     })
+
+    it('new defco used inside component', () => {
+      var code = `(defcop add [s1 s2] [sum])
+        (defco newCo [a b] (add a b))
+        (add (newCo 1 2) 3)`
+      return lisgy.parse_to_json(code)
+      .then((json) => {
+        expectNoError(json)
+
+        expect(json.edges).to.have.length(4)
+        expect(json.nodes).to.have.length(5)
+
+        // TODO
+      })
+    })
+
+    it('new defco used inside lambda', () => {
+      var code = `(defcop add [s1 s2] [sum])
+        (defco newCo [a b] (add a b))
+        (lambda [x y] (newCo 1 2))`
+      return lisgy.parse_to_json(code)
+      .then((json) => {
+        expectNoError(json)
+
+        // logJson(json)
+
+        expect(json.edges).to.have.length(0)
+        expect(json.nodes).to.have.length(2)
+      })
+    })
+
+    it('new defco used inside lambda inside component', () => {
+      var code = `(defcop add [s1 s2] [sum])
+        (defco newCo [a b] (add a b))
+        (add (lambda [x y] (newCo 1 2)) 3)`
+      return lisgy.parse_to_json(code)
+      .then((json) => {
+        expectNoError(json)
+
+        // logJson(json)
+
+        expect(json.edges).to.have.length(2)
+        expect(json.nodes).to.have.length(4)
+      })
+    })
   })
 
   describe('(FN ARG ...) or (FN :PORT ARG ...)', () => {
@@ -348,7 +405,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(7) // 2 'add' nodes and 5 'const' nodes
         expect(json.edges).to.have.length(6)
 
-        let final = utils.finalize(json)
+        let final = graphAPI.importJSON(json)
         expect(utils.getAll(final, 'add')).to.have.length(1)
         expect(utils.getAll(final, 'fnc')).to.have.length(1)
         expect(utils.getAll(final, 'std/const')).to.have.length(3)
@@ -369,7 +426,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(6) // 3 'add' nodes and 3 'const' nodes
         expect(json.edges).to.have.length(6)
 
-        let final = utils.finalize(json)
+        let final = graphAPI.importJSON(json)
         expect(utils.getAll(final, 'add')).to.have.length(3)
       })
     })
@@ -387,7 +444,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(6)
         expect(json.edges).to.have.length(6)
 
-        let final = utils.finalize(json)
+        let final = graphAPI.importJSON(json)
         expect(utils.getAll(final, 'add')).to.have.length(3)
       })
     })
@@ -413,7 +470,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(6)
         expect(json.edges).to.have.length(4)
 
-        let final = utils.finalize(json)
+        let final = graphAPI.importJSON(json)
         expect(utils.getAll(final, 'add')).to.have.length(2)
       })
     })
@@ -432,7 +489,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(8)
         expect(json.edges).to.have.length(8)
 
-        let final = utils.finalize(json)
+        let final = graphAPI.importJSON(json)
         expect(utils.getAll(final, 'add')).to.have.length(4)
       })
     })
@@ -449,7 +506,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(5)
         expect(json.edges).to.have.length(4)
 
-        let final = utils.finalize(json)
+        let final = graphAPI.importJSON(json)
         expect(utils.getAll(final, 'add')).to.have.length(2)
       })
     })
@@ -505,7 +562,22 @@ describe('edn', () => {
       return lisgy.parse_to_json(code)
       .then((json) => {
         expectNoError(json)
-        expect(utils.getAll(utils.finalize(json), 'stdin')).to.have.length(1)
+        expect(utils.getAll(graphAPI.importJSON(json), 'stdin')).to.have.length(1)
+      })
+    })
+
+    it('two edges from one node', () => {
+      var code = `
+        (defcop add [s1 s2] [sum])
+        (let [x 3] (add x x))`
+
+      return lisgy.parse_to_json(code)
+      .then((json) => {
+        expectNoError(json)
+        var gr = graphAPI.importJSON(json)
+        expect(gr.nodes()).to.have.length(2)
+        expect(gr.edges()).to.have.length(2)
+        expect(utils.getAll(graphAPI.importJSON(json), 'add')).to.have.length(1)
       })
     })
   })
@@ -546,7 +618,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(3)
         expect(json.edges).to.have.length(2)
 
-        let finalized = utils.finalize(json)
+        let finalized = graphAPI.importJSON(json)
         expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
         expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
         expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
@@ -576,7 +648,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(3)
         expect(json.edges).to.have.length(2)
 
-        let finalized = utils.finalize(json)
+        let finalized = graphAPI.importJSON(json)
         expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
         expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
         expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
@@ -591,7 +663,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(1)
         expect(json.edges).to.have.length(0)
 
-        let finalized = utils.finalize(json)
+        let finalized = graphAPI.importJSON(json)
         expect(utils.getAll(finalized, 'functional/lambda')).to.have.length(1)
       })
     })
@@ -607,7 +679,7 @@ describe('edn', () => {
         expect(json.nodes[0].value.implementation.nodes).to.have.length(1)
         expect(json.nodes[0].value.implementation.edges).to.have.length(3)
 
-        let finalized = utils.finalize(json)
+        let finalized = graphAPI.importJSON(json)
         expect(utils.getAll(finalized, 'new')).to.have.length(1)
       })
     })
@@ -620,7 +692,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(3)
         expect(json.edges).to.have.length(2)
 
-        let finalized = utils.finalize(json)
+        let finalized = graphAPI.importJSON(json)
         expect(utils.getAll(finalized, 'new')).to.have.length(1)
         expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
         expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
@@ -635,7 +707,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(5)
         expect(json.edges).to.have.length(4)
 
-        let finalized = utils.finalize(json)
+        let finalized = graphAPI.importJSON(json)
         expect(utils.getAll(finalized, 'new')).to.have.length(1)
         expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
         expect(utils.getAll(finalized, 'math/const')).to.have.length(3)
@@ -650,7 +722,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(5)
         expect(json.edges).to.have.length(4)
 
-        let finalized = utils.finalize(json)
+        let finalized = graphAPI.importJSON(json)
         expect(utils.getAll(finalized, 'new')).to.have.length(1)
         expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
         expect(utils.getAll(finalized, 'math/const')).to.have.length(3)
@@ -665,7 +737,7 @@ describe('edn', () => {
         expect(json.nodes).to.have.length(4)
         expect(json.edges).to.have.length(3)
 
-        let finalized = utils.finalize(json)
+        let finalized = graphAPI.importJSON(json)
         expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
         expect(utils.getAll(finalized, 'test/three')).to.have.length(1)
         expect(utils.getAll(finalized, 'std/const')).to.have.length(2)
@@ -842,6 +914,19 @@ describe('edn', () => {
       })
     })
 
+    it('syntax missing ) after import', () => {
+      var code = `(import all)\n(def a b)\n(defcop add [s1 s2] [sum]`
+      return lisgy.parse_to_json(code)
+      .then((json) => {
+        console.error(json)
+        expect('This should not happen').to.equal('')
+      }).catch((json) => {
+        expectError(json)
+        expect(json.errorMessage).to.contain('expected )')
+        expect(json.errorLocation).to.deep.equal({'startLine': 3, 'endLine': 3, 'startCol': 26, 'endCol': 27})
+      })
+    })
+
     it('syntax map', () => {
       var code = `{a b c}`
       return lisgy.parse_to_json(code)
@@ -853,16 +938,17 @@ describe('edn', () => {
       })
     })
 
-    it('syntax symbol', () => {
-      var code = `(ä test)`
-      return lisgy.parse_to_json(code)
-      .then((json) => {
-        expect('This should not happen').to.equal('')
-      }).catch((json) => {
-        expectError(json)
-        expect(json.errorLocation).to.deep.equal({'startLine': 1, 'endLine': 1, 'startCol': 1, 'endCol': 1})
-      })
-    })
+    // TODO: I dont know how a symbol syntax error looks now with utf8 support
+    // it('syntax symbol', () => {
+    //   var code = `(ä test)`
+    //   return lisgy.parse_to_json(code)
+    //   .then((json) => {
+    //     expect('This should not happen').to.equal('')
+    //   }).catch((json) => {
+    //     expectError(json)
+    //     expect(json.errorLocation).to.deep.equal({'startLine': 1, 'endLine': 1, 'startCol': 1, 'endCol': 1})
+    //   })
+    // })
 
     it('ports', () => {
       var code = `(defcop add [s1 s2] [sum])\n (add 1 2 3)`

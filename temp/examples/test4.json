@@ -1,0 +1,42 @@
+{
+  "code": "(defco test [a b] [:out (math/add a b)])",
+  "nodes": [
+    {
+      "v": "defco_test",
+      "value": {
+        "id": "test",
+        "inputPorts": {
+          "a": "generic",
+          "b": "generic"
+        },
+        "outputPorts": {
+          "out": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "meta": "math/add",
+              "name": "add_0"
+            }
+          ],
+          "edges": [
+            {
+              "from": "a",
+              "to": "add_0:s1"
+            },
+            {
+              "from": "b",
+              "to": "add_0:s2"
+            },
+            {
+              "from": "add_0:sum",
+              "to": "out"
+            }
+          ]
+        },
+        "name": "defco_test"
+      }
+    }
+  ],
+  "edges": []
+}

@@ -1,0 +1,865 @@
+{
+  "id": "root",
+  "children": [
+    {
+      "id": "a_0",
+      "labels": [
+        {
+          "text": "a_0"
+        }
+      ],
+      "ports": [
+        {
+          "id": "a_0_s1_in",
+          "meta": {
+            "type": "number",
+            "name": "s1"
+          }
+        },
+        {
+          "id": "a_0_s2_in",
+          "meta": {
+            "type": "number",
+            "name": "s2"
+          }
+        },
+        {
+          "id": "a_0_sum_out",
+          "meta": {
+            "type": "number",
+            "name": "sum"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/add",
+        "version": "0.2.0",
+        "inputPorts": {
+          "s1": "number",
+          "s2": "number"
+        },
+        "outputPorts": {
+          "sum": "number"
+        },
+        "atomic": true,
+        "path": [],
+        "branchPath": "a_0",
+        "branch": "a_0",
+        "name": "a_0",
+        "recursive": false
+      }
+    },
+    {
+      "id": "const(2)_1",
+      "labels": [
+        {
+          "text": "const(2)_1"
+        }
+      ],
+      "ports": [
+        {
+          "id": "const(2)_1_output_out",
+          "meta": {
+            "type": "number",
+            "name": "output"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/const",
+        "version": "0.2.0",
+        "inputPorts": {},
+        "outputPorts": {
+          "output": "number"
+        },
+        "atomic": true,
+        "path": [],
+        "params": {
+          "value": 2
+        },
+        "branchPath": "const(2)_1",
+        "branch": "const(2)_1",
+        "name": "const(2)_1",
+        "recursive": false
+      }
+    },
+    {
+      "id": "const(3)_2",
+      "labels": [
+        {
+          "text": "const(3)_2"
+        }
+      ],
+      "ports": [
+        {
+          "id": "const(3)_2_output_out",
+          "meta": {
+            "type": "number",
+            "name": "output"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/const",
+        "version": "0.2.0",
+        "inputPorts": {},
+        "outputPorts": {
+          "output": "number"
+        },
+        "atomic": true,
+        "path": [],
+        "params": {
+          "value": 3
+        },
+        "branchPath": "const(3)_2",
+        "branch": "const(3)_2",
+        "name": "const(3)_2",
+        "recursive": false
+      }
+    },
+    {
+      "id": "a_3",
+      "labels": [
+        {
+          "text": "a_3"
+        }
+      ],
+      "ports": [
+        {
+          "id": "a_3_i_in",
+          "meta": {
+            "type": "number",
+            "name": "i"
+          }
+        },
+        {
+          "id": "a_3_inc_out",
+          "meta": {
+            "type": "number",
+            "name": "inc"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/inc",
+        "version": "0.4.1",
+        "inputPorts": {
+          "i": "number"
+        },
+        "outputPorts": {
+          "inc": "number"
+        },
+        "atomic": false,
+        "implementation": {
+          "nodes": [
+            {
+              "id": "math/add",
+              "version": "0.2.0",
+              "inputPorts": {
+                "s1": "number",
+                "s2": "number"
+              },
+              "outputPorts": {
+                "sum": "number"
+              },
+              "atomic": true,
+              "path": [
+                {
+                  "meta": "math/inc",
+                  "branch": "a_3",
+                  "version": "0.4.1",
+                  "path": []
+                }
+              ],
+              "parent": "a_3",
+              "branchPath": "a_3:add",
+              "branch": "add",
+              "recursive": false
+            },
+            {
+              "id": "math/const",
+              "version": "0.2.0",
+              "inputPorts": {},
+              "outputPorts": {
+                "output": "number"
+              },
+              "atomic": true,
+              "path": [
+                {
+                  "meta": "math/inc",
+                  "branch": "a_3",
+                  "version": "0.4.1",
+                  "path": []
+                }
+              ],
+              "params": {
+                "value": 1
+              },
+              "parent": "a_3",
+              "branchPath": "a_3:c",
+              "branch": "c",
+              "recursive": false
+            }
+          ],
+          "edges": [
+            {
+              "from": "i",
+              "to": "add:s1"
+            },
+            {
+              "from": "c:output",
+              "to": "add:s2"
+            },
+            {
+              "from": "add:sum",
+              "to": "inc"
+            }
+          ]
+        },
+        "path": [],
+        "branchPath": "a_3",
+        "branch": "a_3",
+        "name": "a_3",
+        "recursive": false
+      },
+      "children": [
+        {
+          "id": "a_3:add",
+          "labels": [
+            {
+              "text": "a_3:add"
+            }
+          ],
+          "ports": [
+            {
+              "id": "a_3:add_s1_in",
+              "meta": {
+                "type": "number",
+                "name": "s1"
+              }
+            },
+            {
+              "id": "a_3:add_s2_in",
+              "meta": {
+                "type": "number",
+                "name": "s2"
+              }
+            },
+            {
+              "id": "a_3:add_sum_out",
+              "meta": {
+                "type": "number",
+                "name": "sum"
+              }
+            }
+          ],
+          "meta": {
+            "id": "math/add",
+            "version": "0.2.0",
+            "inputPorts": {
+              "s1": "number",
+              "s2": "number"
+            },
+            "outputPorts": {
+              "sum": "number"
+            },
+            "atomic": true,
+            "path": [
+              {
+                "meta": "math/inc",
+                "branch": "a_3",
+                "version": "0.4.1",
+                "path": []
+              }
+            ],
+            "parent": "a_3",
+            "branchPath": "a_3:add",
+            "branch": "add",
+            "recursive": false
+          }
+        },
+        {
+          "id": "a_3:c",
+          "labels": [
+            {
+              "text": "a_3:c"
+            }
+          ],
+          "ports": [
+            {
+              "id": "a_3:c_output_out",
+              "meta": {
+                "type": "number",
+                "name": "output"
+              }
+            }
+          ],
+          "meta": {
+            "id": "math/const",
+            "version": "0.2.0",
+            "inputPorts": {},
+            "outputPorts": {
+              "output": "number"
+            },
+            "atomic": true,
+            "path": [
+              {
+                "meta": "math/inc",
+                "branch": "a_3",
+                "version": "0.4.1",
+                "path": []
+              }
+            ],
+            "params": {
+              "value": 1
+            },
+            "parent": "a_3",
+            "branchPath": "a_3:c",
+            "branch": "c",
+            "recursive": false
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "a_3a_3:add",
+          "source": "a_3",
+          "sourcePort": "a_3_i_in",
+          "target": "a_3:add",
+          "targetPort": "a_3:add_s1_in",
+          "meta": {
+            "sourceType": "number",
+            "targetType": "number",
+            "sourceNode": "a_3",
+            "sourcePort": "i",
+            "targetNode": "a_3:add",
+            "targetPort": "s1"
+          }
+        },
+        {
+          "id": "a_3:ca_3:add",
+          "source": "a_3:c",
+          "sourcePort": "a_3:c_output_out",
+          "target": "a_3:add",
+          "targetPort": "a_3:add_s2_in",
+          "meta": {
+            "sourceType": "number",
+            "targetType": "number",
+            "sourceNode": "a_3:c",
+            "sourcePort": "output",
+            "targetNode": "a_3:add",
+            "targetPort": "s2"
+          }
+        },
+        {
+          "id": "a_3:adda_3",
+          "source": "a_3:add",
+          "sourcePort": "a_3:add_sum_out",
+          "target": "a_3",
+          "targetPort": "a_3_inc_out",
+          "meta": {
+            "sourceType": "number",
+            "targetType": "number",
+            "sourceNode": "a_3:add",
+            "sourcePort": "sum",
+            "targetNode": "a_3",
+            "targetPort": "inc"
+          }
+        }
+      ]
+    },
+    {
+      "id": "const(5)_4",
+      "labels": [
+        {
+          "text": "const(5)_4"
+        }
+      ],
+      "ports": [
+        {
+          "id": "const(5)_4_output_out",
+          "meta": {
+            "type": "number",
+            "name": "output"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/const",
+        "version": "0.2.0",
+        "inputPorts": {},
+        "outputPorts": {
+          "output": "number"
+        },
+        "atomic": true,
+        "path": [],
+        "params": {
+          "value": 5
+        },
+        "branchPath": "const(5)_4",
+        "branch": "const(5)_4",
+        "name": "const(5)_4",
+        "recursive": false
+      }
+    },
+    {
+      "id": "add_5",
+      "labels": [
+        {
+          "text": "add_5"
+        }
+      ],
+      "ports": [
+        {
+          "id": "add_5_s1_in",
+          "meta": {
+            "type": "number",
+            "name": "s1"
+          }
+        },
+        {
+          "id": "add_5_s2_in",
+          "meta": {
+            "type": "number",
+            "name": "s2"
+          }
+        },
+        {
+          "id": "add_5_sum_out",
+          "meta": {
+            "type": "number",
+            "name": "sum"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/add",
+        "version": "0.2.0",
+        "inputPorts": {
+          "s1": "number",
+          "s2": "number"
+        },
+        "outputPorts": {
+          "sum": "number"
+        },
+        "atomic": true,
+        "path": [],
+        "branchPath": "add_5",
+        "branch": "add_5",
+        "name": "add_5",
+        "recursive": false
+      }
+    },
+    {
+      "id": "a_6",
+      "labels": [
+        {
+          "text": "a_6"
+        }
+      ],
+      "ports": [
+        {
+          "id": "a_6_i_in",
+          "meta": {
+            "type": "number",
+            "name": "i"
+          }
+        },
+        {
+          "id": "a_6_inc_out",
+          "meta": {
+            "type": "number",
+            "name": "inc"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/inc",
+        "version": "0.4.1",
+        "inputPorts": {
+          "i": "number"
+        },
+        "outputPorts": {
+          "inc": "number"
+        },
+        "atomic": false,
+        "implementation": {
+          "nodes": [
+            {
+              "id": "math/add",
+              "version": "0.2.0",
+              "inputPorts": {
+                "s1": "number",
+                "s2": "number"
+              },
+              "outputPorts": {
+                "sum": "number"
+              },
+              "atomic": true,
+              "path": [
+                {
+                  "meta": "math/inc",
+                  "branch": "a_6",
+                  "version": "0.4.1",
+                  "path": []
+                }
+              ],
+              "parent": "a_6",
+              "branchPath": "a_6:add",
+              "branch": "add",
+              "recursive": false
+            },
+            {
+              "id": "math/const",
+              "version": "0.2.0",
+              "inputPorts": {},
+              "outputPorts": {
+                "output": "number"
+              },
+              "atomic": true,
+              "path": [
+                {
+                  "meta": "math/inc",
+                  "branch": "a_6",
+                  "version": "0.4.1",
+                  "path": []
+                }
+              ],
+              "params": {
+                "value": 1
+              },
+              "parent": "a_6",
+              "branchPath": "a_6:c",
+              "branch": "c",
+              "recursive": false
+            }
+          ],
+          "edges": [
+            {
+              "from": "i",
+              "to": "add:s1"
+            },
+            {
+              "from": "c:output",
+              "to": "add:s2"
+            },
+            {
+              "from": "add:sum",
+              "to": "inc"
+            }
+          ]
+        },
+        "path": [],
+        "branchPath": "a_6",
+        "branch": "a_6",
+        "name": "a_6",
+        "recursive": false
+      },
+      "children": [
+        {
+          "id": "a_6:add",
+          "labels": [
+            {
+              "text": "a_6:add"
+            }
+          ],
+          "ports": [
+            {
+              "id": "a_6:add_s1_in",
+              "meta": {
+                "type": "number",
+                "name": "s1"
+              }
+            },
+            {
+              "id": "a_6:add_s2_in",
+              "meta": {
+                "type": "number",
+                "name": "s2"
+              }
+            },
+            {
+              "id": "a_6:add_sum_out",
+              "meta": {
+                "type": "number",
+                "name": "sum"
+              }
+            }
+          ],
+          "meta": {
+            "id": "math/add",
+            "version": "0.2.0",
+            "inputPorts": {
+              "s1": "number",
+              "s2": "number"
+            },
+            "outputPorts": {
+              "sum": "number"
+            },
+            "atomic": true,
+            "path": [
+              {
+                "meta": "math/inc",
+                "branch": "a_6",
+                "version": "0.4.1",
+                "path": []
+              }
+            ],
+            "parent": "a_6",
+            "branchPath": "a_6:add",
+            "branch": "add",
+            "recursive": false
+          }
+        },
+        {
+          "id": "a_6:c",
+          "labels": [
+            {
+              "text": "a_6:c"
+            }
+          ],
+          "ports": [
+            {
+              "id": "a_6:c_output_out",
+              "meta": {
+                "type": "number",
+                "name": "output"
+              }
+            }
+          ],
+          "meta": {
+            "id": "math/const",
+            "version": "0.2.0",
+            "inputPorts": {},
+            "outputPorts": {
+              "output": "number"
+            },
+            "atomic": true,
+            "path": [
+              {
+                "meta": "math/inc",
+                "branch": "a_6",
+                "version": "0.4.1",
+                "path": []
+              }
+            ],
+            "params": {
+              "value": 1
+            },
+            "parent": "a_6",
+            "branchPath": "a_6:c",
+            "branch": "c",
+            "recursive": false
+          }
+        }
+      ],
+      "edges": [
+        {
+          "id": "a_6a_6:add",
+          "source": "a_6",
+          "sourcePort": "a_6_i_in",
+          "target": "a_6:add",
+          "targetPort": "a_6:add_s1_in",
+          "meta": {
+            "sourceType": "number",
+            "targetType": "number",
+            "sourceNode": "a_6",
+            "sourcePort": "i",
+            "targetNode": "a_6:add",
+            "targetPort": "s1"
+          }
+        },
+        {
+          "id": "a_6:ca_6:add",
+          "source": "a_6:c",
+          "sourcePort": "a_6:c_output_out",
+          "target": "a_6:add",
+          "targetPort": "a_6:add_s2_in",
+          "meta": {
+            "sourceType": "number",
+            "targetType": "number",
+            "sourceNode": "a_6:c",
+            "sourcePort": "output",
+            "targetNode": "a_6:add",
+            "targetPort": "s2"
+          }
+        },
+        {
+          "id": "a_6:adda_6",
+          "source": "a_6:add",
+          "sourcePort": "a_6:add_sum_out",
+          "target": "a_6",
+          "targetPort": "a_6_inc_out",
+          "meta": {
+            "sourceType": "number",
+            "targetType": "number",
+            "sourceNode": "a_6:add",
+            "sourcePort": "sum",
+            "targetNode": "a_6",
+            "targetPort": "inc"
+          }
+        }
+      ]
+    },
+    {
+      "id": "const(6)_7",
+      "labels": [
+        {
+          "text": "const(6)_7"
+        }
+      ],
+      "ports": [
+        {
+          "id": "const(6)_7_output_out",
+          "meta": {
+            "type": "number",
+            "name": "output"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/const",
+        "version": "0.2.0",
+        "inputPorts": {},
+        "outputPorts": {
+          "output": "number"
+        },
+        "atomic": true,
+        "path": [],
+        "params": {
+          "value": 6
+        },
+        "branchPath": "const(6)_7",
+        "branch": "const(6)_7",
+        "name": "const(6)_7",
+        "recursive": false
+      }
+    },
+    {
+      "id": "const(2)_8",
+      "labels": [
+        {
+          "text": "const(2)_8"
+        }
+      ],
+      "ports": [
+        {
+          "id": "const(2)_8_output_out",
+          "meta": {
+            "type": "number",
+            "name": "output"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/const",
+        "version": "0.2.0",
+        "inputPorts": {},
+        "outputPorts": {
+          "output": "number"
+        },
+        "atomic": true,
+        "path": [],
+        "params": {
+          "value": 2
+        },
+        "branchPath": "const(2)_8",
+        "branch": "const(2)_8",
+        "name": "const(2)_8",
+        "recursive": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "const(2)_1a_0",
+      "source": "const(2)_1",
+      "sourcePort": "const(2)_1_output_out",
+      "target": "a_0",
+      "targetPort": "a_0_s1_in",
+      "meta": {
+        "sourceType": "number",
+        "targetType": "number",
+        "sourceNode": "const(2)_1",
+        "sourcePort": "output",
+        "targetNode": "a_0",
+        "targetPort": "s1"
+      }
+    },
+    {
+      "id": "const(3)_2a_0",
+      "source": "const(3)_2",
+      "sourcePort": "const(3)_2_output_out",
+      "target": "a_0",
+      "targetPort": "a_0_s2_in",
+      "meta": {
+        "sourceType": "number",
+        "targetType": "number",
+        "sourceNode": "const(3)_2",
+        "sourcePort": "output",
+        "targetNode": "a_0",
+        "targetPort": "s2"
+      }
+    },
+    {
+      "id": "const(5)_4a_3",
+      "source": "const(5)_4",
+      "sourcePort": "const(5)_4_output_out",
+      "target": "a_3",
+      "targetPort": "a_3_i_in",
+      "meta": {
+        "sourceType": "number",
+        "targetType": "number",
+        "sourceNode": "const(5)_4",
+        "sourcePort": "output",
+        "targetNode": "a_3",
+        "targetPort": "i"
+      }
+    },
+    {
+      "id": "const(6)_7a_6",
+      "source": "const(6)_7",
+      "sourcePort": "const(6)_7_output_out",
+      "target": "a_6",
+      "targetPort": "a_6_i_in",
+      "meta": {
+        "sourceType": "number",
+        "targetType": "number",
+        "sourceNode": "const(6)_7",
+        "sourcePort": "output",
+        "targetNode": "a_6",
+        "targetPort": "i"
+      }
+    },
+    {
+      "id": "a_6add_5",
+      "source": "a_6",
+      "sourcePort": "a_6_inc_out",
+      "target": "add_5",
+      "targetPort": "add_5_s1_in",
+      "meta": {
+        "sourceType": "number",
+        "targetType": "number",
+        "sourceNode": "a_6",
+        "sourcePort": "inc",
+        "targetNode": "add_5",
+        "targetPort": "s1"
+      }
+    },
+    {
+      "id": "const(2)_8add_5",
+      "source": "const(2)_8",
+      "sourcePort": "const(2)_8_output_out",
+      "target": "add_5",
+      "targetPort": "add_5_s2_in",
+      "meta": {
+        "sourceType": "number",
+        "targetType": "number",
+        "sourceNode": "const(2)_8",
+        "sourcePort": "output",
+        "targetNode": "add_5",
+        "targetPort": "s2"
+      }
+    }
+  ]
+}

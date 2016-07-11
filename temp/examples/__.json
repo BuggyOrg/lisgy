@@ -1,0 +1,300 @@
+{
+  "code": "(defcop math/less [isLess than] [value])\r\n(defcop math/add [s1 s2] [sum])\r\n(def le math/less)\r\n(def + math/add)\r\n(defco test\r\n       [a b]\r\n       [:le (le a b)\r\n        :ad (+ a b)])\r\n(test 10 (+ 3 20))\r\n\r\n(defco test2\r\n       [a b c]\r\n       [:a (math/add (math/add a b ) c)\r\n        :b (fn [d] (math/add c d))\r\n        :c (math/less a (math/add b c))])\r\n(test2 1 2 3)\r\n",
+  "nodes": [
+    {
+      "v": "test_2",
+      "value": {
+        "id": "test",
+        "inputPorts": {
+          "a": "generic",
+          "b": "generic"
+        },
+        "outputPorts": {
+          "le": "generic",
+          "ad": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "meta": "math/less",
+              "name": "le_0"
+            },
+            {
+              "meta": "math/add",
+              "name": "+_1"
+            }
+          ],
+          "edges": [
+            {
+              "from": "a",
+              "to": "le_0:isLess"
+            },
+            {
+              "from": "b",
+              "to": "le_0:than"
+            },
+            {
+              "from": "le_0:value",
+              "to": "le"
+            },
+            {
+              "from": "a",
+              "to": "+_1:s1"
+            },
+            {
+              "from": "b",
+              "to": "+_1:s2"
+            },
+            {
+              "from": "+_1:sum",
+              "to": "ad"
+            }
+          ]
+        },
+        "name": "test_2"
+      }
+    },
+    {
+      "v": "const(10)_3",
+      "value": {
+        "meta": "math/const",
+        "name": "const(10)_3",
+        "params": {
+          "value": 10
+        }
+      }
+    },
+    {
+      "v": "+_4",
+      "value": {
+        "meta": "math/add",
+        "name": "+_4"
+      }
+    },
+    {
+      "v": "const(3)_5",
+      "value": {
+        "meta": "math/const",
+        "name": "const(3)_5",
+        "params": {
+          "value": 3
+        }
+      }
+    },
+    {
+      "v": "const(20)_6",
+      "value": {
+        "meta": "math/const",
+        "name": "const(20)_6",
+        "params": {
+          "value": 20
+        }
+      }
+    },
+    {
+      "v": "test2_13",
+      "value": {
+        "id": "test2",
+        "inputPorts": {
+          "a": "generic",
+          "b": "generic",
+          "c": "generic"
+        },
+        "outputPorts": {
+          "a": "generic",
+          "b": "lambda",
+          "c": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "meta": "math/add",
+              "name": "add_7"
+            },
+            {
+              "meta": "math/add",
+              "name": "add_8"
+            },
+            {
+              "meta": "lambda",
+              "name": "fn_9",
+              "outputPorts": {
+                "fn": "lambda"
+              },
+              "inputPorts": {},
+              "data": {
+                "outputPorts": {
+                  "value_0": "generic"
+                },
+                "inputPorts": {
+                  "d": "generic"
+                },
+                "implementation": {
+                  "nodes": [
+                    {
+                      "meta": "math/add",
+                      "name": "add_10"
+                    }
+                  ],
+                  "edges": [
+                    {
+                      "from": "d",
+                      "to": "add_10:s2"
+                    },
+                    {
+                      "from": "add_10:sum",
+                      "to": "value_0"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "meta": "math/less",
+              "name": "less_11"
+            },
+            {
+              "meta": "math/add",
+              "name": "add_12"
+            }
+          ],
+          "edges": [
+            {
+              "from": "a",
+              "to": "add_8:s1"
+            },
+            {
+              "from": "b",
+              "to": "add_8:s2"
+            },
+            {
+              "from": "add_8:sum",
+              "to": "add_7:s1"
+            },
+            {
+              "from": "c",
+              "to": "add_7:s2"
+            },
+            {
+              "from": "add_7:sum",
+              "to": "a"
+            },
+            {
+              "from": "fn_9:fn",
+              "to": "b"
+            },
+            {
+              "from": "a",
+              "to": "less_11:isLess"
+            },
+            {
+              "from": "b",
+              "to": "add_12:s1"
+            },
+            {
+              "from": "c",
+              "to": "add_12:s2"
+            },
+            {
+              "from": "add_12:sum",
+              "to": "less_11:than"
+            },
+            {
+              "from": "less_11:value",
+              "to": "c"
+            }
+          ]
+        },
+        "name": "test2_13"
+      }
+    },
+    {
+      "v": "const(1)_14",
+      "value": {
+        "meta": "math/const",
+        "name": "const(1)_14",
+        "params": {
+          "value": 1
+        }
+      }
+    },
+    {
+      "v": "const(2)_15",
+      "value": {
+        "meta": "math/const",
+        "name": "const(2)_15",
+        "params": {
+          "value": 2
+        }
+      }
+    },
+    {
+      "v": "const(3)_16",
+      "value": {
+        "meta": "math/const",
+        "name": "const(3)_16",
+        "params": {
+          "value": 3
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "v": "const(10)_3",
+      "w": "test_2",
+      "value": {
+        "outPort": "output",
+        "inPort": "a"
+      }
+    },
+    {
+      "v": "const(3)_5",
+      "w": "+_4",
+      "value": {
+        "outPort": "output",
+        "inPort": "s1"
+      }
+    },
+    {
+      "v": "const(20)_6",
+      "w": "+_4",
+      "value": {
+        "outPort": "output",
+        "inPort": "s2"
+      }
+    },
+    {
+      "v": "+_4",
+      "w": "test_2",
+      "value": {
+        "outPort": "sum",
+        "inPort": "b"
+      }
+    },
+    {
+      "v": "const(1)_14",
+      "w": "test2_13",
+      "value": {
+        "outPort": "output",
+        "inPort": "a"
+      }
+    },
+    {
+      "v": "const(2)_15",
+      "w": "test2_13",
+      "value": {
+        "outPort": "output",
+        "inPort": "b"
+      }
+    },
+    {
+      "v": "const(3)_16",
+      "w": "test2_13",
+      "value": {
+        "outPort": "output",
+        "inPort": "c"
+      }
+    }
+  ]
+}

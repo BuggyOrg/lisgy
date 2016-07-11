@@ -1,0 +1,51 @@
+<svg id="svgOutput" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events" version="1.1" baseprofile="full"><style> /*  */body &gt; * {
+  text-align: center;
+}
+
+table, button, svg, textarea {
+    width: 100%;
+    height: 100%;
+}
+
+td {
+  border: 1px solid #888;
+}
+
+.node {
+  stroke: #000;
+  stroke-width: 3px;
+  fill: #fff;
+}
+
+.node.compound {
+  stroke-opacity: 0.5;
+  fill-opacity: 0.2;
+  fill: #000;
+}
+
+text {
+  font-family: sans-serif;
+}
+
+.link {
+  stroke: #333;
+  stroke-width: 3px;
+  stroke-opacity: 0.5;
+  fill: none;
+  cursor: pointer;
+}
+
+.port {
+    stroke: #000;
+    fill: none;
+    z-index: 42;
+}
+
+.port.out {
+  fill: darkred;
+}
+
+.port.in {
+  fill: green;
+}/*  */ </style><g><g transform="translate(66.984375 106)"><g transform="translate(12 17)"><rect class="node " width="185.03125" height="34"></rect><text x="46.2578125" y="25.5" width="92.515625" height="17">test_1:add_0</text><rect class="port in" x="121.6875" y="-5" width="5" height="5"></rect><rect class="port in" x="58.34375" y="-5" width="5" height="5"></rect><rect class="port out" x="90.015625" y="34" width="5" height="5"></rect></g><rect class="node compound" width="209.03125" height="68"></rect><text x="82.7265625" y="17" width="43.578125" height="17">test_1</text><path class="link" d="M72.84375 0 L72.84375 12 "></path><path class="link" d="M104.515625 56 L104.515625 68 "></path><rect class="port in" x="42" y="-5" width="5" height="5"></rect><rect class="port in" x="27" y="-5" width="5" height="5"></rect><rect class="port out" x="12" y="-5" width="5" height="5"></rect></g><g transform="translate(230.96875 12)"><rect class="node " width="168.96875" height="34"></rect><text x="42.2421875" y="25.5" width="84.484375" height="17">const(10)_2</text><rect class="port out" x="81.984375" y="34" width="5" height="5"></rect></g><g transform="translate(12 12)"><rect class="node " width="168.96875" height="34"></rect><text x="42.2421875" y="25.5" width="84.484375" height="17">const(20)_3</text><rect class="port out" x="81.984375" y="34" width="5" height="5"></rect></g><rect class="node compound" width="411.9375" height="186"></rect><path class="link" d="M315.453125 51 L315.453125 76 L111.484375 76 L111.484375 103.5 "></path><path class="link" d="M96.484375 51 L96.484375 103.5 "></path></g></svg>
+

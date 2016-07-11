@@ -1,0 +1,275 @@
+{
+  "code": "(defco test [a b] [:out (math/add a b)]) (test 10 20) (test (test 2 3) (test 3 5))",
+  "nodes": [
+    {
+      "v": "test_1",
+      "value": {
+        "id": "test",
+        "inputPorts": {
+          "a": "generic",
+          "b": "generic"
+        },
+        "outputPorts": {
+          "out": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "meta": "math/add",
+              "name": "add_0"
+            }
+          ],
+          "edges": [
+            {
+              "from": "a",
+              "to": "add_0:s1"
+            },
+            {
+              "from": "b",
+              "to": "add_0:s2"
+            },
+            {
+              "from": "add_0:sum",
+              "to": "out"
+            }
+          ]
+        },
+        "name": "test_1"
+      }
+    },
+    {
+      "v": "const(10)_2",
+      "value": {
+        "meta": "math/const",
+        "name": "const(10)_2",
+        "params": {
+          "value": 10
+        }
+      }
+    },
+    {
+      "v": "const(20)_3",
+      "value": {
+        "meta": "math/const",
+        "name": "const(20)_3",
+        "params": {
+          "value": 20
+        }
+      }
+    },
+    {
+      "v": "test_4",
+      "value": {
+        "id": "test",
+        "inputPorts": {
+          "a": "generic",
+          "b": "generic"
+        },
+        "outputPorts": {
+          "out": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "meta": "math/add",
+              "name": "add_0"
+            }
+          ],
+          "edges": [
+            {
+              "from": "a",
+              "to": "add_0:s1"
+            },
+            {
+              "from": "b",
+              "to": "add_0:s2"
+            },
+            {
+              "from": "add_0:sum",
+              "to": "out"
+            }
+          ]
+        },
+        "name": "test_4"
+      }
+    },
+    {
+      "v": "test_5",
+      "value": {
+        "id": "test",
+        "inputPorts": {
+          "a": "generic",
+          "b": "generic"
+        },
+        "outputPorts": {
+          "out": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "meta": "math/add",
+              "name": "add_0"
+            }
+          ],
+          "edges": [
+            {
+              "from": "a",
+              "to": "add_0:s1"
+            },
+            {
+              "from": "b",
+              "to": "add_0:s2"
+            },
+            {
+              "from": "add_0:sum",
+              "to": "out"
+            }
+          ]
+        },
+        "name": "test_5"
+      }
+    },
+    {
+      "v": "const(2)_6",
+      "value": {
+        "meta": "math/const",
+        "name": "const(2)_6",
+        "params": {
+          "value": 2
+        }
+      }
+    },
+    {
+      "v": "const(3)_7",
+      "value": {
+        "meta": "math/const",
+        "name": "const(3)_7",
+        "params": {
+          "value": 3
+        }
+      }
+    },
+    {
+      "v": "test_8",
+      "value": {
+        "id": "test",
+        "inputPorts": {
+          "a": "generic",
+          "b": "generic"
+        },
+        "outputPorts": {
+          "out": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "meta": "math/add",
+              "name": "add_0"
+            }
+          ],
+          "edges": [
+            {
+              "from": "a",
+              "to": "add_0:s1"
+            },
+            {
+              "from": "b",
+              "to": "add_0:s2"
+            },
+            {
+              "from": "add_0:sum",
+              "to": "out"
+            }
+          ]
+        },
+        "name": "test_8"
+      }
+    },
+    {
+      "v": "const(3)_9",
+      "value": {
+        "meta": "math/const",
+        "name": "const(3)_9",
+        "params": {
+          "value": 3
+        }
+      }
+    },
+    {
+      "v": "const(5)_10",
+      "value": {
+        "meta": "math/const",
+        "name": "const(5)_10",
+        "params": {
+          "value": 5
+        }
+      }
+    }
+  ],
+  "edges": [
+    {
+      "v": "const(10)_2",
+      "w": "test_1",
+      "value": {
+        "outPort": "output",
+        "inPort": "a"
+      }
+    },
+    {
+      "v": "const(20)_3",
+      "w": "test_1",
+      "value": {
+        "outPort": "output",
+        "inPort": "b"
+      }
+    },
+    {
+      "v": "const(2)_6",
+      "w": "test_5",
+      "value": {
+        "outPort": "output",
+        "inPort": "a"
+      }
+    },
+    {
+      "v": "const(3)_7",
+      "w": "test_5",
+      "value": {
+        "outPort": "output",
+        "inPort": "b"
+      }
+    },
+    {
+      "v": "test_5",
+      "w": "test_4",
+      "value": {
+        "outPort": "out",
+        "inPort": "a"
+      }
+    },
+    {
+      "v": "const(3)_9",
+      "w": "test_8",
+      "value": {
+        "outPort": "output",
+        "inPort": "a"
+      }
+    },
+    {
+      "v": "const(5)_10",
+      "w": "test_8",
+      "value": {
+        "outPort": "output",
+        "inPort": "b"
+      }
+    },
+    {
+      "v": "test_8",
+      "w": "test_4",
+      "value": {
+        "outPort": "out",
+        "inPort": "b"
+      }
+    }
+  ]
+}

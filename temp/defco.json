@@ -1,0 +1,137 @@
+{
+  "id": "root",
+  "children": [
+    {
+      "id": "add_10",
+      "labels": [
+        {
+          "text": "add_10"
+        }
+      ],
+      "ports": [
+        {
+          "id": "add_10_s1_in",
+          "meta": {
+            "type": "number"
+          }
+        },
+        {
+          "id": "add_10_s2_in",
+          "meta": {
+            "type": "number"
+          }
+        },
+        {
+          "id": "add_10_sum_out",
+          "meta": {
+            "type": "number"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/add",
+        "version": "0.2.0",
+        "inputPorts": {
+          "s1": "number",
+          "s2": "number"
+        },
+        "outputPorts": {
+          "sum": "number"
+        },
+        "atomic": true,
+        "path": [],
+        "branchPath": "add_10",
+        "branch": "add_10",
+        "name": "add_10"
+      }
+    },
+    {
+      "id": "const(1)_11",
+      "labels": [
+        {
+          "text": "const(1)_11"
+        }
+      ],
+      "ports": [
+        {
+          "id": "const(1)_11_output_out",
+          "meta": {
+            "type": "number"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/const",
+        "version": "0.2.0",
+        "inputPorts": {},
+        "outputPorts": {
+          "output": "number"
+        },
+        "atomic": true,
+        "path": [],
+        "params": {
+          "value": 1
+        },
+        "branchPath": "const(1)_11",
+        "branch": "const(1)_11",
+        "name": "const(1)_11"
+      }
+    },
+    {
+      "id": "const(2)_12",
+      "labels": [
+        {
+          "text": "const(2)_12"
+        }
+      ],
+      "ports": [
+        {
+          "id": "const(2)_12_output_out",
+          "meta": {
+            "type": "number"
+          }
+        }
+      ],
+      "meta": {
+        "id": "math/const",
+        "version": "0.2.0",
+        "inputPorts": {},
+        "outputPorts": {
+          "output": "number"
+        },
+        "atomic": true,
+        "path": [],
+        "params": {
+          "value": 2
+        },
+        "branchPath": "const(2)_12",
+        "branch": "const(2)_12",
+        "name": "const(2)_12"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "const(1)_11add_10",
+      "source": "const(1)_11",
+      "sourcePort": "const(1)_11_output_out",
+      "target": "add_10",
+      "targetPort": "add_10_s1_in",
+      "meta": {
+        "sourceType": "number",
+        "targetType": "number"
+      }
+    },
+    {
+      "id": "const(2)_12add_10",
+      "source": "const(2)_12",
+      "sourcePort": "const(2)_12_output_out",
+      "target": "add_10",
+      "targetPort": "add_10_s2_in",
+      "meta": {
+        "sourceType": "number",
+        "targetType": "number"
+      }
+    }
+  ]
+}
