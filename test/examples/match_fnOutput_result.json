@@ -275,5 +275,10 @@
       }
     }
   ],
-  "edges": []
+  "edges": [],
+  "options": {
+    "directed": true,
+    "multigraph": true,
+    "compound": true
+  }
 }

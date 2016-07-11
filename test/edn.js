@@ -1006,6 +1006,7 @@ describe('edn', () => {
 
     it('can parse pattern match with function in- and output', () => {
       return lisgy.parse_to_json(readParseExamples('match_fnInOut.json').code).then((parsed) => {
+        // fs.writeFileSync('test/examples/match_fnInOut_result.json', JSON.stringify(parsed, null, 2))
         var cmpGraph = JSON.parse(fs.readFileSync('test/examples/match_fnInOut_result.json'))
         fs.writeFileSync('test/examples/match_fnInOut.json', JSON.stringify(parsed, null, 2))
         var curGraph = JSON.parse(fs.readFileSync('test/examples/match_fnInOut.json'))
@@ -1015,6 +1016,7 @@ describe('edn', () => {
 
     it('can parse pattern match with multiple outputs', () => {
       return lisgy.parse_to_json(readParseExamples('match_MultipleOutputs.json').code).then((parsed) => {
+        // fs.writeFileSync('test/examples/match_MultipleOutputs_result.json', JSON.stringify(parsed, null, 2))
         var cmpGraph = JSON.parse(fs.readFileSync('test/examples/match_MultipleOutputs_result.json'))
         fs.writeFileSync('test/examples/match_MultipleOutputs.json', JSON.stringify(parsed, null, 2))
         var curGraph = JSON.parse(fs.readFileSync('test/examples/match_MultipleOutputs.json'))
