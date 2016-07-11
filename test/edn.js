@@ -945,12 +945,5 @@ describe('edn', () => {
         expect(curGraph).to.deep.equal(cmpGraph)
       })
     })
-
-    it('...', () => {
-      return lisgy.parse_to_json('(match [n m] [0 0] ["FizzBuzz"] [0 _] ["Fizz"] [_ 0] ["Buzz"] :else [n])').then((parsed) => {
-        fs.writeFileSync('test/examples/tmp.json', JSON.stringify(parsed, null, 2))
-        console.log(graphlib.json.read(parsed).node('match_0_name'))
-      })
-    })
   })
 })
