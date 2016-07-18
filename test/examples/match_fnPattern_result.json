@@ -2,6 +2,119 @@
   "code": "(match [n m] [0 0] [\"FizzBuzz\"] [0 _] [\"Fizz\"] [_ (math/add n 1)] [\"Buzz\"] :else [n])",
   "nodes": [
     {
+      "v": "defco_mrules_2",
+      "value": {
+        "id": "mrules_2",
+        "inputPorts": {
+          "m": "generic",
+          "n": "generic",
+          "p_6_1": "generic"
+        },
+        "outputPorts": {
+          "out_0": "generic"
+        },
+        "rules": [
+          {
+            "inputs": [
+              {
+                "variable": false,
+                "type": "number",
+                "value/const": 0,
+                "name": "n"
+              },
+              {
+                "variable": false,
+                "type": "number",
+                "value/const": 0,
+                "name": "m"
+              }
+            ],
+            "outputs": [
+              {
+                "variable": false,
+                "type": "string",
+                "value/const": "FizzBuzz",
+                "name": "out_0"
+              }
+            ]
+          },
+          {
+            "inputs": [
+              {
+                "variable": false,
+                "type": "number",
+                "value/const": 0,
+                "name": "n"
+              },
+              {
+                "variable": true,
+                "type": "generic",
+                "value": "m",
+                "name": "m"
+              }
+            ],
+            "outputs": [
+              {
+                "variable": false,
+                "type": "string",
+                "value/const": "Fizz",
+                "name": "out_0"
+              }
+            ]
+          },
+          {
+            "inputs": [
+              {
+                "variable": true,
+                "type": "generic",
+                "value": "n",
+                "name": "n"
+              },
+              {
+                "variable": true,
+                "type": "generic",
+                "value": "p_6_1",
+                "name": "m"
+              }
+            ],
+            "outputs": [
+              {
+                "variable": false,
+                "type": "string",
+                "value/const": "Buzz",
+                "name": "out_0"
+              }
+            ]
+          },
+          {
+            "inputs": [
+              {
+                "variable": true,
+                "type": "generic",
+                "value": "n",
+                "name": "n"
+              },
+              {
+                "variable": true,
+                "type": "generic",
+                "value": "m",
+                "name": "m"
+              }
+            ],
+            "outputs": [
+              {
+                "variable": true,
+                "type": "generic",
+                "value": "n",
+                "name": "out_0"
+              }
+            ]
+          }
+        ],
+        "name": "defco_mrules_2"
+      }
+    },
+    {
       "v": "match_0_name",
       "value": {
         "id": "match_0",
@@ -65,123 +178,18 @@
               }
             },
             {
-              "name": "match_rules_1",
-              "rules": [
-                {
-                  "inputs": [
-                    {
-                      "variable": false,
-                      "type": "number",
-                      "value/const": 0,
-                      "name": "n"
-                    },
-                    {
-                      "variable": false,
-                      "type": "number",
-                      "value/const": 0,
-                      "name": "m"
-                    }
-                  ],
-                  "outputs": [
-                    {
-                      "variable": false,
-                      "type": "string",
-                      "value/const": "FizzBuzz",
-                      "name": "out_0"
-                    }
-                  ]
-                },
-                {
-                  "inputs": [
-                    {
-                      "variable": false,
-                      "type": "number",
-                      "value/const": 0,
-                      "name": "n"
-                    },
-                    {
-                      "variable": true,
-                      "type": "generic",
-                      "value": "m",
-                      "name": "m"
-                    }
-                  ],
-                  "outputs": [
-                    {
-                      "variable": false,
-                      "type": "string",
-                      "value/const": "Fizz",
-                      "name": "out_0"
-                    }
-                  ]
-                },
-                {
-                  "inputs": [
-                    {
-                      "variable": true,
-                      "type": "generic",
-                      "value": "n",
-                      "name": "n"
-                    },
-                    {
-                      "variable": true,
-                      "type": "generic",
-                      "value": "p_6_1",
-                      "name": "m"
-                    }
-                  ],
-                  "outputs": [
-                    {
-                      "variable": false,
-                      "type": "string",
-                      "value/const": "Buzz",
-                      "name": "out_0"
-                    }
-                  ]
-                },
-                {
-                  "inputs": [
-                    {
-                      "variable": true,
-                      "type": "generic",
-                      "value": "n",
-                      "name": "n"
-                    },
-                    {
-                      "variable": true,
-                      "type": "generic",
-                      "value": "m",
-                      "name": "m"
-                    }
-                  ],
-                  "outputs": [
-                    {
-                      "variable": true,
-                      "type": "generic",
-                      "value": "n",
-                      "name": "out_0"
-                    }
-                  ]
-                }
-              ],
-              "inputPorts": {
-                "m": "generic",
-                "n": "generic",
-                "p_6_1": "generic"
-              },
-              "outputPorts": {
-                "out_0": "generic"
-              }
+              "meta": "mrules_2",
+              "name": "match_rules_2"
             }
           ],
           "edges": [
             {
               "from": "n",
-              "to": "match_rules_1:n"
+              "to": "match_rules_2:n"
             },
             {
               "from": "m",
-              "to": "match_rules_1:m"
+              "to": "match_rules_2:m"
             },
             {
               "from": "n",
@@ -193,10 +201,10 @@
             },
             {
               "from": "defco_pattern_6_fn_1:out",
-              "to": "match_rules_1:p_6_1"
+              "to": "match_rules_2:p_6_1"
             },
             {
-              "from": "match_rules:out_0",
+              "from": "match_rules_2:out_0",
               "to": "out_0"
             }
           ]

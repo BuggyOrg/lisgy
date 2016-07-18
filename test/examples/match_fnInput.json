@@ -67,113 +67,8 @@
                       }
                     },
                     {
-                      "name": "match_rules_2",
-                      "rules": [
-                        {
-                          "inputs": [
-                            {
-                              "variable": false,
-                              "type": "number",
-                              "value/const": 0,
-                              "name": "add_3"
-                            },
-                            {
-                              "variable": false,
-                              "type": "number",
-                              "value/const": 0,
-                              "name": "add_6"
-                            }
-                          ],
-                          "outputs": [
-                            {
-                              "variable": false,
-                              "type": "string",
-                              "value/const": "FizzBuzz",
-                              "name": "out_0"
-                            }
-                          ]
-                        },
-                        {
-                          "inputs": [
-                            {
-                              "variable": false,
-                              "type": "number",
-                              "value/const": 0,
-                              "name": "add_3"
-                            },
-                            {
-                              "variable": true,
-                              "type": "generic",
-                              "value": "add_6",
-                              "name": "add_6"
-                            }
-                          ],
-                          "outputs": [
-                            {
-                              "variable": false,
-                              "type": "string",
-                              "value/const": "Fizz",
-                              "name": "out_0"
-                            }
-                          ]
-                        },
-                        {
-                          "inputs": [
-                            {
-                              "variable": true,
-                              "type": "generic",
-                              "value": "add_3",
-                              "name": "add_3"
-                            },
-                            {
-                              "variable": false,
-                              "type": "number",
-                              "value/const": 0,
-                              "name": "add_6"
-                            }
-                          ],
-                          "outputs": [
-                            {
-                              "variable": false,
-                              "type": "string",
-                              "value/const": "Buzz",
-                              "name": "out_0"
-                            }
-                          ]
-                        },
-                        {
-                          "inputs": [
-                            {
-                              "variable": true,
-                              "type": "generic",
-                              "value": "add_3",
-                              "name": "add_3"
-                            },
-                            {
-                              "variable": true,
-                              "type": "generic",
-                              "value": "add_6",
-                              "name": "add_6"
-                            }
-                          ],
-                          "outputs": [
-                            {
-                              "variable": true,
-                              "type": "generic",
-                              "value": "n",
-                              "name": "out_0"
-                            }
-                          ]
-                        }
-                      ],
-                      "inputPorts": {
-                        "add_6": "generic",
-                        "add_3": "generic",
-                        "n": "generic"
-                      },
-                      "outputPorts": {
-                        "out_0": "generic"
-                      }
+                      "meta": "mrules_3",
+                      "name": "match_rules_3"
                     }
                   ],
                   "edges": [
@@ -187,7 +82,7 @@
                     },
                     {
                       "from": "add_3:sum",
-                      "to": "match_rules_2:add_3"
+                      "to": "match_rules_3:add_3"
                     },
                     {
                       "from": "n",
@@ -207,14 +102,14 @@
                     },
                     {
                       "from": "add_6:sum",
-                      "to": "match_rules_2:add_6"
+                      "to": "match_rules_3:add_6"
                     },
                     {
                       "from": "n",
-                      "to": "match_rules_2:n"
+                      "to": "match_rules_3:n"
                     },
                     {
-                      "from": "match_rules:out_0",
+                      "from": "match_rules_9:out_0",
                       "to": "out_0"
                     }
                   ]
@@ -238,6 +133,119 @@
           ]
         },
         "name": "defco_match_0"
+      }
+    },
+    {
+      "v": "defco_mrules_3",
+      "value": {
+        "id": "mrules_3",
+        "inputPorts": {
+          "add_6": "generic",
+          "add_3": "generic",
+          "n": "generic"
+        },
+        "outputPorts": {
+          "out_0": "generic"
+        },
+        "rules": [
+          {
+            "inputs": [
+              {
+                "variable": false,
+                "type": "number",
+                "value/const": 0,
+                "name": "add_3"
+              },
+              {
+                "variable": false,
+                "type": "number",
+                "value/const": 0,
+                "name": "add_6"
+              }
+            ],
+            "outputs": [
+              {
+                "variable": false,
+                "type": "string",
+                "value/const": "FizzBuzz",
+                "name": "out_0"
+              }
+            ]
+          },
+          {
+            "inputs": [
+              {
+                "variable": false,
+                "type": "number",
+                "value/const": 0,
+                "name": "add_3"
+              },
+              {
+                "variable": true,
+                "type": "generic",
+                "value": "add_6",
+                "name": "add_6"
+              }
+            ],
+            "outputs": [
+              {
+                "variable": false,
+                "type": "string",
+                "value/const": "Fizz",
+                "name": "out_0"
+              }
+            ]
+          },
+          {
+            "inputs": [
+              {
+                "variable": true,
+                "type": "generic",
+                "value": "add_3",
+                "name": "add_3"
+              },
+              {
+                "variable": false,
+                "type": "number",
+                "value/const": 0,
+                "name": "add_6"
+              }
+            ],
+            "outputs": [
+              {
+                "variable": false,
+                "type": "string",
+                "value/const": "Buzz",
+                "name": "out_0"
+              }
+            ]
+          },
+          {
+            "inputs": [
+              {
+                "variable": true,
+                "type": "generic",
+                "value": "add_3",
+                "name": "add_3"
+              },
+              {
+                "variable": true,
+                "type": "generic",
+                "value": "add_6",
+                "name": "add_6"
+              }
+            ],
+            "outputs": [
+              {
+                "variable": true,
+                "type": "generic",
+                "value": "n",
+                "name": "out_0"
+              }
+            ]
+          }
+        ],
+        "name": "defco_mrules_3"
       }
     }
   ],

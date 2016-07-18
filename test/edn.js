@@ -976,7 +976,7 @@ describe('edn', () => {
   describe('pattern match', () => {
     it('can parse pattern match', () => {
       return lisgy.parse_to_json(readParseExamples('match.json').code, true).then((parsed) => {
-        // fs.writeFileSync('test/examples/match_result.json', JSON.stringify(parsed, null, 2))
+        fs.writeFileSync('test/examples/match_result.json', JSON.stringify(parsed, null, 2))
         var cmpGraph = JSON.parse(fs.readFileSync('test/examples/match_result.json'))
         fs.writeFileSync('test/examples/match.json', JSON.stringify(parsed, null, 2))
         var curGraph = JSON.parse(fs.readFileSync('test/examples/match.json'))

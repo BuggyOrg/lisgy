@@ -838,7 +838,10 @@ function parseEDNtoJSON (ednObj, inputCode) {
           }
           vars.push(tempNewVars)
           var innerImplementation = {'nodes': [], 'edges': []}
-          var rules = {'name': 'match_rules' + '_' + count++, 'rules': [], 'inputPorts': {}, 'outputPorts': {}}
+          count++
+          // var rules_def = {'v': 'defco_match_rules_' + count, 'id': 'mrules' + '_' + count, 'value': {'nodeType': 'process', 'atomic': false, 'inputPorts': {}, 'outputPorts': {}, 'rules': []}}
+          var rules_def = {'id': 'mrules' + '_' + count, 'inputPorts': {}, 'outputPorts': {}, 'rules': []}
+          var rules = {'meta': 'mrules' + '_' + count, 'name': 'match_rules_' + count}
           var inputs = []
           for (let i = 0; i < input.length; i++) {
             inputs.push(walk(input[i], innerImplementation, inputPorts))
@@ -851,23 +854,23 @@ function parseEDNtoJSON (ednObj, inputCode) {
             }
           }
           for (let i = 2; i < data.length - 1; i = i + 2) {
-            rules.rules.push({'inputs': [], 'outputs': []})
+            rules_def.rules.push({'inputs': [], 'outputs': []})
             var pattern = data[i].val
             if (pattern === ':else') {
               for (let j = 0; j < input.length; j++) {
-                rules.rules[rules.rules.length - 1]['inputs'].push({'variable': true, 'type': 'generic', 'value': input[j].name, 'name': input[j].name})
-                rules.inputPorts[input[j].name] = 'generic'
+                rules_def.rules[rules_def.rules.length - 1]['inputs'].push({'variable': true, 'type': 'generic', 'value': input[j].name, 'name': input[j].name})
+                rules_def.inputPorts[input[j].name] = 'generic'
               }
             } else {
               for (let j = 0; j < pattern.length; j++) {
                 if (typeof pattern[j] !== 'object') {
                   var value = pattern[j]
                   var type = typeof pattern[j]
-                  rules.rules[rules.rules.length - 1]['inputs'].push({'variable': false, 'type': type, 'value/const': value, 'name': input[j].name})
+                  rules_def.rules[rules_def.rules.length - 1]['inputs'].push({'variable': false, 'type': type, 'value/const': value, 'name': input[j].name})
                 } else if (pattern[j] instanceof edn.Symbol) {
                   if (pattern[j].name === '_') {
-                    rules.rules[rules.rules.length - 1]['inputs'].push({'variable': true, 'type': 'generic', 'value': input[j].name, 'name': input[j].name})
-                    rules.inputPorts[input[j].name] = 'generic'
+                    rules_def.rules[rules_def.rules.length - 1]['inputs'].push({'variable': true, 'type': 'generic', 'value': input[j].name, 'name': input[j].name})
+                    rules_def.inputPorts[input[j].name] = 'generic'
                   } else {
                     throw new Error('Unknown symbol: ' + pattern[j].name + ' in match')
                   }
@@ -875,12 +878,12 @@ function parseEDNtoJSON (ednObj, inputCode) {
                   pattern[j] = new edn.List([ new edn.Symbol('defco'), new edn.Symbol('pattern_' + i + '_fn_' + j), new edn.Vector(variables[0]), new edn.Vector([new edn.Keyword(':out'), pattern[j]]) ])
                   var fun = parseEDNtoJSON(new edn.List([pattern[j]]), inputPorts)
                   innerImplementation.nodes = innerImplementation.nodes.concat(fun.nodes)
-                  rules.rules[rules.rules.length - 1]['inputs'].push({'variable': true, 'type': 'generic', 'value': 'p_' + i + '_' + j, 'name': input[j].name})
+                  rules_def.rules[rules_def.rules.length - 1]['inputs'].push({'variable': true, 'type': 'generic', 'value': 'p_' + i + '_' + j, 'name': input[j].name})
                   for (let inp = 0; inp < variables[0].length; inp++) {
                     innerImplementation.edges.push(gEdge(variables[0][inp].name, 'defco_' + 'pattern_' + i + '_fn_' + j + ':' + variables[0][inp].name))
                   }
                   innerImplementation.edges.push(gEdge('defco_' + 'pattern_' + i + '_fn_' + j + ':out', rules.name + ':' + 'p_' + i + '_' + j))
-                  rules.inputPorts['p_' + i + '_' + j] = 'generic'
+                  rules_def.inputPorts['p_' + i + '_' + j] = 'generic'
                 }
               }
             }
@@ -891,8 +894,8 @@ function parseEDNtoJSON (ednObj, inputCode) {
                 if (output[o] instanceof edn.Symbol) {
                   var out = walk(output[o], innerImplementation, inputPorts)
                   var variableName = out.port
-                  rules.rules[rules.rules.length - 1]['outputs'].push({'variable': true, 'type': 'generic', 'value': variableName, 'name': outputName})
-                  rules.inputPorts[variableName] = 'generic'
+                  rules_def.rules[rules_def.rules.length - 1]['outputs'].push({'variable': true, 'type': 'generic', 'value': variableName, 'name': outputName})
+                  rules_def.inputPorts[variableName] = 'generic'
                   if (!contains(innerImplementation.edges, gEdge(variableName, rules.name + ':' + variableName))) {
                     innerImplementation.edges.push(gEdge(variableName, rules.name + ':' + variableName))
                   }
@@ -900,26 +903,27 @@ function parseEDNtoJSON (ednObj, inputCode) {
                   output[o] = new edn.List([ new edn.Symbol('defco'), new edn.Symbol(outputName + '_fn_' + i), new edn.Vector(variables[0]), new edn.Vector([new edn.Keyword(':' + outputName), output[o]]) ])
                   var func = parseEDNtoJSON(new edn.List([output[o]]), inputPorts)
                   innerImplementation.nodes = innerImplementation.nodes.concat(func.nodes)
-                  rules.rules[rules.rules.length - 1]['outputs'].push({'variable': true, 'type': 'generic', 'value': 'r' + i, 'name': outputName})
+                  rules_def.rules[rules_def.rules.length - 1]['outputs'].push({'variable': true, 'type': 'generic', 'value': 'r' + i, 'name': outputName})
                   for (let inp = 0; inp < variables[0].length; inp++) {
                     innerImplementation.edges.push(gEdge(variables[0][inp].name, 'defco_' + outputName + '_fn_' + i + ':' + variables[0][inp].name))
                   }
                   innerImplementation.edges.push(gEdge('defco_' + outputName + '_fn_' + i + ':' + outputName, rules.name + ':' + 'r' + i))
-                  rules.inputPorts['r' + i] = 'generic'
+                  rules_def.inputPorts['r' + i] = 'generic'
                 }
-                rules.outputPorts[outputName] = 'generic'
+                rules_def.outputPorts[outputName] = 'generic'
               } else {
-                rules.rules[rules.rules.length - 1]['outputs'].push({'variable': false, 'type': typeof output[o], 'value/const': output[o], 'name': outputName})
+                rules_def.rules[rules_def.rules.length - 1]['outputs'].push({'variable': false, 'type': typeof output[o], 'value/const': output[o], 'name': outputName})
               }
             }
           }
           for (let o = 0; o < output.length; o++) {
             defcoMatchNode['outputPorts']['out_' + o] = 'generic'
-            innerImplementation.edges.push(gEdge('match_rules:' + 'out_' + o, 'out_' + o))
+            innerImplementation.edges.push(gEdge('match_rules_' + count + ':' + 'out_' + o, 'out_' + o))
             matchImplementation.edges.push(gEdge(matchID + ':' + 'out_' + o, 'out_' + o))
           }
           innerImplementation.nodes.push(rules)
           defcoMatchNode['implementation'] = innerImplementation
+          nodes.push(rules_def)
           if (variables[1]) {
             matchImplementation.nodes.push({'v': defcoMatchNode.id, 'value': {'inputPorts': defcoMatchNode.inputPorts, 'outputPorts': defcoMatchNode.outputPorts, 'implementation': defcoMatchNode.implementation}})
             for (let i = 0; i < nodes.length; i++) {
