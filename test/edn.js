@@ -206,7 +206,7 @@ describe('edn', () => {
 
     it('named output port lambda', () => {
       var code = `(defcop math/less [isLess than] [value])
-                  (defco newCo2 [a] [:test (fn [b] (math/less a b))])`
+                  (defco newCo2 [a] [:test (fn [b] (math/less b b))])`
       return lisgy.parse_to_json(code)
       .then((json) => {
         expectNoError(json)
