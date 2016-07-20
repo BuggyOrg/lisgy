@@ -343,6 +343,7 @@ function parseEDNtoJSON (ednObj, inputCode) {
   var implementation = {nodes: [], edges: []}
 
   var lastLambda, lastLambdaRoot, lastNewComponent
+  var lastNewPartial
 
   var components = {}
   var defines = {}
@@ -1115,7 +1116,7 @@ function parseEDNtoJSON (ednObj, inputCode) {
                 } else if (allInputPorts.some((port) => port === arg.val)) {
                   log(2, 'Partial needed for ' + arg.val)
 
-                  console.error(chalk.bold.yellow('Warning using automatic partial addition (wip)'))
+                  console.error(chalk.bold.yellow('Warning using automatic partial addition (wip) inside ' + node.name))
                   let lastLambdaInputPorts = lastLambda.data.inputPorts
                   let newArgNumber = Object.keys(lastLambdaInputPorts).length
 
@@ -1141,10 +1142,21 @@ function parseEDNtoJSON (ednObj, inputCode) {
 
                   lastNewComponent.implementation.nodes.push(gNode(partialNode))
 
+                  let toEdgePort = lastLambdaRoot.port || lastLambdaRoot.argPort
                   // NOTE: HARDCODED PORTS for lambda and functional/partial
-                  addEdge(lastNewComponent.implementation, {name: partialNode.name, port: 'out'}, lastLambdaRoot.port || lastLambdaRoot.argPort) // partial to root port
-                  addEdge(lastNewComponent.implementation, {name: lastLambda.name, port: 'fn'}, partialNode.name + ':fn') // partial lambda fn
+                  if (tempPortCount > 0) {
+                    // filter out old edges from new partial nodes
+                    lastNewComponent.implementation.edges = lastNewComponent.implementation.edges.filter((edge) => edge.to !== toEdgePort)
+
+                    addEdge(lastNewComponent.implementation, {name: partialNode.name, port: 'result'}, toEdgePort) // partial to root port
+                    addEdge(lastNewComponent.implementation, {name: lastNewPartial, port: 'result'}, partialNode.name + ':fn') // partial fn
+                  } else {
+                    addEdge(lastNewComponent.implementation, {name: partialNode.name, port: 'result'}, toEdgePort) // partial to root port
+                    addEdge(lastNewComponent.implementation, {name: lastLambda.name, port: 'fn'}, partialNode.name + ':fn') // partial lambda fn
+                  }
                   addEdge(lastNewComponent.implementation, {port: arg.val}, partialNode.name + ':value') // partial value
+
+                  lastNewPartial = partialNode.name
                 } else {
                   // TODO: return error?
                   logError('failed to find var ' + arg.val + ' inside', getAllVars(), inputPorts, allInputPorts)

@@ -914,6 +914,54 @@ describe('edn', () => {
         // TODO: add better tests
       })
     })
+
+    it('partial around lambda inside another call', () => {
+      var code1 = `
+        (defcop add [a b] [c])
+        (defcop partial [num fn value] [result])
+        (defco test [a b]
+          (fn [d] (add (add a b) d)))
+      `
+      var code2 = `
+        (defcop add [a b] [c])
+        (defcop partial [num fn value] [result])
+        (defco test [a b]
+          (partial 1
+              (partial 2
+                  (fn [d temp_0 temp_1]
+                    (add (add temp_0 temp_1) d))
+              b)
+          a))
+      `
+      // lisgy.setLog(2, true, false)
+      var p1 = lisgy.parse_to_json(code1)
+      .then((json) => {
+        expectNoError(json)
+        return json
+      })
+      var p2 = lisgy.parse_to_json(code2)
+      .then((json) => {
+        expectNoError(json)
+        return json
+      })
+
+      return Promise.all([p1, p2]).then((arr) => {
+        // lisgy.setLog(false, true, false)
+
+        let json = arr[0]
+        let json2 = arr[1]
+
+        let componentEdges = json.nodes[0].value.implementation.edges
+
+        expect(json.nodes.length).to.deep.equal(json2.nodes.length)
+        expect(componentEdges.length + 2) // 2 math/const nodes
+          .to.equal(json2.nodes[0].value.implementation.edges.length)
+
+        expect(componentEdges.filter((edge) => edge.to === 'value')).to.have.lengthOf(1) // only one partial to output port
+        expect(componentEdges.filter((edge) => edge.from === 'fn_0:fn')).to.have.lengthOf(1) // only one fn should go to a partial
+        // TODO: add better tests
+      })
+    })
   })
 
   it('(import math)', () => {
