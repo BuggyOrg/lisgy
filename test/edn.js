@@ -830,6 +830,90 @@ describe('edn', () => {
         expect(json.edges).to.deep.equal(json2.edges)
       })
     })
+
+    it('partial around lambda', () => {
+      var code1 = `
+        (defcop apply [a b] [c])
+        (defcop partial [num fn value] [result])
+        (defco test [outer]
+                    (lambda [inner] (apply outer inner)))
+      `
+      var code2 = `
+        (defcop apply [a b] [c])
+        (defcop partial [num fn value] [result])
+        (defco test [outer]
+                  (partial 1
+                    (lambda [inner temp_0] (apply temp_0 inner)) 
+                    outer))
+      `
+      // lisgy.setLog(2, true, false);
+      var p1 = lisgy.parse_to_json(code1)
+      .then((json) => {
+        expectNoError(json)
+        return json
+      })
+      var p2 = lisgy.parse_to_json(code2)
+      .then((json) => {
+        expectNoError(json)
+        return json
+      })
+
+      return Promise.all([p1, p2]).then((arr) => {
+        // lisgy.setLog(false, true, false)
+
+        let json = arr[0]
+        let json2 = arr[1]
+
+        expect(json.nodes.length).to.deep.equal(json2.nodes.length)
+        expect(json.nodes[0].value.implementation.edges.length + 1)
+          .to.equal(json2.nodes[0].value.implementation.edges.length)
+
+        // TODO: add better tests
+      })
+    })
+
+    it('partial around lambda inside a call', () => {
+      var code1 = `
+        (defcop apply [a b] [c])
+        (defcop partial [num fn value] [result])
+        (defco test [outer]
+                (apply outer
+                    (lambda [inner] (apply outer inner))))
+      `
+      var code2 = `
+        (defcop apply [a b] [c])
+        (defcop partial [num fn value] [result])
+        (defco test [outer]
+                (apply outer
+                  (partial 1
+                    (lambda [inner temp_0] (apply temp_0 inner)) 
+                    outer)))
+      `
+      // lisgy.setLog(2, true, false);
+      var p1 = lisgy.parse_to_json(code1)
+      .then((json) => {
+        expectNoError(json)
+        return json
+      })
+      var p2 = lisgy.parse_to_json(code2)
+      .then((json) => {
+        expectNoError(json)
+        return json
+      })
+
+      return Promise.all([p1, p2]).then((arr) => {
+        // lisgy.setLog(false, true, false)
+
+        let json = arr[0]
+        let json2 = arr[1]
+
+        expect(json.nodes.length).to.deep.equal(json2.nodes.length)
+        expect(json.nodes[0].value.implementation.edges.length + 1)
+          .to.equal(json2.nodes[0].value.implementation.edges.length)
+
+        // TODO: add better tests
+      })
+    })
   })
 
   it('(import math)', () => {
