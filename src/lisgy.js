@@ -863,7 +863,7 @@ function parseEDNtoJSON (ednObj, inputCode) {
               }
             } else {
               for (let j = 0; j < pattern.length; j++) {
-                if (typeof pattern[j] !== 'object') {
+                if (typeof pattern[j] !== 'object' || pattern[j] instanceof edn.Vector || pattern[j] instanceof edn.Map) {
                   var value = pattern[j]
                   var type = typeof pattern[j]
                   rules_def.rules[rules_def.rules.length - 1]['inputs'].push({'variable': false, 'type': type, 'value/const': value, 'name': input[j].name})
