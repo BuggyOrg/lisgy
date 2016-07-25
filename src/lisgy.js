@@ -339,7 +339,11 @@ function parseEDNtoJSON (ednObj, inputCode) {
   var newVars = []
 
   var inputPorts = []
+  var allInputPorts = []
   var implementation = {nodes: [], edges: []}
+
+  var lastLambda, lastLambdaRoot, lastNewComponent
+  var lastNewPartial
 
   var components = {}
   var defines = {}
@@ -420,7 +424,7 @@ function parseEDNtoJSON (ednObj, inputCode) {
   }
 
   if (graphlibFormat) {
-    json.options = {directed:true, multigraph: true, compound: true}
+    json.options = {directed: true, multigraph: true, compound: true}
     json.nodes = _.map(json.nodes, (node) => {
       return {'v': node.name, 'value': node}
     })
@@ -452,6 +456,9 @@ function parseEDNtoJSON (ednObj, inputCode) {
   function createLambda (root) {
     var json = {}
     var data = root.val
+
+    lastLambda = json
+    lastLambdaRoot = root
 
     json.meta = 'functional/lambda'
     json.name = data[0].name + '_' + count++
@@ -502,6 +509,9 @@ function parseEDNtoJSON (ednObj, inputCode) {
     // (defco NAME (INPUT*) (:OUTPUT1 (FN1) :OUTPUT2 (FN2) ...))
     var data = root.val
     var json = {}
+
+    lastNewComponent = json
+
     var component = defco(root)
     components[component.id] = component
 
@@ -518,6 +528,8 @@ function parseEDNtoJSON (ednObj, inputCode) {
       inputPorts.push(input.name)
       return true
     })
+
+    allInputPorts = inputPorts // set ports
 
     data[3].val.every((output) => {
       if (output instanceof edn.Keyword) {
@@ -542,7 +554,11 @@ function parseEDNtoJSON (ednObj, inputCode) {
       next.port = port
       next.parent = json
       node = walk(next, json.implementation, inputPorts)
-      addEdge(json.implementation, node, port)
+
+      // check if edge was added somewhere else first
+      if (!json.implementation.edges.some((edge) => edge.to === port)) {
+        addEdge(json.implementation, node, port)
+      }
     } else {
       var outputs = data[3].val
       for (var i = 0; i < outputs.length; i++) {
@@ -553,13 +569,20 @@ function parseEDNtoJSON (ednObj, inputCode) {
           next.port = port
           next.parent = json
           node = walk(next, json.implementation, inputPorts)
-          addEdge(json.implementation, node, port)
+
+          // check if edge was added somewhere else first
+          if (!json.implementation.edges.some((edge) => edge.to === port)) {
+            addEdge(json.implementation, node, port)
+          }
         }
       }
     }
     log(1, json.id + ' inputPorts', json.inputPorts)
     log(1, json.id + ' outputPorts', json.outputPorts)
     nodes.push(json)
+
+    allInputPorts = [] // reset ports
+
     return {'json': json, 'component': component}
   }
 
@@ -1057,13 +1080,18 @@ function parseEDNtoJSON (ednObj, inputCode) {
                 let nextNode = {name: emptyArrayNode.name, outputPorts: ['output'], port: 'output'}
                 addEdge(implementation, nextNode, toPort)
               } else {
+                arg.argPort = toPort
                 let nextNode = walk(arg, implementation, inputPorts, node.name, argPort)
                 if (arg instanceof edn.Symbol) {
                   inp.push(arg.name)
                 } else if (nextNode && nextNode.inputPorts) {
                   inp = inp.concat(nextNode.inputPorts)
                 }
-                addEdge(implementation, nextNode, toPort)
+
+                // check if edge was added somewhere else first
+                if (!implementation.edges.some((edge) => edge.to === toPort)) {
+                  addEdge(implementation, nextNode, toPort)
+                }
               }
             } else {
               log(2, 'FN walk over symbol', arg.val || arg)
@@ -1085,8 +1113,53 @@ function parseEDNtoJSON (ednObj, inputCode) {
                 if (argVar) {
                   log(3, 'found var', argVar)
                   addEdge(implementation, argVar.val, toPort)
+                } else if (allInputPorts.some((port) => port === arg.val)) {
+                  log(2, 'Partial needed for ' + arg.val)
+
+                  console.error(chalk.bold.yellow('Warning using automatic partial addition (wip) inside ' + node.name))
+                  let lastLambdaInputPorts = lastLambda.data.inputPorts
+                  let newArgNumber = Object.keys(lastLambdaInputPorts).length
+
+                  let newPortName
+                  let tempPortCount = 0
+                  // add new temp_# input ports
+                  while (true) {
+                    newPortName = 'temp_' + tempPortCount
+                    if (!lastLambdaInputPorts[newPortName]) {
+                      lastLambdaInputPorts[newPortName] = 'generic'
+                      break
+                    }
+                    tempPortCount++
+                  }
+
+                  addEdge(implementation, {port: newPortName}, toPort)
+
+                  let partialNode = {
+                    'meta': 'functional/partial',
+                    'name': 'partial_' + count++,
+                    'params': {'partial': newArgNumber}
+                  }
+
+                  lastNewComponent.implementation.nodes.push(gNode(partialNode))
+
+                  let toEdgePort = lastLambdaRoot.port || lastLambdaRoot.argPort
+                  // NOTE: HARDCODED PORTS for lambda and functional/partial
+                  if (tempPortCount > 0) {
+                    // filter out old edges from new partial nodes
+                    lastNewComponent.implementation.edges = lastNewComponent.implementation.edges.filter((edge) => edge.to !== toEdgePort)
+
+                    addEdge(lastNewComponent.implementation, {name: partialNode.name, port: 'result'}, toEdgePort) // partial to root port
+                    addEdge(lastNewComponent.implementation, {name: lastNewPartial, port: 'result'}, partialNode.name + ':fn') // partial fn
+                  } else {
+                    addEdge(lastNewComponent.implementation, {name: partialNode.name, port: 'result'}, toEdgePort) // partial to root port
+                    addEdge(lastNewComponent.implementation, {name: lastLambda.name, port: 'fn'}, partialNode.name + ':fn') // partial lambda fn
+                  }
+                  addEdge(lastNewComponent.implementation, {port: arg.val}, partialNode.name + ':value') // partial value
+
+                  lastNewPartial = partialNode.name
                 } else {
-                  log(2, 'faild to find var ' + arg.val + ' inside', getAllVars())
+                  // TODO: return error?
+                  logError('failed to find var ' + arg.val + ' inside', getAllVars(), inputPorts, allInputPorts)
                 }
               } else {
                 log(1, 'using directly var ', arg)
