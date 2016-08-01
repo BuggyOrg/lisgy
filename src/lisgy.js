@@ -370,6 +370,13 @@ function parseEDNtoJSON (ednObj, inputCode) {
     output: ['sum']
   }
 
+  // NOTE: just for test purpose
+  components['array/prepend'] = {
+    id: 'array/prepend',
+    input: ['a1', 'a2'],
+    output: ['prepend']
+  }
+
   _.each(ednObj.val, (vElement) => {
     walk(vElement, implementation, inputPorts)
   })
@@ -843,7 +850,8 @@ function parseEDNtoJSON (ednObj, inputCode) {
           var input = data[1].val
           var variables = getVariables(input)
           if (variables[1]) {
-            var defco = buildDefco(variables[0], data, count++)
+            var defco = buildDefco(variables[0], data, count)
+            count++
             walk(defco, implementation, inputPorts)
           }
           var matchID = 'match' + '_' + count++

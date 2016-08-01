@@ -843,7 +843,7 @@ describe('edn', () => {
         (defcop partial [num fn value] [result])
         (defco test [outer]
                   (partial 1
-                    (lambda [inner temp_0] (apply temp_0 inner)) 
+                    (lambda [inner temp_0] (apply temp_0 inner))
                     outer))
       `
       // lisgy.setLog(2, true, false);
@@ -886,7 +886,7 @@ describe('edn', () => {
         (defco test [outer]
                 (apply outer
                   (partial 1
-                    (lambda [inner temp_0] (apply temp_0 inner)) 
+                    (lambda [inner temp_0] (apply temp_0 inner))
                     outer)))
       `
       // lisgy.setLog(2, true, false);
