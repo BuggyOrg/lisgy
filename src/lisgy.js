@@ -849,11 +849,11 @@ function parseEDNtoJSON (ednObj, inputCode) {
         case 'match':
           var input = data[1].val
           var variables = getVariables(input)
-          if (variables[1]) {
+          /* if (variables[1]) {
             var defco = buildDefco(variables[0], data, count)
             count++
             walk(defco, implementation, inputPorts)
-          }
+          }*/
           var matchID = 'match' + '_' + count++
           var defcoMatchNode = {'id': matchID, 'inputPorts': {}, 'outputPorts': {}}
           var matchImplementation = {'nodes': [], 'edges': []}
@@ -872,7 +872,8 @@ function parseEDNtoJSON (ednObj, inputCode) {
           count++
           // var rules_def = {'v': 'defco_match_rules_' + count, 'id': 'mrules' + '_' + count, 'value': {'nodeType': 'process', 'atomic': false, 'inputPorts': {}, 'outputPorts': {}, 'rules': []}}
           var rules_def = {'id': 'mrules' + '_' + count, 'inputPorts': {}, 'outputPorts': {}, 'rules': []}
-          var rules = {'meta': 'mrules' + '_' + count, 'name': 'match_rules_' + count}
+          var rulesName = 'match_rules_' + count
+          var rules = {'meta': 'mrules' + '_' + count, 'name': rulesName}
           var inputs = []
           for (let i = 0; i < input.length; i++) {
             inputs.push(walk(input[i], innerImplementation, inputPorts))
@@ -933,12 +934,13 @@ function parseEDNtoJSON (ednObj, inputCode) {
                 } else {
                   output[o] = new edn.List([ new edn.Symbol('defco'), new edn.Symbol(outputName + '_fn_' + i), new edn.Vector(variables[0]), new edn.Vector([new edn.Keyword(':' + outputName), output[o]]) ])
                   var func = parseEDNtoJSON(new edn.List([output[o]]), inputPorts)
-                  innerImplementation.nodes = innerImplementation.nodes.concat(func.nodes)
+                  nodes = nodes.concat({'id': func.nodes[0].value.id, 'inputPorts': func.nodes[0].value.inputPorts, 'outputPorts': func.nodes[0].value.outputPorts, 'implementation': func.nodes[0].value.implementation})
+                  innerImplementation.nodes.push({'meta': outputName + '_fn_' + i, 'name': outputName + '_fn_' + i + '_name'})
                   rules_def.rules[rules_def.rules.length - 1]['outputs'].push({'variable': true, 'type': 'generic', 'value': 'r' + i, 'name': outputName})
                   for (let inp = 0; inp < variables[0].length; inp++) {
-                    innerImplementation.edges.push(gEdge(variables[0][inp].name, 'defco_' + outputName + '_fn_' + i + ':' + variables[0][inp].name))
+                    innerImplementation.edges.push(gEdge(variables[0][inp].name, outputName + '_fn_' + i + '_name' + ':' + variables[0][inp].name))
                   }
-                  innerImplementation.edges.push(gEdge('defco_' + outputName + '_fn_' + i + ':' + outputName, rules.name + ':' + 'r' + i))
+                  innerImplementation.edges.push(gEdge(outputName + '_fn_' + i + '_name' + ':' + outputName, rules.name + ':' + 'r' + i))
                   rules_def.inputPorts['r' + i] = 'generic'
                 }
                 rules_def.outputPorts[outputName] = 'generic'
@@ -949,19 +951,23 @@ function parseEDNtoJSON (ednObj, inputCode) {
           }
           for (let o = 0; o < output.length; o++) {
             defcoMatchNode['outputPorts']['out_' + o] = 'generic'
-            innerImplementation.edges.push(gEdge('match_rules_' + count + ':' + 'out_' + o, 'out_' + o))
+            innerImplementation.edges.push(gEdge(rulesName + ':' + 'out_' + o, 'out_' + o))
             matchImplementation.edges.push(gEdge(matchID + ':' + 'out_' + o, 'out_' + o))
           }
           innerImplementation.nodes.push(rules)
           defcoMatchNode['implementation'] = innerImplementation
           nodes.push(rules_def)
           if (variables[1]) {
-            matchImplementation.nodes.push({'v': defcoMatchNode.id, 'value': {'inputPorts': defcoMatchNode.inputPorts, 'outputPorts': defcoMatchNode.outputPorts, 'implementation': defcoMatchNode.implementation}})
+            // matchImplementation.nodes.push({'v': defcoMatchNode.id, 'value': {'inputPorts': defcoMatchNode.inputPorts, 'outputPorts': defcoMatchNode.outputPorts, 'implementation': defcoMatchNode.implementation}})
+            /* matchImplementation.nodes = matchImplementation.nodes.concat(defcoMatchNode.implementation.nodes)
+            matchImplementation.edges = defcoMatchNode.implementation.edges
             for (let i = 0; i < nodes.length; i++) {
               if (nodes[i].id === defco.val[1].name) {
                 nodes[i].implementation = matchImplementation
               }
-            }
+            }*/
+            nodes.push(defcoMatchNode)
+            implementation.nodes.push(gNode({meta: matchID, name: matchID + '_name'}))
           } else {
             matchImplementation.nodes.push(gNode({meta: matchID, name: matchID + '_name'}))
             nodes.push(defcoMatchNode)
@@ -1217,7 +1223,7 @@ function parseEDNtoJSON (ednObj, inputCode) {
   return json
 }
 
-function buildDefco (variables, data, id) {
+/* function buildDefco (variables, data, id) {
   var numberOfOutputs = data[3].val.length
   var functionOut = [new edn.Keyword(':out_0'), new edn.List([])] // , data]
   for (let i = 1; i < numberOfOutputs; i++) {
@@ -1226,7 +1232,7 @@ function buildDefco (variables, data, id) {
   }
   var defco = new edn.List([ new edn.Symbol('defco'), new edn.Symbol('match_' + id), new edn.Vector(variables), new edn.Vector(functionOut) ])
   return defco
-}
+} */
 
 function getVariables (input) {
   var containsFunc = false

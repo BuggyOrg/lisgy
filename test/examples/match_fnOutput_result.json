@@ -2,6 +2,99 @@
   "code": "(match [n m] [0 0] [(math/add n 1)] [0 _] [n] [_ 0] [\"Buzz\"] :else [(math/add 1 1)])",
   "nodes": [
     {
+      "v": "defco_out_0_fn_2",
+      "value": {
+        "id": "out_0_fn_2",
+        "inputPorts": {
+          "n": "generic",
+          "m": "generic"
+        },
+        "outputPorts": {
+          "out_0": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "meta": "math/add",
+              "name": "add_0"
+            },
+            {
+              "meta": "math/const",
+              "name": "const(1)_1",
+              "params": {
+                "value": 1
+              }
+            }
+          ],
+          "edges": [
+            {
+              "from": "n",
+              "to": "add_0:s1"
+            },
+            {
+              "from": "const(1)_1:output",
+              "to": "add_0:s2"
+            },
+            {
+              "from": "add_0:sum",
+              "to": "out_0"
+            }
+          ]
+        },
+        "name": "defco_out_0_fn_2"
+      }
+    },
+    {
+      "v": "defco_out_0_fn_8",
+      "value": {
+        "id": "out_0_fn_8",
+        "inputPorts": {
+          "n": "generic",
+          "m": "generic"
+        },
+        "outputPorts": {
+          "out_0": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "meta": "math/add",
+              "name": "add_0"
+            },
+            {
+              "meta": "math/const",
+              "name": "const(1)_1",
+              "params": {
+                "value": 1
+              }
+            },
+            {
+              "meta": "math/const",
+              "name": "const(1)_2",
+              "params": {
+                "value": 1
+              }
+            }
+          ],
+          "edges": [
+            {
+              "from": "const(1)_1:output",
+              "to": "add_0:s1"
+            },
+            {
+              "from": "const(1)_2:output",
+              "to": "add_0:s2"
+            },
+            {
+              "from": "add_0:sum",
+              "to": "out_0"
+            }
+          ]
+        },
+        "name": "defco_out_0_fn_8"
+      }
+    },
+    {
       "v": "defco_mrules_2",
       "value": {
         "id": "mrules_2",
@@ -129,111 +222,12 @@
         "implementation": {
           "nodes": [
             {
-              "v": "defco_out_0_fn_2",
-              "value": {
-                "id": "out_0_fn_2",
-                "inputPorts": {
-                  "n": "generic",
-                  "m": "generic"
-                },
-                "outputPorts": {
-                  "out_0": "generic"
-                },
-                "settings": {
-                  "argumentOrdering": [
-                    "n",
-                    "m",
-                    "out_0"
-                  ]
-                },
-                "implementation": {
-                  "nodes": [
-                    {
-                      "meta": "math/add",
-                      "name": "add_0"
-                    },
-                    {
-                      "meta": "math/const",
-                      "name": "const(1)_1",
-                      "params": {
-                        "value": 1
-                      }
-                    }
-                  ],
-                  "edges": [
-                    {
-                      "from": "n",
-                      "to": "add_0:s1"
-                    },
-                    {
-                      "from": "const(1)_1:output",
-                      "to": "add_0:s2"
-                    },
-                    {
-                      "from": "add_0:sum",
-                      "to": "out_0"
-                    }
-                  ]
-                },
-                "name": "defco_out_0_fn_2"
-              }
+              "meta": "out_0_fn_2",
+              "name": "out_0_fn_2_name"
             },
             {
-              "v": "defco_out_0_fn_8",
-              "value": {
-                "id": "out_0_fn_8",
-                "inputPorts": {
-                  "n": "generic",
-                  "m": "generic"
-                },
-                "outputPorts": {
-                  "out_0": "generic"
-                },
-                "settings": {
-                  "argumentOrdering": [
-                    "n",
-                    "m",
-                    "out_0"
-                  ]
-                },
-                "implementation": {
-                  "nodes": [
-                    {
-                      "meta": "math/add",
-                      "name": "add_0"
-                    },
-                    {
-                      "meta": "math/const",
-                      "name": "const(1)_1",
-                      "params": {
-                        "value": 1
-                      }
-                    },
-                    {
-                      "meta": "math/const",
-                      "name": "const(1)_2",
-                      "params": {
-                        "value": 1
-                      }
-                    }
-                  ],
-                  "edges": [
-                    {
-                      "from": "const(1)_1:output",
-                      "to": "add_0:s1"
-                    },
-                    {
-                      "from": "const(1)_2:output",
-                      "to": "add_0:s2"
-                    },
-                    {
-                      "from": "add_0:sum",
-                      "to": "out_0"
-                    }
-                  ]
-                },
-                "name": "defco_out_0_fn_8"
-              }
+              "meta": "out_0_fn_8",
+              "name": "out_0_fn_8_name"
             },
             {
               "meta": "mrules_2",
@@ -251,26 +245,26 @@
             },
             {
               "from": "n",
-              "to": "defco_out_0_fn_2:n"
+              "to": "out_0_fn_2_name:n"
             },
             {
               "from": "m",
-              "to": "defco_out_0_fn_2:m"
+              "to": "out_0_fn_2_name:m"
             },
             {
-              "from": "defco_out_0_fn_2:out_0",
+              "from": "out_0_fn_2_name:out_0",
               "to": "match_rules_2:r2"
             },
             {
               "from": "n",
-              "to": "defco_out_0_fn_8:n"
+              "to": "out_0_fn_8_name:n"
             },
             {
               "from": "m",
-              "to": "defco_out_0_fn_8:m"
+              "to": "out_0_fn_8_name:m"
             },
             {
-              "from": "defco_out_0_fn_8:out_0",
+              "from": "out_0_fn_8_name:out_0",
               "to": "match_rules_2:r8"
             },
             {

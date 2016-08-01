@@ -2,195 +2,60 @@
   "code": "(match [(math/add n 1) (math/add 1 1)] [0 0] [n 1] [0 _] [\"Fizz\" 0] [_ 0] [\"Buzz\" 3] :else [(math/add 1 n) 4])",
   "nodes": [
     {
-      "v": "defco_match_0",
+      "v": "defco_out_0_fn_8",
       "value": {
-        "id": "match_0",
-        "inputPorts": {
-          "n": "generic"
-        },
+        "id": "out_0_fn_8",
+        "inputPorts": [
+          {
+            "ns": null,
+            "name": "n",
+            "val": "n",
+            "posLineStart": 1,
+            "posColStart": 105,
+            "posLineEnd": 1,
+            "posColEnd": 107,
+            "argPort": "if_0:falsePath"
+          }
+        ],
         "outputPorts": {
-          "out_0": "generic",
-          "out_1": "generic"
-        },
-        "settings": {
-          "argumentOrdering": [
-            "n",
-            "out_0",
-            "out_1"
-          ]
-        },
-        "implementation": {
-          "nodes": [
+          "val": [
             {
-              "v": "match_1",
-              "value": {
-                "inputPorts": {
-                  "n": "generic"
-                },
-                "outputPorts": {
-                  "out_0": "generic",
-                  "out_1": "generic"
-                },
-                "implementation": {
-                  "nodes": [
-                    {
-                      "meta": "math/add",
-                      "name": "add_3"
-                    },
-                    {
-                      "meta": "math/const",
-                      "name": "const(1)_4",
-                      "params": {
-                        "value": 1
-                      }
-                    },
-                    {
-                      "meta": "math/add",
-                      "name": "add_5"
-                    },
-                    {
-                      "meta": "math/const",
-                      "name": "const(1)_6",
-                      "params": {
-                        "value": 1
-                      }
-                    },
-                    {
-                      "meta": "math/const",
-                      "name": "const(1)_7",
-                      "params": {
-                        "value": 1
-                      }
-                    },
-                    {
-                      "v": "defco_out_0_fn_8",
-                      "value": {
-                        "id": "out_0_fn_8",
-                        "inputPorts": {
-                          "n": "generic"
-                        },
-                        "outputPorts": {
-                          "out_0": "generic"
-                        },
-                        "settings": {
-                          "argumentOrdering": [
-                            "n",
-                            "out_0"
-                          ]
-                        },
-                        "implementation": {
-                          "nodes": [
-                            {
-                              "meta": "math/add",
-                              "name": "add_0"
-                            },
-                            {
-                              "meta": "math/const",
-                              "name": "const(1)_1",
-                              "params": {
-                                "value": 1
-                              }
-                            }
-                          ],
-                          "edges": [
-                            {
-                              "from": "const(1)_1:output",
-                              "to": "add_0:s1"
-                            },
-                            {
-                              "from": "n",
-                              "to": "add_0:s2"
-                            },
-                            {
-                              "from": "add_0:sum",
-                              "to": "out_0"
-                            }
-                          ]
-                        },
-                        "name": "defco_out_0_fn_8"
-                      }
-                    },
-                    {
-                      "meta": "mrules_3",
-                      "name": "match_rules_3"
-                    }
-                  ],
-                  "edges": [
-                    {
-                      "from": "n",
-                      "to": "add_3:s1"
-                    },
-                    {
-                      "from": "const(1)_4:output",
-                      "to": "add_3:s2"
-                    },
-                    {
-                      "from": "add_3:sum",
-                      "to": "match_rules_3:add_3"
-                    },
-                    {
-                      "from": "const(1)_6:output",
-                      "to": "add_5:s1"
-                    },
-                    {
-                      "from": "const(1)_7:output",
-                      "to": "add_5:s2"
-                    },
-                    {
-                      "from": "add_5:sum",
-                      "to": "match_rules_3:add_5"
-                    },
-                    {
-                      "from": "n",
-                      "to": "match_rules_3:n"
-                    },
-                    {
-                      "from": "n",
-                      "to": "defco_out_0_fn_8:n"
-                    },
-                    {
-                      "from": "defco_out_0_fn_8:out_0",
-                      "to": "match_rules_3:r8"
-                    },
-                    {
-                      "from": "match_rules_8:out_0",
-                      "to": "out_0"
-                    },
-                    {
-                      "from": "match_rules_8:out_1",
-                      "to": "out_1"
-                    }
-                  ]
-                }
-              }
+              "ns": "math",
+              "name": "add",
+              "val": "math/add",
+              "posLineStart": 1,
+              "posColStart": 94,
+              "posLineEnd": 1,
+              "posColEnd": 103
+            },
+            1,
+            {
+              "ns": null,
+              "name": "n",
+              "val": "n",
+              "posLineStart": 1,
+              "posColStart": 105,
+              "posLineEnd": 1,
+              "posColEnd": 107,
+              "argPort": "if_0:falsePath"
             }
           ],
-          "edges": [
-            {
-              "from": "n",
-              "to": "match_1:n"
-            },
-            {
-              "from": "match_1:out_0",
-              "to": "out_0"
-            },
-            {
-              "from": "match_1:out_1",
-              "to": "out_1"
-            }
-          ]
+          "posLineStart": 1,
+          "posColStart": 93,
+          "posLineEnd": 1,
+          "posColEnd": 1
         },
-        "name": "defco_match_0"
+        "name": "defco_out_0_fn_8"
       }
     },
     {
-      "v": "defco_mrules_3",
+      "v": "defco_mrules_2",
       "value": {
-        "id": "mrules_3",
+        "id": "mrules_2",
         "inputPorts": {
           "n": "generic",
-          "add_5": "generic",
-          "add_3": "generic",
+          "add_4": "generic",
+          "add_2": "generic",
           "r8": "generic"
         },
         "outputPorts": {
@@ -203,13 +68,13 @@
                 "variable": false,
                 "type": "number",
                 "value/const": 0,
-                "name": "add_3"
+                "name": "add_2"
               },
               {
                 "variable": false,
                 "type": "number",
                 "value/const": 0,
-                "name": "add_5"
+                "name": "add_4"
               }
             ],
             "outputs": [
@@ -233,13 +98,13 @@
                 "variable": false,
                 "type": "number",
                 "value/const": 0,
-                "name": "add_3"
+                "name": "add_2"
               },
               {
                 "variable": true,
                 "type": "generic",
-                "value": "add_5",
-                "name": "add_5"
+                "value": "add_4",
+                "name": "add_4"
               }
             ],
             "outputs": [
@@ -262,14 +127,14 @@
               {
                 "variable": true,
                 "type": "generic",
-                "value": "add_3",
-                "name": "add_3"
+                "value": "add_2",
+                "name": "add_2"
               },
               {
                 "variable": false,
                 "type": "number",
                 "value/const": 0,
-                "name": "add_5"
+                "name": "add_4"
               }
             ],
             "outputs": [
@@ -292,14 +157,14 @@
               {
                 "variable": true,
                 "type": "generic",
-                "value": "add_3",
-                "name": "add_3"
+                "value": "add_2",
+                "name": "add_2"
               },
               {
                 "variable": true,
                 "type": "generic",
-                "value": "add_5",
-                "name": "add_5"
+                "value": "add_4",
+                "name": "add_4"
               }
             ],
             "outputs": [
@@ -318,7 +183,104 @@
             ]
           }
         ],
-        "name": "defco_mrules_3"
+        "name": "defco_mrules_2"
+      }
+    },
+    {
+      "v": "match_0_name",
+      "value": {
+        "id": "match_0",
+        "inputPorts": {
+          "n": "generic"
+        },
+        "outputPorts": {
+          "out_0": "generic",
+          "out_1": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "meta": "math/add",
+              "name": "add_2"
+            },
+            {
+              "meta": "math/const",
+              "name": "const(1)_3",
+              "params": {
+                "value": 1
+              }
+            },
+            {
+              "meta": "math/add",
+              "name": "add_4"
+            },
+            {
+              "meta": "math/const",
+              "name": "const(1)_5",
+              "params": {
+                "value": 1
+              }
+            },
+            {
+              "meta": "math/const",
+              "name": "const(1)_6",
+              "params": {
+                "value": 1
+              }
+            },
+            {
+              "meta": "mrules_2",
+              "name": "match_rules_2"
+            }
+          ],
+          "edges": [
+            {
+              "from": "n",
+              "to": "add_2:s1"
+            },
+            {
+              "from": "const(1)_3:output",
+              "to": "add_2:s2"
+            },
+            {
+              "from": "add_2:sum",
+              "to": "match_rules_2:add_2"
+            },
+            {
+              "from": "const(1)_5:output",
+              "to": "add_4:s1"
+            },
+            {
+              "from": "const(1)_6:output",
+              "to": "add_4:s2"
+            },
+            {
+              "from": "add_4:sum",
+              "to": "match_rules_2:add_4"
+            },
+            {
+              "from": "n",
+              "to": "match_rules_2:n"
+            },
+            {
+              "from": "n",
+              "to": "defco_out_0_fn_8:n"
+            },
+            {
+              "from": "defco_out_0_fn_8:out_0",
+              "to": "match_rules_2:r8"
+            },
+            {
+              "from": "match_rules_2:out_0",
+              "to": "out_0"
+            },
+            {
+              "from": "match_rules_2:out_1",
+              "to": "out_1"
+            }
+          ]
+        },
+        "name": "match_0_name"
       }
     }
   ],
