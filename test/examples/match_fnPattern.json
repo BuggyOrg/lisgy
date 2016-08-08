@@ -2,6 +2,49 @@
   "code": "(match [n m] [0 0] [\"FizzBuzz\"] [0 _] [\"Fizz\"] [_ (math/add n 1)] [\"Buzz\"] :else [n])",
   "nodes": [
     {
+      "v": "defco_pattern_6_fn_1",
+      "value": {
+        "id": "pattern_6_fn_1",
+        "inputPorts": {
+          "n": "generic",
+          "m": "generic"
+        },
+        "outputPorts": {
+          "out": "generic"
+        },
+        "implementation": {
+          "nodes": [
+            {
+              "meta": "math/add",
+              "name": "add_0"
+            },
+            {
+              "meta": "math/const",
+              "name": "const(1)_1",
+              "params": {
+                "value": 1
+              }
+            }
+          ],
+          "edges": [
+            {
+              "from": "n",
+              "to": "add_0:s1"
+            },
+            {
+              "from": "const(1)_1:output",
+              "to": "add_0:s2"
+            },
+            {
+              "from": "add_0:sum",
+              "to": "out"
+            }
+          ]
+        },
+        "name": "defco_pattern_6_fn_1"
+      }
+    },
+    {
       "v": "defco_mrules_2",
       "value": {
         "id": "mrules_2",
@@ -128,54 +171,8 @@
         "implementation": {
           "nodes": [
             {
-              "v": "defco_pattern_6_fn_1",
-              "value": {
-                "id": "pattern_6_fn_1",
-                "inputPorts": {
-                  "n": "generic",
-                  "m": "generic"
-                },
-                "outputPorts": {
-                  "out": "generic"
-                },
-                "settings": {
-                  "argumentOrdering": [
-                    "n",
-                    "m",
-                    "out"
-                  ]
-                },
-                "implementation": {
-                  "nodes": [
-                    {
-                      "meta": "math/add",
-                      "name": "add_0"
-                    },
-                    {
-                      "meta": "math/const",
-                      "name": "const(1)_1",
-                      "params": {
-                        "value": 1
-                      }
-                    }
-                  ],
-                  "edges": [
-                    {
-                      "from": "n",
-                      "to": "add_0:s1"
-                    },
-                    {
-                      "from": "const(1)_1:output",
-                      "to": "add_0:s2"
-                    },
-                    {
-                      "from": "add_0:sum",
-                      "to": "out"
-                    }
-                  ]
-                },
-                "name": "defco_pattern_6_fn_1"
-              }
+              "meta": "pattern_6_fn_1",
+              "name": "pattern_6_fn_1_name"
             },
             {
               "meta": "mrules_2",
@@ -193,14 +190,14 @@
             },
             {
               "from": "n",
-              "to": "defco_pattern_6_fn_1:n"
+              "to": "pattern_6_fn_1_name:n"
             },
             {
               "from": "m",
-              "to": "defco_pattern_6_fn_1:m"
+              "to": "pattern_6_fn_1_name:m"
             },
             {
-              "from": "defco_pattern_6_fn_1:out",
+              "from": "pattern_6_fn_1_name:out",
               "to": "match_rules_2:p_6_1"
             },
             {

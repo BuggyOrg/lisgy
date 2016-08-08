@@ -5,45 +5,40 @@
       "v": "defco_out_0_fn_8",
       "value": {
         "id": "out_0_fn_8",
-        "inputPorts": [
-          {
-            "ns": null,
-            "name": "n",
-            "val": "n",
-            "posLineStart": 1,
-            "posColStart": 108,
-            "posLineEnd": 1,
-            "posColEnd": 110,
-            "argPort": "if_0:falsePath"
-          }
-        ],
+        "inputPorts": {
+          "n": "generic"
+        },
         "outputPorts": {
-          "val": [
+          "out_0": "generic"
+        },
+        "implementation": {
+          "nodes": [
             {
-              "ns": "math",
-              "name": "add",
-              "val": "math/add",
-              "posLineStart": 1,
-              "posColStart": 97,
-              "posLineEnd": 1,
-              "posColEnd": 106
+              "meta": "math/add",
+              "name": "add_0"
             },
-            1,
             {
-              "ns": null,
-              "name": "n",
-              "val": "n",
-              "posLineStart": 1,
-              "posColStart": 108,
-              "posLineEnd": 1,
-              "posColEnd": 110,
-              "argPort": "if_0:falsePath"
+              "meta": "math/const",
+              "name": "const(1)_1",
+              "params": {
+                "value": 1
+              }
             }
           ],
-          "posLineStart": 1,
-          "posColStart": 96,
-          "posLineEnd": 1,
-          "posColEnd": 1
+          "edges": [
+            {
+              "from": "const(1)_1:output",
+              "to": "add_0:s1"
+            },
+            {
+              "from": "n",
+              "to": "add_0:s2"
+            },
+            {
+              "from": "add_0:sum",
+              "to": "out_0"
+            }
+          ]
         },
         "name": "defco_out_0_fn_8"
       }
@@ -203,6 +198,10 @@
               }
             },
             {
+              "meta": "out_0_fn_8",
+              "name": "out_0_fn_8_name"
+            },
+            {
               "meta": "mrules_2",
               "name": "match_rules_2"
             }
@@ -234,10 +233,10 @@
             },
             {
               "from": "n",
-              "to": "defco_out_0_fn_8:n"
+              "to": "out_0_fn_8_name:n"
             },
             {
-              "from": "defco_out_0_fn_8:out_0",
+              "from": "out_0_fn_8_name:out_0",
               "to": "match_rules_2:r8"
             },
             {
