@@ -469,13 +469,8 @@ function parseEDNtoJSON (ednObj, inputCode) {
         return {'error': 'port error with ' + edge.from + ' & ' + edge.to}
       }
       return {
-        'v': from[0],
-        'w': to[0],
-        'name': from[0] + '@' + from[1] + '->' + to[0] + '@' + to[1],
-        'value': {
-          'outPort': from[1],
-          'inPort': to[1]
-        }
+        'from': from[0] + '@' + from[1],
+        'to': to[0] + '@' + to[1]
       }
     })
     // TODO: this is cheating
@@ -557,10 +552,10 @@ function parseEDNtoJSON (ednObj, inputCode) {
     components[component.id] = component
 
     json.meta = data[1].name
-    json.ports = [{'name': 'todo', 'kind': 'input', 'type': 'generic'}]
-    json.version = '0.0.0'
-    json.inputPorts = {}
-    json.outputPorts = {}
+    json.ports = []
+    json.version = '0.0.0' // TODO
+    json.inputPorts = {} // old
+    json.outputPorts = {} // old
     json.settings = {argumentOrdering: []}
 
     var inputPorts = []
@@ -569,6 +564,8 @@ function parseEDNtoJSON (ednObj, inputCode) {
       json.inputPorts[input.name] = 'generic'
       json.settings.argumentOrdering.push(input.name)
       inputPorts.push(input.name)
+
+      json.ports.push({'name': input.name, 'kind': 'input', 'type': 'generic'})
       return true
     })
 
@@ -578,6 +575,8 @@ function parseEDNtoJSON (ednObj, inputCode) {
       if (output instanceof edn.Keyword) {
         json.outputPorts[cleanPort(output.name)] = 'generic'
         json.settings.argumentOrdering.push(cleanPort(output.name))
+
+        json.ports.push({'name': output.name, 'kind': 'output', 'type': 'generic'})
       }
       return true
     })
@@ -594,6 +593,9 @@ function parseEDNtoJSON (ednObj, inputCode) {
       let port = cleanPort('value')
       json.outputPorts[port] = 'generic'
       json.settings.argumentOrdering.push(port)
+
+      json.ports.push({'name': 'value', 'kind': 'output', 'type': 'generic'})
+
       next.port = port
       next.parent = json
       node = walk(next, json.implementation, inputPorts)
