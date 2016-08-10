@@ -340,7 +340,7 @@ function parseEDNtoJSON (ednObj, inputCode) {
 
   var inputPorts = []
   var allInputPorts = []
-  var implementation = {nodes: [], edges: []}
+  var implementation = {nodes: [], edges: [], Components: []}
 
   var lastLambda, lastLambdaRoot, lastNewComponent
   var lastNewPartial
@@ -411,6 +411,7 @@ function parseEDNtoJSON (ednObj, inputCode) {
 
   json.nodes = implementation.nodes
   json.edges = implementation.edges
+  json.Components = implementation.Components
   // add new components to the nodes array
   json.nodes = _.map(json.nodes, (node) => {
     var selected
@@ -435,7 +436,9 @@ function parseEDNtoJSON (ednObj, inputCode) {
     return node
   })
 
-  if (json.nodes.length <= 0) {
+
+  // TODO: cleanup
+  if (json.nodes.length <= 0 && false) {
     json.nodes = _.map(nodes, (node) => { node.name = 'defco_' + node.id; return node })
   } else if (true) {
     // else add all the new components to the node array
@@ -484,6 +487,9 @@ function parseEDNtoJSON (ednObj, inputCode) {
     })
   }
 
+  /**
+   * createLambda
+   */
   function createLambda (root) {
     var json = {}
     var data = root.val
@@ -536,6 +542,10 @@ function parseEDNtoJSON (ednObj, inputCode) {
     return json
   }
 
+
+  /**
+   * createComponent
+   */
   function createComponent (root) {
     // (defco NAME (INPUT*) (:OUTPUT1 (FN1) :OUTPUT2 (FN2) ...))
     var data = root.val
@@ -546,7 +556,9 @@ function parseEDNtoJSON (ednObj, inputCode) {
     var component = defco(root)
     components[component.id] = component
 
-    json.id = data[1].name
+    json.meta = data[1].name
+    json.ports = [{'name': 'todo', 'kind': 'input', 'type': 'generic'}]
+    json.version = '0.0.0'
     json.inputPorts = {}
     json.outputPorts = {}
     json.settings = {argumentOrdering: []}
@@ -610,7 +622,8 @@ function parseEDNtoJSON (ednObj, inputCode) {
     }
     log(1, json.id + ' inputPorts', json.inputPorts)
     log(1, json.id + ' outputPorts', json.outputPorts)
-    nodes.push(json)
+
+    // nodes.push(json)
 
     allInputPorts = [] // reset ports
 
@@ -759,7 +772,9 @@ function parseEDNtoJSON (ednObj, inputCode) {
           log(1, 'def map from ' + oldName + ' to ' + newName)
           return
         case 'defco':
-          createComponent(root)
+          var component = createComponent(root)
+          // TODO: check if it was already added?
+          implementation.Components.push(component.json)
           return
         case 'defcop':
           component = defcop(root)
