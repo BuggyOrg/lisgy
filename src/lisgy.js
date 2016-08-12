@@ -409,11 +409,11 @@ function parseEDNtoJSON (ednObj, inputCode) {
     return json
   }
 
-  json.nodes = implementation.nodes
-  json.edges = implementation.edges
+  json.Nodes = implementation.nodes
+  json.Edges = implementation.edges
   json.Components = implementation.Components
   // add new components to the nodes array
-  json.nodes = _.map(json.nodes, (node) => {
+  json.Nodes = _.map(json.Nodes, (node) => {
     var selected
     if (nodes.some((n) => {
       if (n.id === node.meta) {
@@ -438,13 +438,13 @@ function parseEDNtoJSON (ednObj, inputCode) {
 
 
   // TODO: cleanup
-  if (json.nodes.length <= 0 && false) {
-    json.nodes = _.map(nodes, (node) => { node.name = 'defco_' + node.id; return node })
+  if (json.Nodes.length <= 0 && false) {
+    json.Nodes = _.map(nodes, (node) => { node.name = 'defco_' + node.id; return node })
   } else if (true) {
     // else add all the new components to the node array
-    var filtered = _.filter(nodes, (node) => _.find(json.nodes, (nodeJ) => { return nodeJ.id && nodeJ.id !== node.id }))
+    var filtered = _.filter(nodes, (node) => _.find(json.Nodes, (nodeJ) => { return nodeJ.id && nodeJ.id !== node.id }))
 
-    var filteredLambdas = _.filter(nodes, (node) => _.find(json.nodes, (nodeJ) => {
+    var filteredLambdas = _.filter(nodes, (node) => _.find(json.Nodes, (nodeJ) => {
       // console.error('checking out ', nodeJ)
       return (nodeJ.meta === 'functional/lambda') && nodeJ.data.implementation && nodeJ.data.implementation.nodes.some((lambdaNode) => {
         // console.error('lambda checkoing out', lambdaNode)
@@ -453,16 +453,20 @@ function parseEDNtoJSON (ednObj, inputCode) {
       })
     }))
 
-    json.nodes = _.concat(_.map(filtered, (node) => { node.name = 'defco_' + node.id; return node }), json.nodes)
-    json.nodes = _.concat(_.map(filteredLambdas, (node) => { node.name = 'defco_' + node.id; return node }), json.nodes)
+    json.Nodes = _.concat(_.map(filtered, (node) => { node.name = 'defco_' + node.id; return node }), json.Nodes)
+    json.Nodes = _.concat(_.map(filteredLambdas, (node) => { node.name = 'defco_' + node.id; return node }), json.Nodes)
   }
 
-  if (graphlibFormat) {
+  if (graphlibFormat || true) {
     json.options = {directed: true, multigraph: true, compound: true}
-    json.nodes = _.map(json.nodes, (node) => {
-      return {'v': node.name, 'value': node}
+    json.Nodes = _.map(json.Nodes, (node) => {
+      node.id = node.name
+      node.ref = node.meta
+      delete node.meta
+      delete node.name
+      return node // {'v': node.name, 'value': node}
     })
-    json.edges = _.map(json.edges, (edge) => {
+    json.Edges = _.map(json.Edges, (edge) => {
       var from = edge.from.split(':')
       var to = edge.to.split(':')
       if (to.length < 2 || from.length < 2) {
@@ -474,7 +478,7 @@ function parseEDNtoJSON (ednObj, inputCode) {
       }
     })
     // TODO: this is cheating
-    json.edges = _.filter(json.edges, (edge) => {
+    json.Edges = _.filter(json.Edges, (edge) => {
       if (edge.error) {
         return false
       }

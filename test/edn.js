@@ -2,7 +2,7 @@
 
 import fs from 'fs'
 import {utils} from '@buggyorg/graphtools'
-import {graph as graphAPI} from '@buggyorg/graphtools'
+import * as graphAPI from '@buggyorg/graphtools'
 import * as chai from 'chai'
 import * as lisgy from '../src/lisgy.js'
 import * as components from './components.json'
@@ -77,8 +77,8 @@ describe('edn', () => {
   //   .then((json) => {
   //     expectNoError(json)
 
-  //     expect(example.nodes).to.deep.equal(json.nodes)
-  //     expect(example.edges).to.deep.equal(json.edges)
+  //     expect(example.nodes).to.deep.equal(json.Nodes)
+  //     expect(example.edges).to.deep.equal(json.Edges)
   //     expect(example.Components).to.deep.equal(json.Components)
   //   })
   // })
@@ -88,12 +88,14 @@ describe('edn', () => {
     return lisgy.parse_to_json(code).then((json) => {
       expectNoError(json)
 
-      expect(json.edges).to.have.length(0)
-      expect(json.nodes).to.have.length(1) // create one lambda node
+      expect(json.Edges).to.have.length(0)
+      expect(json.Nodes).to.have.length(1) // create one lambda node
       expect(json.Components).to.have.lengthOf(0)
 
-      var node = json.nodes[0].value
-      expect(node.meta).to.equal('functional/lambda')
+      var node = json.Nodes[0]
+
+      expect(node.ref).to.equal('functional/lambda')
+      // TODO: change outputPorts and inputPorts to ports 
       expect(node.outputPorts).to.deep.equal({ 'fn': 'lambda' })
       expect(node.inputPorts).to.deep.equal({})
       expect(node).to.have.property('settings')
@@ -128,8 +130,8 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.lengthOf(0)
-        expect(json.edges).to.have.lengthOf(0)
+        expect(json.Nodes).to.have.lengthOf(0)
+        expect(json.Edges).to.have.lengthOf(0)
         expect(json.Components).to.have.lengthOf(1)
 
         expect(json.Components[0]).to.have.property('settings')
@@ -144,8 +146,8 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.lengthOf(0)
-        expect(json.edges).to.have.lengthOf(0)
+        expect(json.Nodes).to.have.lengthOf(0)
+        expect(json.Edges).to.have.lengthOf(0)
         expect(json.Components).to.have.lengthOf(1)
 
         expect(json.Components[0]).to.have.property('settings')
@@ -160,8 +162,8 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.lengthOf(0)
-        expect(json.edges).to.have.lengthOf(0)
+        expect(json.Nodes).to.have.lengthOf(0)
+        expect(json.Edges).to.have.lengthOf(0)
         expect(json.Components).to.have.lengthOf(1)
 
         var node = json.Components[0]
@@ -184,8 +186,8 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.lengthOf(0)
-        expect(json.edges).to.have.lengthOf(0)
+        expect(json.Nodes).to.have.lengthOf(0)
+        expect(json.Edges).to.have.lengthOf(0)
         expect(json.Components).to.have.lengthOf(1)
 
         var node = json.Components[0]
@@ -207,8 +209,8 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.lengthOf(0)
-        expect(json.edges).to.have.lengthOf(0)
+        expect(json.Nodes).to.have.lengthOf(0)
+        expect(json.Edges).to.have.lengthOf(0)
         expect(json.Components).to.have.lengthOf(1)
 
         var node = json.Components[0]
@@ -225,8 +227,8 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.lengthOf(0)
-        expect(json.edges).to.have.lengthOf(0)
+        expect(json.Nodes).to.have.lengthOf(0)
+        expect(json.Edges).to.have.lengthOf(0)
         expect(json.Components).to.have.lengthOf(1)
 
         var node = json.Components[0]
@@ -259,8 +261,8 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.edges).to.have.length(4)
-        expect(json.nodes).to.have.length(5)
+        expect(json.Edges).to.have.length(4)
+        expect(json.Nodes).to.have.length(5)
 
         // TODO
       })
@@ -274,8 +276,8 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.lengthOf(1)
-        expect(json.edges).to.have.lengthOf(0)
+        expect(json.Nodes).to.have.lengthOf(1)
+        expect(json.Edges).to.have.lengthOf(0)
         expect(json.Components).to.have.lengthOf(1)
       })
     })
@@ -288,8 +290,8 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.lengthOf(3)
-        expect(json.edges).to.have.lengthOf(2)
+        expect(json.Nodes).to.have.lengthOf(3)
+        expect(json.Edges).to.have.lengthOf(2)
         expect(json.Components).to.have.lengthOf(1)
       })
     })
@@ -315,11 +317,11 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.edges[0].from).to.equal('const(2)_1@output')
-        expect(json.edges[0].to).to.equal('add_0@s1')
+        expect(json.Edges[0].from).to.equal('const(2)_1@output')
+        expect(json.Edges[0].to).to.equal('add_0@s1')
 
-        expect(json.edges[1].from).to.equal('const(1)_2@output')
-        expect(json.edges[1].to).to.equal('add_0@s2')
+        expect(json.Edges[1].from).to.equal('const(1)_2@output')
+        expect(json.Edges[1].to).to.equal('add_0@s2')
       })
     })
 
@@ -329,11 +331,11 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.edges[0].from).to.equal('const(2)_1@output')
-        expect(json.edges[0].to).to.equal('add_0@s2')
+        expect(json.Edges[0].from).to.equal('const(2)_1@output')
+        expect(json.Edges[0].to).to.equal('add_0@s2')
 
-        expect(json.edges[1].from).to.equal('const(1)_2@output')
-        expect(json.edges[1].to).to.equal('add_0@s1')
+        expect(json.Edges[1].from).to.equal('const(1)_2@output')
+        expect(json.Edges[1].to).to.equal('add_0@s1')
       })
     })
 
@@ -367,8 +369,7 @@ describe('edn', () => {
       return lisgy.parse_to_json(code)
       .then((json) => {
         expectNoError(json)
-
-        expect(json.nodes.filter((n) => n.value.meta === 'math/const')).to.have.length(2)
+        expect(json.Nodes.filter((n) => n.ref === 'math/const')).to.have.length(2)
       })
     })
   })
@@ -411,14 +412,21 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.length(7) // 2 'add' nodes and 5 'const' nodes
-        expect(json.edges).to.have.length(6)
+        expect(json.Nodes).to.have.length(7) // 2 'add' nodes and 5 'const' nodes
+        expect(json.Edges).to.have.length(6)
+        console.log(graphAPI.allowsReferences(json))
+        // let final = graphAPI.fromJSON(json)
 
-        // let final = graphAPI.importJSON(json)
-        // expect(utils.getAll(final, 'add')).to.have.length(1)
-        // expect(utils.getAll(final, 'fnc')).to.have.length(1)
-        // expect(utils.getAll(final, 'std/const')).to.have.length(3)
-        // expect(utils.getAll(final, 'math/const')).to.have.length(2)
+        // let nodes = final.nodeNames()
+        // nodes = nodes.map((node) => node.split('_')[0])
+
+        // expect(nodes).to.contain('add')
+        // expect(nodes).to.contain('fnc')
+        // expect(nodes).to.contain('const(1)')
+        // expect(nodes).to.contain('const(2)')
+        // expect(nodes).to.contain('const(3)')
+        // expect(nodes).to.contain('const(hello)')
+        // expect(nodes).to.contain('const(true)')
       })
     })
 
@@ -432,9 +440,15 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.length(6) // 3 'add' nodes and 3 'const' nodes
-        expect(json.edges).to.have.length(6)
+        expect(json.Nodes).to.have.length(6) // 3 'add' nodes and 3 'const' nodes
+        expect(json.Edges).to.have.length(6)
 
+        // let final = graphAPI.fromJSON(json)
+
+        // let nodes = final.nodeNames()
+        // console.log(nodes)
+        // nodes = nodes.map((node) => node.split('_')[0])
+        // console.log(nodes)
         // let final = graphAPI.importJSON(json)
         // expect(utils.getAll(final, 'add')).to.have.length(3)
       })
@@ -450,8 +464,8 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.length(6)
-        expect(json.edges).to.have.length(6)
+        expect(json.Nodes).to.have.length(6)
+        expect(json.Edges).to.have.length(6)
 
         // let final = graphAPI.importJSON(json)
         // expect(utils.getAll(final, 'add')).to.have.length(3)
@@ -476,8 +490,8 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.length(6)
-        expect(json.edges).to.have.length(4)
+        expect(json.Nodes).to.have.length(6)
+        expect(json.Edges).to.have.length(4)
 
         // let final = graphAPI.importJSON(json)
         // expect(utils.getAll(final, 'add')).to.have.length(2)
@@ -495,8 +509,8 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.length(8)
-        expect(json.edges).to.have.length(8)
+        expect(json.Nodes).to.have.length(8)
+        expect(json.Edges).to.have.length(8)
 
         // let final = graphAPI.importJSON(json)
         // expect(utils.getAll(final, 'add')).to.have.length(4)
@@ -512,8 +526,8 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.length(5)
-        expect(json.edges).to.have.length(4)
+        expect(json.Nodes).to.have.length(5)
+        expect(json.Edges).to.have.length(4)
 
         // let final = graphAPI.importJSON(json)
         // expect(utils.getAll(final, 'add')).to.have.length(2)
@@ -527,8 +541,8 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.lengthOf(0)
-        expect(json.edges).to.have.lengthOf(0)
+        expect(json.Nodes).to.have.lengthOf(0)
+        expect(json.Edges).to.have.lengthOf(0)
         expect(json.Components).to.have.lengthOf(1)
 
         expect(json.Components[0].implementation.nodes).to.have.length(2)
@@ -614,8 +628,8 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.length(2)
-        expect(json.edges).to.have.length(1)
+        expect(json.Nodes).to.have.length(2)
+        expect(json.Edges).to.have.length(1)
       })
     })
   })
@@ -626,8 +640,8 @@ describe('edn', () => {
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.lengthOf(3)
-        expect(json.edges).to.have.lengthOf(2)
+        expect(json.Nodes).to.have.lengthOf(3)
+        expect(json.Edges).to.have.lengthOf(2)
         expect(json.Components).to.have.lengthOf(0)
 
         // let finalized = graphAPI.importJSON(json)
@@ -642,8 +656,8 @@ describe('edn', () => {
     //   return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
     //     expectNoError(json)
 
-    //     expect(_.find(json.edges, (e) => e.v === 'const(1)_1').value.inPort).to.equal('input1')
-    //     expect(_.find(json.edges, (e) => e.v === 'const(2)_2').value.inPort).to.equal('input2')
+    //     expect(_.find(json.Edges, (e) => e.v === 'const(1)_1').value.inPort).to.equal('input1')
+    //     expect(_.find(json.Edges, (e) => e.v === 'const(2)_2').value.inPort).to.equal('input2')
     //   })
     // })
 
@@ -657,8 +671,8 @@ describe('edn', () => {
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.lengthOf(3)
-        expect(json.edges).to.have.lengthOf(2)
+        expect(json.Nodes).to.have.lengthOf(3)
+        expect(json.Edges).to.have.lengthOf(2)
         expect(json.Components).to.have.lengthOf(0)
 
         // let finalized = graphAPI.importJSON(json)
@@ -673,8 +687,8 @@ describe('edn', () => {
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.length(1)
-        expect(json.edges).to.have.length(0)
+        expect(json.Nodes).to.have.length(1)
+        expect(json.Edges).to.have.length(0)
 
         // let finalized = graphAPI.importJSON(json)
         // expect(utils.getAll(finalized, 'functional/lambda')).to.have.length(1)
@@ -686,8 +700,8 @@ describe('edn', () => {
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.lengthOf(0)
-        expect(json.edges).to.have.lengthOf(0)
+        expect(json.Nodes).to.have.lengthOf(0)
+        expect(json.Edges).to.have.lengthOf(0)
         expect(json.Components).to.have.lengthOf(1)
 
         expect(json.Components[0].implementation.nodes).to.have.length(1)
@@ -704,8 +718,8 @@ describe('edn', () => {
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.length(3)
-        expect(json.edges).to.have.length(2)
+        expect(json.Nodes).to.have.length(3)
+        expect(json.Edges).to.have.length(2)
 
         // let finalized = graphAPI.importJSON(json)
         // expect(utils.getAll(finalized, 'new')).to.have.length(1)
@@ -719,8 +733,8 @@ describe('edn', () => {
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.length(5)
-        expect(json.edges).to.have.length(4)
+        expect(json.Nodes).to.have.length(5)
+        expect(json.Edges).to.have.length(4)
 
         // let finalized = graphAPI.importJSON(json)
         // expect(utils.getAll(finalized, 'new')).to.have.length(1)
@@ -734,8 +748,8 @@ describe('edn', () => {
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.length(5)
-        expect(json.edges).to.have.length(4)
+        expect(json.Nodes).to.have.length(5)
+        expect(json.Edges).to.have.length(4)
 
         // let finalized = graphAPI.importJSON(json)
         // expect(utils.getAll(finalized, 'new')).to.have.length(1)
@@ -749,8 +763,8 @@ describe('edn', () => {
       return lisgy.parse_to_json(code, true, resolveFn).then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.length(4)
-        expect(json.edges).to.have.length(3)
+        expect(json.Nodes).to.have.length(4)
+        expect(json.Edges).to.have.length(3)
 
         // let finalized = graphAPI.importJSON(json)
         // expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
@@ -768,11 +782,11 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.lengthOf(3)
-        expect(json.edges).to.have.lengthOf(2)
+        expect(json.Nodes).to.have.lengthOf(3)
+        expect(json.Edges).to.have.lengthOf(2)
         expect(json.Components).to.have.lengthOf(0)
 
-        expect(json.nodes[0].value.params).to.deep.equal({ 'partial': 1 })
+        expect(json.Nodes[0].params).to.deep.equal({ 'partial': 1 })
       })
     })
 
@@ -783,11 +797,11 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.lengthOf(3)
-        expect(json.edges).to.have.lengthOf(2)
+        expect(json.Nodes).to.have.lengthOf(3)
+        expect(json.Edges).to.have.lengthOf(2)
         expect(json.Components).to.have.lengthOf(0)
 
-        expect(json.nodes[0].value.params).to.deep.equal({ 'partial': 0 })
+        expect(json.Nodes[0].params).to.deep.equal({ 'partial': 0 })
       })
     })
     it('with 4 args', () => {
@@ -797,11 +811,11 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.lengthOf(7)
-        expect(json.edges).to.have.lengthOf(6)
+        expect(json.Nodes).to.have.lengthOf(7)
+        expect(json.Edges).to.have.lengthOf(6)
         expect(json.Components).to.have.lengthOf(0)
 
-        expect(json.nodes[0].value.params).to.deep.equal({ 'partial': 0 })
+        expect(json.Nodes[0].params).to.deep.equal({ 'partial': 0 })
         return json
       })
 
@@ -811,11 +825,11 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes).to.have.lengthOf(7)
-        expect(json.edges).to.have.lengthOf(6)
+        expect(json.Nodes).to.have.lengthOf(7)
+        expect(json.Edges).to.have.lengthOf(6)
         expect(json.Components).to.have.lengthOf(0)
 
-        expect(json.nodes[0].value.params).to.deep.equal({ 'partial': 0 })
+        expect(json.Nodes[0].params).to.deep.equal({ 'partial': 0 })
         return json
       })
 
@@ -823,8 +837,8 @@ describe('edn', () => {
         let json = arr[0]
         let json2 = arr[1]
 
-        expect(json.nodes).to.deep.equal(json2.nodes)
-        expect(json.edges).to.deep.equal(json2.edges)
+        expect(json.Nodes).to.deep.equal(json2.Nodes)
+        expect(json.Edges).to.deep.equal(json2.Edges)
       })
     })
 
@@ -849,8 +863,8 @@ describe('edn', () => {
         let json = arr[0]
         let json2 = arr[1]
 
-        expect(json.nodes).to.deep.equal(json2.nodes)
-        expect(json.edges).to.deep.equal(json2.edges)
+        expect(json.Nodes).to.deep.equal(json2.Nodes)
+        expect(json.Edges).to.deep.equal(json2.Edges)
       })
     })
 
@@ -887,8 +901,8 @@ describe('edn', () => {
         let json = arr[0]
         let json2 = arr[1]
 
-        expect(json.nodes).to.have.lengthOf(0)
-        expect(json.edges).to.have.lengthOf(0)
+        expect(json.Nodes).to.have.lengthOf(0)
+        expect(json.Edges).to.have.lengthOf(0)
         expect(json.Components).to.have.lengthOf(1)
 
         expect(json.Components.length).to.deep.equal(json2.Components.length)
@@ -934,8 +948,8 @@ describe('edn', () => {
         let json = arr[0]
         let json2 = arr[1]
 
-        expect(json.nodes).to.have.lengthOf(0)
-        expect(json.edges).to.have.lengthOf(0)
+        expect(json.Nodes).to.have.lengthOf(0)
+        expect(json.Edges).to.have.lengthOf(0)
         expect(json.Components).to.have.lengthOf(1)
 
         expect(json.Components.length).to.deep.equal(json2.Components.length)
@@ -982,8 +996,8 @@ describe('edn', () => {
         let json = arr[0]
         let json2 = arr[1]
 
-        expect(json.nodes).to.have.lengthOf(0)
-        expect(json.edges).to.have.lengthOf(0)
+        expect(json.Nodes).to.have.lengthOf(0)
+        expect(json.Edges).to.have.lengthOf(0)
         expect(json.Components).to.have.lengthOf(1)
 
         let componentEdges = json.Components[0].implementation.edges
@@ -1029,12 +1043,12 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
         // 4 nodes 3 edges 3 typeHints
-        expect(json.nodes[1].value.params).to.deep.equal({'value': 1})
-        // expect(json.nodes[1].value.typeHint).to.deep.equal({'output': 'number'})
-        expect(json.nodes[2].value.params).to.deep.equal({'value': true})
-        expect(json.nodes[2].value.typeHint).to.deep.equal({'output': 'boolean'})
-        expect(json.nodes[3].value.params).to.deep.equal({'value': 'text'})
-        expect(json.nodes[3].value.typeHint).to.deep.equal({'output': 'string'})
+        expect(json.Nodes[1].params).to.deep.equal({'value': 1})
+        // expect(json.Nodes[1].value.typeHint).to.deep.equal({'output': 'number'})
+        expect(json.Nodes[2].params).to.deep.equal({'value': true})
+        expect(json.Nodes[2].typeHint).to.deep.equal({'output': 'boolean'})
+        expect(json.Nodes[3].params).to.deep.equal({'value': 'text'})
+        expect(json.Nodes[3].typeHint).to.deep.equal({'output': 'string'})
       })
   })
 
@@ -1045,7 +1059,7 @@ describe('edn', () => {
     return lisgy.parse_to_json(code)
       .then((json) => {
         expectNoError(json)
-        expect(json.nodes[0].value).to.deep.equal({'meta': 'add', 'name': 'A', 'testA': 'testB'})
+        expect(json.Nodes[0]).to.deep.equal({'ref': 'add', 'id': 'A', 'testA': 'testB'})
       })
   })
 
@@ -1058,12 +1072,12 @@ describe('edn', () => {
       .then((json) => {
         expectNoError(json)
 
-        expect(json.nodes[0].value.name).to.equal('A')
-        expect(json.nodes[2].value.name).to.equal('B')
-        expect(json.nodes[4].value.name).to.equal('C')
-        expect(json.nodes[0].value.testA).to.equal('testB')
-        expect(json.nodes[2].value.testA).to.equal('testB')
-        expect(json.nodes[4].value.testA).to.equal('testB')
+        expect(json.Nodes[0].id).to.equal('A')
+        expect(json.Nodes[2].id).to.equal('B')
+        expect(json.Nodes[4].id).to.equal('C')
+        expect(json.Nodes[0].testA).to.equal('testB')
+        expect(json.Nodes[2].testA).to.equal('testB')
+        expect(json.Nodes[4].testA).to.equal('testB')
       })
   })
 
@@ -1152,8 +1166,8 @@ describe('edn', () => {
                   (test 5)`
       return lisgy.parse_to_json(code)
       .then((json) => {
-        expect(json.nodes).to.have.lengthOf(2)
-        expect(json.edges).to.have.lengthOf(1)
+        expect(json.Nodes).to.have.lengthOf(2)
+        expect(json.Edges).to.have.lengthOf(1)
         expect(json.Components).to.have.lengthOf(1)
       })
     })
@@ -1165,8 +1179,8 @@ describe('edn', () => {
                   (testB 5)`
       return lisgy.parse_to_json(code)
       .then((json) => {
-        expect(json.nodes).to.have.lengthOf(2)
-        expect(json.edges).to.have.lengthOf(1)
+        expect(json.Nodes).to.have.lengthOf(2)
+        expect(json.Edges).to.have.lengthOf(1)
         expect(json.Components).to.have.lengthOf(2)
       })
     })
@@ -1177,11 +1191,9 @@ describe('edn', () => {
                   (testB (test/zero))`
       return lisgy.parse_to_json(code, true, resolveFn)
       .then((json) => {
-        expect(json.nodes).to.have.lengthOf(2)
-        expect(json.edges).to.have.lengthOf(1)
+        expect(json.Nodes).to.have.lengthOf(2)
+        expect(json.Edges).to.have.lengthOf(1)
         expect(json.Components).to.have.lengthOf(2)
-
-        logJson(json)
       })
     })
   })
