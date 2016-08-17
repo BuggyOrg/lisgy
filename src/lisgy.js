@@ -458,7 +458,7 @@ function parseEDNtoJSON (ednObj, inputCode) {
     var component = defco(root)
     components[component.id] = component
 
-    json.meta = data[1].name
+    json.meta = data[1].val
     json.ports = []
     json.version = '0.0.0' // TODO
     json.settings = {argumentOrdering: []}
