@@ -1,5 +1,5 @@
 {
-  "code": "(match [(math/add 1 1) (math/add (math/add n 1) m)] [0 0] [\"FizzBuzz\"] [0 _] [\"Fizz\"] [_ 0] [\"Buzz\"] :else [n])",
+  "code": "(match [(math/add 1 1) (math/add (math/add n 1) m)] [0 0] [\"FizzBuzz\"] [0 _] [\"Fizz\"] [_ 0] [\"Buzz\"] else [n])",
   "nodes": [
     {
       "v": "defco_mrules_2",

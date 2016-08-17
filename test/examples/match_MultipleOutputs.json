@@ -1,48 +1,6 @@
 {
-  "code": "(match [(math/add n 1) (math/add 1 1)] [0 0] [n 1] [0 _] [\"Fizz\" 0] [_ 0] [\"Buzz\" 3] :else [(math/add 1 n) 4])",
+  "code": "(match [(math/add n 1) (math/add 1 1)] [0 0] [n 1] [0 _] [\"Fizz\" 0] [_ 0] [\"Buzz\" 3] else [(math/add 1 n) 4])",
   "nodes": [
-    {
-      "v": "defco_out_0_fn_8",
-      "value": {
-        "id": "out_0_fn_8",
-        "inputPorts": {
-          "n": "generic"
-        },
-        "outputPorts": {
-          "out_0": "generic"
-        },
-        "implementation": {
-          "nodes": [
-            {
-              "meta": "math/add",
-              "name": "add_0"
-            },
-            {
-              "meta": "math/const",
-              "name": "const(1)_1",
-              "params": {
-                "value": 1
-              }
-            }
-          ],
-          "edges": [
-            {
-              "from": "const(1)_1:output",
-              "to": "add_0:s1"
-            },
-            {
-              "from": "n",
-              "to": "add_0:s2"
-            },
-            {
-              "from": "add_0:sum",
-              "to": "out_0"
-            }
-          ]
-        },
-        "name": "defco_out_0_fn_8"
-      }
-    },
     {
       "v": "defco_mrules_2",
       "value": {
@@ -224,8 +182,15 @@
               }
             },
             {
-              "meta": "out_0_fn_8",
-              "name": "out_0_fn_8_name"
+              "meta": "math/add",
+              "name": "add_7"
+            },
+            {
+              "meta": "math/const",
+              "name": "const(1)_8",
+              "params": {
+                "value": 1
+              }
             },
             {
               "meta": "mrules_2",
@@ -262,11 +227,15 @@
               "to": "match_rules_2:n"
             },
             {
-              "from": "n",
-              "to": "out_0_fn_8_name:n"
+              "from": "const(1)_8:output",
+              "to": "add_7:s1"
             },
             {
-              "from": "out_0_fn_8_name:out_0",
+              "from": "n",
+              "to": "add_7:s2"
+            },
+            {
+              "from": "add_7:sum",
               "to": "match_rules_2:r8"
             },
             {
