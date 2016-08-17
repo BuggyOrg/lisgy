@@ -96,15 +96,15 @@ describe('edn', () => {
 
       expect(node.ref).to.equal('functional/lambda')
       // TODO: change outputPorts and inputPorts to ports 
-      expect(node.outputPorts).to.deep.equal({ 'fn': 'lambda' })
-      expect(node.inputPorts).to.deep.equal({})
-      expect(node).to.have.property('settings')
-      expect(node.settings).to.have.property('argumentOrdering')
 
-      expect(node.data.inputPorts).to.deep.equal({ 'a': 'generic', 'b': 'generic' })
-      expect(node.data.outputPorts).to.deep.equal({ 'value_0': 'generic' })
-      expect(node.data).to.have.property('settings')
-      expect(node.data.settings).to.have.property('argumentOrdering')
+      expect(node.ports).to.have.lengthOf(1)
+
+      expect(node.ports[0]).to.deep.equal({'name': 'fn', 'kind': 'output', 'type': 'lambda'})
+
+      expect(node.data.ports).to.have.lengthOf(3)
+      expect(node.data.ports[0]).to.deep.equal({'name': 'value_0', 'kind': 'output', 'type': 'generic'})
+      expect(node.data.ports[1]).to.deep.equal({'name': 'a', 'kind': 'input', 'type': 'generic'})
+      expect(node.data.ports[2]).to.deep.equal({'name': 'b', 'kind': 'input', 'type': 'generic'})
 
       var nodes = node.data.implementation.nodes
       var edges = node.data.implementation.edges
@@ -168,8 +168,12 @@ describe('edn', () => {
 
         var node = json.Components[0]
         expect(node.meta).to.equal('mathAdd')
-        expect(node.inputPorts).to.deep.equal({ 'a': 'generic', 'b': 'generic' })
-        expect(node.outputPorts).to.deep.equal({ 'a2': 'generic', 'b3': 'generic' })
+
+        expect(node.ports).to.have.lengthOf(4)
+        expect(node.ports[0]).to.deep.equal({'name': 'a', 'kind': 'input', 'type': 'generic'})
+        expect(node.ports[1]).to.deep.equal({'name': 'b', 'kind': 'input', 'type': 'generic'})
+        expect(node.ports[2]).to.deep.equal({'name': 'a2', 'kind': 'output', 'type': 'generic'})
+        expect(node.ports[3]).to.deep.equal({'name': 'b3', 'kind': 'output', 'type': 'generic'})
 
         var nodes = node.implementation.nodes
         var edges = node.implementation.edges
@@ -192,8 +196,11 @@ describe('edn', () => {
 
         var node = json.Components[0]
         expect(node.meta).to.equal('mathAdd')
-        expect(node.inputPorts).to.deep.equal({ 'a': 'generic', 'b': 'generic' })
-        expect(node.outputPorts).to.deep.equal({ 'value': 'generic' })
+
+        expect(node.ports).to.have.lengthOf(3)
+        expect(node.ports[0]).to.deep.equal({'name': 'a', 'kind': 'input', 'type': 'generic'})
+        expect(node.ports[1]).to.deep.equal({'name': 'b', 'kind': 'input', 'type': 'generic'})
+        expect(node.ports[2]).to.deep.equal({'name': 'value', 'kind': 'output', 'type': 'generic'})
 
         var nodes = node.implementation.nodes
         var edges = node.implementation.edges
@@ -215,8 +222,12 @@ describe('edn', () => {
 
         var node = json.Components[0]
         expect(node.meta).to.equal('mathAdd')
-        expect(node.inputPorts).to.deep.equal({ 'a': 'generic', 'b': 'generic' })
-        expect(node.outputPorts).to.deep.equal({ 'value': 'lambda' })
+
+
+        expect(node.ports).to.have.lengthOf(3)
+        expect(node.ports[0]).to.deep.equal({'name': 'a', 'kind': 'input', 'type': 'generic'})
+        expect(node.ports[1]).to.deep.equal({'name': 'b', 'kind': 'input', 'type': 'generic'})
+        expect(node.ports[2]).to.deep.equal({'name': 'value', 'kind': 'output', 'type': 'generic'})
       })
     })
 
@@ -233,8 +244,10 @@ describe('edn', () => {
 
         var node = json.Components[0]
         expect(node.meta).to.equal('newCo2')
-        expect(node.inputPorts).to.deep.equal({ 'a': 'generic' })
-        expect(node.outputPorts).to.deep.equal({ 'test': 'lambda' })
+
+        expect(node.ports).to.have.lengthOf(2)
+        expect(node.ports[0]).to.deep.equal({'name': 'a', 'kind': 'input', 'type': 'generic'})
+        expect(node.ports[1]).to.deep.equal({'name': 'test', 'kind': 'output', 'type': 'generic'})
 
         var nodes = node.implementation.nodes
         var edges = node.implementation.edges
@@ -246,10 +259,16 @@ describe('edn', () => {
         expect(nodes).to.have.length(1)
         node = nodes[0]
         expect(node.meta).to.equal('functional/lambda')
-        expect(node.inputPorts).to.deep.equal({})
-        expect(node.outputPorts).to.deep.equal({ 'fn': 'lambda' })
-        expect(node.data.inputPorts).to.deep.equal({ 'b': 'generic' })
-        expect(node.data.outputPorts).to.deep.equal({ 'value_0': 'generic' })
+
+
+        expect(node.ports).to.have.lengthOf(1)
+        expect(node.ports[0]).to.deep.equal({'name': 'fn', 'kind': 'output', 'type': 'lambda'})
+
+
+        expect(node.data.ports).to.have.lengthOf(2)
+        expect(node.data.ports[1]).to.deep.equal({'name': 'b', 'kind': 'input', 'type': 'generic'})
+        expect(node.data.ports[0]).to.deep.equal({'name': 'value_0', 'kind': 'output', 'type': 'generic'})
+        // TODO: change order?
       })
     })
 

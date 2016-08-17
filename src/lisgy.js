@@ -499,41 +499,31 @@ function parseEDNtoJSON (ednObj, inputCode) {
     json.meta = 'functional/lambda'
     json.name = data[0].name + '_' + count++
 
-    json.outputPorts = {'fn': 'lambda'}
-    json.settings = {argumentOrdering: ['fn']}
-    json.inputPorts = {}
+    json.ports = []
+    json.ports.push({'name': 'fn', 'kind': 'output', 'type': 'lambda'})
 
     json.data = {}
-    // NOTE: anonymous functions have one output port right now
-    json.data.outputPorts = {'value_0': 'generic'}
-    json.data.settings = {argumentOrdering: []}
 
-    json.data.inputPorts = {}
+    json.data.ports = []
+    json.data.ports.push({'name': 'value_0', 'kind': 'output', 'type': 'generic'})
+
+    var fnInputPorts = []
 
     data[1].val.every((v) => {
-      json.data.inputPorts[v.name] = 'generic'
-      json.data.settings.argumentOrdering.push(v.name)
+      json.data.ports.push({'name': cleanPort(v.name), 'kind': 'input', 'type': 'generic'})
       inputPorts.push(v.name)
+      fnInputPorts.push(v.name)
       return true
     })
-
-    json.data.settings.argumentOrdering.push('value_0')
 
     json.data.implementation = {nodes: [], edges: []}
 
     var to = root.port
     if (json.outputPorts && to || root.parent) {
       // TODO: this forbids nested lambdas
-      root.parent.outputPorts[to] = 'lambda'
+      // root.parent.outputPorts[to] = 'lambda' // TODO: this dose not work anymore!
+      console.error('TODO createLambda set parent outputPort to lambda')
     }
-
-    var fnInputPorts = []
-
-    data[1].val.every((v) => {
-      json.data.inputPorts[v.name] = 'generic'
-      fnInputPorts.push(v.name)
-      return true
-    })
 
     let node = walk(data[2], json.data.implementation, fnInputPorts, 'lambda', 'value_0')
     addEdge(json.data.implementation, node, 'value_0')
@@ -558,18 +548,14 @@ function parseEDNtoJSON (ednObj, inputCode) {
     json.meta = data[1].name
     json.ports = []
     json.version = '0.0.0' // TODO
-    json.inputPorts = {} // old
-    json.outputPorts = {} // old
     json.settings = {argumentOrdering: []}
 
     var inputPorts = []
 
     data[2].val.every((input) => {
-      json.inputPorts[input.name] = 'generic'
-      json.settings.argumentOrdering.push(input.name)
       inputPorts.push(input.name)
 
-      json.ports.push({'name': input.name, 'kind': 'input', 'type': 'generic'})
+      json.ports.push({'name': cleanPort(input.name), 'kind': 'input', 'type': 'generic'})
       return true
     })
 
@@ -577,10 +563,7 @@ function parseEDNtoJSON (ednObj, inputCode) {
 
     data[3].val.every((output) => {
       if (output instanceof edn.Keyword) {
-        json.outputPorts[cleanPort(output.name)] = 'generic'
-        json.settings.argumentOrdering.push(cleanPort(output.name))
-
-        json.ports.push({'name': output.name, 'kind': 'output', 'type': 'generic'})
+        json.ports.push({'name': cleanPort(output.name), 'kind': 'output', 'type': 'generic'})
       }
       return true
     })
@@ -595,9 +578,6 @@ function parseEDNtoJSON (ednObj, inputCode) {
     if (next.val[0] !== ':') {
       next = data[3]
       let port = cleanPort('value')
-      json.outputPorts[port] = 'generic'
-      json.settings.argumentOrdering.push(port)
-
       json.ports.push({'name': 'value', 'kind': 'output', 'type': 'generic'})
 
       next.port = port
@@ -626,9 +606,7 @@ function parseEDNtoJSON (ednObj, inputCode) {
         }
       }
     }
-    log(1, json.id + ' inputPorts', json.inputPorts)
-    log(1, json.id + ' outputPorts', json.outputPorts)
-
+    log(1, json.id + ' ports', json.ports)
     // nodes.push(json)
 
     allInputPorts = [] // reset ports
@@ -1178,16 +1156,21 @@ function parseEDNtoJSON (ednObj, inputCode) {
                   log(2, 'Partial needed for ' + arg.val)
 
                   console.error(chalk.bold.yellow('Warning using automatic partial addition (wip) inside ' + node.name))
-                  let lastLambdaInputPorts = lastLambda.data.inputPorts
-                  let newArgNumber = Object.keys(lastLambdaInputPorts).length
+                  let lastLambdaInputPorts = lastLambda.data.ports.filter((port) => { return port.kind === 'input' })
+
+                  let newArgNumber = lastLambdaInputPorts.length
 
                   let newPortName
                   let tempPortCount = 0
                   // add new temp_# input ports
                   while (true) {
                     newPortName = 'temp_' + tempPortCount
-                    if (!lastLambdaInputPorts[newPortName]) {
+                    if (!lastLambdaInputPorts.some((port) => {return port.name === newPortName })) {
                       lastLambdaInputPorts[newPortName] = 'generic'
+                      let newPort = {'name': newPortName, 'kind': 'input', 'type': 'generic'}
+                      lastLambda.data.ports.push(newPort)
+                      lastLambdaInputPorts.push(newPort)
+
                       break
                     }
                     tempPortCount++
