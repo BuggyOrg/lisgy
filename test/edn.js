@@ -414,19 +414,19 @@ describe('edn', () => {
 
         expect(json.Nodes).to.have.length(7) // 2 'add' nodes and 5 'const' nodes
         expect(json.Edges).to.have.length(6)
-        console.log(graphAPI.allowsReferences(json))
-        // let final = graphAPI.fromJSON(json)
 
-        // let nodes = final.nodeNames()
-        // nodes = nodes.map((node) => node.split('_')[0])
+        let final = graphAPI.clone(json) // TODO: change graphAPI.clone to graphAPI.fromJSON
 
-        // expect(nodes).to.contain('add')
-        // expect(nodes).to.contain('fnc')
-        // expect(nodes).to.contain('const(1)')
-        // expect(nodes).to.contain('const(2)')
-        // expect(nodes).to.contain('const(3)')
-        // expect(nodes).to.contain('const(hello)')
-        // expect(nodes).to.contain('const(true)')
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('add')
+        expect(nodes).to.contain('fnc')
+        expect(nodes).to.contain('const(1)')
+        expect(nodes).to.contain('const(2)')
+        expect(nodes).to.contain('const(3)')
+        expect(nodes).to.contain('const(hello)')
+        expect(nodes).to.contain('const(true)')
       })
     })
 
@@ -443,14 +443,15 @@ describe('edn', () => {
         expect(json.Nodes).to.have.length(6) // 3 'add' nodes and 3 'const' nodes
         expect(json.Edges).to.have.length(6)
 
-        // let final = graphAPI.fromJSON(json)
+        let final = graphAPI.clone(json) // TODO: clone to fromJSON
 
-        // let nodes = final.nodeNames()
-        // console.log(nodes)
-        // nodes = nodes.map((node) => node.split('_')[0])
-        // console.log(nodes)
-        // let final = graphAPI.importJSON(json)
-        // expect(utils.getAll(final, 'add')).to.have.length(3)
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('add') // TODO: check for 3 add nodes
+        expect(nodes).to.contain('const(1)')
+        expect(nodes).to.contain('const(2)')
+        expect(nodes).to.contain('const(3)')
       })
     })
 
@@ -467,8 +468,15 @@ describe('edn', () => {
         expect(json.Nodes).to.have.length(6)
         expect(json.Edges).to.have.length(6)
 
-        // let final = graphAPI.importJSON(json)
-        // expect(utils.getAll(final, 'add')).to.have.length(3)
+        let final = graphAPI.clone(json) // TODO: clone to fromJSON
+
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('add') // TODO: check for 3 add nodes
+        expect(nodes).to.contain('const(1)')
+        expect(nodes).to.contain('const(2)')
+        expect(nodes).to.contain('const(3)')
       })
     })
 
@@ -493,8 +501,16 @@ describe('edn', () => {
         expect(json.Nodes).to.have.length(6)
         expect(json.Edges).to.have.length(4)
 
-        // let final = graphAPI.importJSON(json)
-        // expect(utils.getAll(final, 'add')).to.have.length(2)
+        let final = graphAPI.clone(json) // TODO: clone to fromJSON
+
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('add') // TODO: check for 2 add nodes
+        expect(nodes).to.contain('const(1)')
+        expect(nodes).to.contain('const(2)')
+        expect(nodes).to.contain('const(3)')
+        expect(nodes).to.contain('const(4)')
       })
     })
 
@@ -512,8 +528,16 @@ describe('edn', () => {
         expect(json.Nodes).to.have.length(8)
         expect(json.Edges).to.have.length(8)
 
-        // let final = graphAPI.importJSON(json)
-        // expect(utils.getAll(final, 'add')).to.have.length(4)
+        let final = graphAPI.clone(json) // TODO: clone to fromJSON
+
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('add') // TODO: check for 4 add nodes
+        expect(nodes).to.contain('const(1)')
+        expect(nodes).to.contain('const(2)')
+        expect(nodes).to.contain('const(3)')
+        expect(nodes).to.contain('const(4)')
       })
     })
 
@@ -529,8 +553,15 @@ describe('edn', () => {
         expect(json.Nodes).to.have.length(5)
         expect(json.Edges).to.have.length(4)
 
-        // let final = graphAPI.importJSON(json)
-        // expect(utils.getAll(final, 'add')).to.have.length(2)
+        let final = graphAPI.clone(json) // TODO: clone to fromJSON
+
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('add') // TODO: check for 2 add nodes
+        expect(nodes).to.contain('const(1)')
+        expect(nodes).to.contain('const(2)')
+        expect(nodes).to.contain('const(3)')
       })
     })
 
@@ -599,10 +630,17 @@ describe('edn', () => {
       return lisgy.parse_to_json(code)
       .then((json) => {
         expectNoError(json)
-        // var gr = graphAPI.importJSON(json)
-        // expect(gr.nodes()).to.have.length(2)
-        // expect(gr.edges()).to.have.length(2)
-        // expect(utils.getAll(graphAPI.importJSON(json), 'add')).to.have.length(1)
+
+        expect(json.Nodes).to.have.length(2)
+        expect(json.Edges).to.have.length(2)
+
+        let final = graphAPI.clone(json) // TODO: clone to fromJSON
+
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('add')
+        expect(nodes).to.contain('const(3)')
       })
     })
   })
@@ -644,10 +682,14 @@ describe('edn', () => {
         expect(json.Edges).to.have.lengthOf(2)
         expect(json.Components).to.have.lengthOf(0)
 
-        // let finalized = graphAPI.importJSON(json)
-        // expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
-        // expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
-        // expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
+        let final = graphAPI.clone(json) // TODO: clone to fromJSON
+
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('two')
+        expect(nodes).to.contain('zero')
+        expect(nodes).to.contain('const(2)')
       })
     })
 
@@ -675,10 +717,14 @@ describe('edn', () => {
         expect(json.Edges).to.have.lengthOf(2)
         expect(json.Components).to.have.lengthOf(0)
 
-        // let finalized = graphAPI.importJSON(json)
-        // expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
-        // expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
-        // expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
+        let final = graphAPI.clone(json) // TODO: clone to fromJSON
+
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('two')
+        expect(nodes).to.contain('zero')
+        expect(nodes).to.contain('const(2)')
       })
     })
 
@@ -690,8 +736,12 @@ describe('edn', () => {
         expect(json.Nodes).to.have.length(1)
         expect(json.Edges).to.have.length(0)
 
-        // let finalized = graphAPI.importJSON(json)
-        // expect(utils.getAll(finalized, 'functional/lambda')).to.have.length(1)
+        let final = graphAPI.clone(json) // TODO: clone to fromJSON
+
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('fn')
       })
     })
 
@@ -706,10 +756,6 @@ describe('edn', () => {
 
         expect(json.Components[0].implementation.nodes).to.have.length(1)
         expect(json.Components[0].implementation.edges).to.have.length(3)
-
-        // TODO: update graphlib
-        // let finalized = graphAPI.importJSON(json)
-        // expect(utils.getAll(finalized, 'new')).to.have.length(1)
       })
     })
 
@@ -721,10 +767,14 @@ describe('edn', () => {
         expect(json.Nodes).to.have.length(3)
         expect(json.Edges).to.have.length(2)
 
-        // let finalized = graphAPI.importJSON(json)
-        // expect(utils.getAll(finalized, 'new')).to.have.length(1)
-        // expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
-        // expect(utils.getAll(finalized, 'math/const')).to.have.length(1)
+        let final = graphAPI.clone(json) // TODO: clone to fromJSON
+
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('new')
+        expect(nodes).to.contain('zero')
+        expect(nodes).to.contain('const(2)')
       })
     })
 
@@ -736,10 +786,16 @@ describe('edn', () => {
         expect(json.Nodes).to.have.length(5)
         expect(json.Edges).to.have.length(4)
 
-        // let finalized = graphAPI.importJSON(json)
-        // expect(utils.getAll(finalized, 'new')).to.have.length(1)
-        // expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
-        // expect(utils.getAll(finalized, 'math/const')).to.have.length(3)
+        let final = graphAPI.clone(json) // TODO: clone to fromJSON
+
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('new')
+        expect(nodes).to.contain('two')
+        expect(nodes).to.contain('const(1)')
+        expect(nodes).to.contain('const(2)')
+        expect(nodes).to.contain('const(3)')
       })
     })
 
@@ -751,10 +807,16 @@ describe('edn', () => {
         expect(json.Nodes).to.have.length(5)
         expect(json.Edges).to.have.length(4)
 
-        // let finalized = graphAPI.importJSON(json)
-        // expect(utils.getAll(finalized, 'new')).to.have.length(1)
-        // expect(utils.getAll(finalized, 'test/two')).to.have.length(1)
-        // expect(utils.getAll(finalized, 'math/const')).to.have.length(3)
+        let final = graphAPI.clone(json) // TODO: clone to fromJSON
+
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('new')
+        expect(nodes).to.contain('two')
+        expect(nodes).to.contain('const(1)')
+        expect(nodes).to.contain('const(2)')
+        expect(nodes).to.contain('const(3)')
       })
     })
 
@@ -766,10 +828,15 @@ describe('edn', () => {
         expect(json.Nodes).to.have.length(4)
         expect(json.Edges).to.have.length(3)
 
-        // let finalized = graphAPI.importJSON(json)
-        // expect(utils.getAll(finalized, 'test/zero')).to.have.length(1)
-        // expect(utils.getAll(finalized, 'test/three')).to.have.length(1)
-        // expect(utils.getAll(finalized, 'std/const')).to.have.length(2)
+        let final = graphAPI.clone(json) // TODO: clone to fromJSON
+
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('zero')
+        expect(nodes).to.contain('three')
+        expect(nodes).to.contain('const(1)')
+        expect(nodes).to.contain('const(hello)')
       })
     })
   })
@@ -1169,6 +1236,14 @@ describe('edn', () => {
         expect(json.Nodes).to.have.lengthOf(2)
         expect(json.Edges).to.have.lengthOf(1)
         expect(json.Components).to.have.lengthOf(1)
+
+        let final = graphAPI.fromJSON(json)
+
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('test')
+        expect(nodes).to.contain('const(5)')
       })
     })
 
@@ -1182,18 +1257,60 @@ describe('edn', () => {
         expect(json.Nodes).to.have.lengthOf(2)
         expect(json.Edges).to.have.lengthOf(1)
         expect(json.Components).to.have.lengthOf(2)
+
+        let final = graphAPI.fromJSON(json)
+
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('testB')
+        expect(nodes).to.contain('const(5)')
       })
     })
 
     it('3nd (resolve)', () => {
       var code = `(defco testA [a b] (test/two a b))
                   (defco testB [a] (testA a a))
-                  (testB (test/zero))`
+                  (testB 4)`
       return lisgy.parse_to_json(code, true, resolveFn)
       .then((json) => {
         expect(json.Nodes).to.have.lengthOf(2)
         expect(json.Edges).to.have.lengthOf(1)
         expect(json.Components).to.have.lengthOf(2)
+
+        let final = graphAPI.fromJSON(json)
+
+        expect(final.Nodes).to.have.lengthOf(2)
+        expect(final.Edges).to.have.lengthOf(1)
+        expect(final.Components).to.have.lengthOf(2)
+
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('testB')
+        expect(nodes).to.contain('const(4)')
+      })
+    })
+
+    it('4st', () => {
+      var code = `(defcop add [s1 s2] [sum])
+                  (defco test [a] (add a 2))
+                  (add 2 (test 5))`
+      return lisgy.parse_to_json(code)
+      .then((json) => {
+        expect(json.Nodes).to.have.lengthOf(4)
+        expect(json.Edges).to.have.lengthOf(3)
+        expect(json.Components).to.have.lengthOf(1)
+
+        let final = graphAPI.clone(json) // change clone to fromJSON
+
+        let nodes = final.nodeNames()
+        nodes = nodes.map((node) => node.split('_')[0])
+
+        expect(nodes).to.contain('add')
+        expect(nodes).to.contain('const(2)')
+        expect(nodes).to.contain('test')
+        expect(nodes).to.contain('const(5)')
       })
     })
   })
