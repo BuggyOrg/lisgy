@@ -111,73 +111,8 @@ export function parse_edn (inputCode) { // eslint-disable-line camelcase
 
   return ednObj
 
-  function replaceLet (obj, parent) {
-    if (obj.val && obj.val[0] && obj.val[0].val === 'let') {
-      obj = walk(obj, parent)
-      return obj.val
-    }
-    obj = _.map(obj.val, (obj) => {
-      if (obj instanceof edn.Symbol) {
-        // for (var i = vars.length - 1; i >= 0; i--) {
-        var mapTo = _.findLast(getAllVars(), (v) => { return v.name === obj.val })
-        if (mapTo) {
-          return mapTo.val
-        }
-        // }
-      } else {
-        return walk(obj, parent)
-      }
-      return obj
-    })
-    return obj
-  }
-
-  function replaceVars (obj, vars) {
-    if (!obj.val) {
-      return obj
-    }
-    for (var i = 0; i < obj.val.length; i++) {
-      var data = obj.val[i]
-      var mapTo
-      if (data instanceof edn.Symbol) {
-        mapTo = _.findLast(vars, (v) => { return v.name === data.val })
-        if (mapTo) {
-          if (typeof (mapTo.val.val) !== 'string') {
-            mapTo.val.val[0].fromVariable = mapTo.id
-          }
-          obj.val[i] = mapTo.val
-        }
-      } else {
-        mapTo = replaceVars(data, vars)
-        if (obj.val[i] !== mapTo) {
-          obj.val[i] = mapTo
-        }
-      }
-    }
-    return obj
-  }
-
   function getAllVars () {
     return _.reduce(vars, (acc, v) => _.concat(acc, v), [])
-  }
-
-  function mapVars (ednVars) {
-    if (ednVars.val.length % 2 !== 0) {
-      logError('letOld has a wrong number of variables')
-      return []
-    }
-
-    var newVars = []
-    for (var i = 0; i < ednVars.val.length;) {
-      var name = ednVars.val[i++].val
-      var val = ednVars.val[i++]
-      val = replaceVars(val, _.concat(getAllVars(), newVars))
-      newVars.push({'name': name,
-                 'id': {name, id: i},
-                 'val': val})
-    }
-
-    return newVars
   }
 
   function walk (obj, parent) {
@@ -185,25 +120,7 @@ export function parse_edn (inputCode) { // eslint-disable-line camelcase
     if (obj instanceof edn.List || obj instanceof edn.Vector ||
         obj instanceof edn.Map || obj instanceof edn.Set) {
       var first = obj.val[0]
-      if (first instanceof edn.Symbol && first.val === 'letOld') {
-        logError('Warning letOld used')
-        var newVars = mapVars(obj.val[1])
-        if (newVars.length === 0) {
-          return obj
-        }
-        vars.push(newVars)
-
-        var newObj = new edn.List(replaceLet(obj.val[2], parent))
-
-        for (i = 3; i < obj.val.length; i++) {
-          var oldObj = obj.val[i++]
-          var newObj2 = new edn.List(replaceLet(oldObj, parent))
-          parent.push(newObj2)
-        }
-
-        obj = newObj
-        vars.pop()
-      } else if (first instanceof edn.Symbol && (first.val === 'partial' || first.val === 'functional/partial') && obj.val.length > 4) {
+      if (first instanceof edn.Symbol && (first.val === 'partial' || first.val === 'functional/partial') && obj.val.length > 4) {
         var rest = new edn.List([first, obj.val[1], obj.val[2]])
         for (i = 3; i < obj.val.length; i++) {
           rest = new edn.List([first, rest, obj.val[i]])
@@ -438,9 +355,7 @@ function parseEDNtoJSON (ednObj, inputCode) {
 
 
   // TODO: cleanup
-  if (json.Nodes.length <= 0 && false) {
-    json.Nodes = _.map(nodes, (node) => { node.name = 'defco_' + node.id; return node })
-  } else if (true) {
+  if (true) {
     // else add all the new components to the node array
     var filtered = _.filter(nodes, (node) => _.find(json.Nodes, (nodeJ) => { return nodeJ.id && nodeJ.id !== node.id }))
 
@@ -522,12 +437,10 @@ function parseEDNtoJSON (ednObj, inputCode) {
     if (json.outputPorts && to || root.parent) {
       // TODO: this forbids nested lambdas
       // root.parent.outputPorts[to] = 'lambda' // TODO: this dose not work anymore!
-      console.error('TODO createLambda set parent outputPort to lambda')
     }
 
     let node = walk(data[2], json.data.implementation, fnInputPorts, 'lambda', 'value_0')
     addEdge(json.data.implementation, node, 'value_0')
-    // nodes.push(json)
     return json
   }
 
@@ -573,10 +486,10 @@ function parseEDNtoJSON (ednObj, inputCode) {
     json.implementation = {nodes: [], edges: []}
 
     let node
-    // walk
-    var next = data[3].val[0]
-    if (next.val[0] !== ':') {
-      next = data[3]
+    // check if the 3rd arg starts with ':'
+    if (data[3].val[0].val[0] !== ':') {
+      // no output port names defined, use one default output port 'value'
+      let next = data[3]
       let port = cleanPort('value')
       json.ports.push({'name': 'value', 'kind': 'output', 'type': 'generic'})
 
@@ -589,12 +502,13 @@ function parseEDNtoJSON (ednObj, inputCode) {
         addEdge(json.implementation, node, port)
       }
     } else {
+      // output port names are defined
       var outputs = data[3].val
       for (var i = 0; i < outputs.length; i++) {
         if (outputs[i] instanceof edn.Keyword) {
           var key = outputs[i++]
           let port = cleanPort(key.name)
-          next = outputs[i]
+          let next = outputs[i]
           next.port = port
           next.parent = json
           node = walk(next, json.implementation, inputPorts)
@@ -607,7 +521,6 @@ function parseEDNtoJSON (ednObj, inputCode) {
       }
     }
     log(1, json.id + ' ports', json.ports)
-    // nodes.push(json)
 
     allInputPorts = [] // reset ports
 
@@ -718,6 +631,10 @@ function parseEDNtoJSON (ednObj, inputCode) {
     return _.findLast(getAllVars(), (v) => { return v.name === varName })
   }
 
+  /**
+   * Used for let
+   * @returns {vars[]} A list of new vars
+   */
   function mapVars (ednVars) {
     if (ednVars.val.length % 2 !== 0) {
       logError('let has a wrong number of variables')
@@ -748,18 +665,21 @@ function parseEDNtoJSON (ednObj, inputCode) {
         root instanceof edn.Map || root instanceof edn.Set) {
       var name = data[0].name
       switch (name) {
+        // (def newName oldName)
         case 'def':
-          // (def NAME oldName)
           var newName = data[1].val
           var oldName = data[2].val
           defines[newName] = oldName
           log(1, 'def map from ' + oldName + ' to ' + newName)
           return
+        // (defco name [inputs*] (exprs))
+        // (defco name [inputs*] [:output (exprs) ...])
         case 'defco':
-          var component = createComponent(root)
+          let newComponent = createComponent(root)
           // TODO: check if it was already added?
-          implementation.Components.push(component.json)
+          implementation.Components.push(newComponent.json)
           return
+        // (defcop [inputs*] [outputs*])
         case 'defcop':
           component = defcop(root)
           components[component.id] = component
@@ -767,19 +687,15 @@ function parseEDNtoJSON (ednObj, inputCode) {
           log(1, '- inputPorts', component.input)
           log(1, '- outputPorts', component.output)
           return
+        // (lambda [inputs*] (exprs)) or (fn [inputs*] (exprs))
         case 'lambda':
         case 'fn':
           log(1, 'lambda fn')
           var fn = gNode(createLambda(root))
           implementation.nodes.push(fn)
           return {name: fn.name, outputPorts: ['fn'], port: 'fn'}
-        case 'parse':
-          // old
-          // (parse (FN))
-          log(1, 'parse')
-          return walk(data[1], implementation, inputPorts)
+        // (port :name (exprs))
         case 'port':
-          // (port :outPort (FN))
           var newOutPort = cleanPort(data[1].val)
           log(1, 'port ' + newOutPort)
           let node = walk(data[2], implementation, inputPorts, parrent, inPort, newOutPort)
@@ -787,10 +703,10 @@ function parseEDNtoJSON (ednObj, inputCode) {
             node.port = newOutPort
           }
           return node
-        case 'letOld':
-          error('could not transform a (letOld [...] ...)')
-          return
+        // (let [var (exprs) ...] (exprs) ...)
         case 'let':
+          let newNode
+
           newVars = mapVars(data[1])
           if (newVars.length === 0) {
             error('let has a wrong number of variables', getLocation(data[1]))
@@ -804,71 +720,11 @@ function parseEDNtoJSON (ednObj, inputCode) {
           })
 
           vars.push(newVars)
-
-          let newNode
           for (let i = 2; i < data.length; i++) {
             newNode = walk(data[i], implementation, inputPorts, parrent, inPort, newOutPort)
           }
           vars.pop()
-          return newNode
-        case 'ifOLD':
-          // old
-          // NOTE: needs cleanup
-          log(1, 'ifOLD')
-          var check = data[1]
-          var variable = 'n' // TODO: get true variable from check
-          var trueExp = data[2]
-          var falseExp = data[3]
-
-          var demuxC = components['logic/demux']
-          var joinC = components['control/join']
-
-          var demux = {'meta': demuxC.id, 'name': 'demux_' + count++}
-          var join = {'meta': joinC.id, 'name': 'join_' + count++}
-
-          implementation.nodes.push(gNode(demux))
-          implementation.nodes.push(gNode(join))
-
-          implementation.edges.push(gEdge(variable, demux.name + ':' + demuxC.input[0]))
-
-          check.port = demux.name + ':' + demuxC.input[1]
-          walk(check, implementation, [variable])
-
-          var trueImp = {nodes: [], edges: []}
-          var falseImp = {nodes: [], edges: []}
-
-          walk(trueExp, trueImp, [variable])
-          walk(falseExp, falseImp, [variable])
-
-          var updateEdges = function (id) {
-            return (e) => {
-              if (e.from === variable) {
-                e.from = demux.name + ':' + demuxC.output[id]
-              }
-              if (e.to === 'undefined:undefined' || e.to === 'value') {
-                e.to = join.name + ':' + joinC.input[id]
-              }
-              return e
-            }
-          }
-
-          trueImp.edges = _.map(trueImp.edges, updateEdges(0))
-          falseImp.edges = _.map(falseImp.edges, updateEdges(1))
-
-          // console.error(trueImp)
-          // console.error(falseImp)
-
-          var concatArrays = function (name, to, fromA, fromB) {
-            to[name] = _.concat(to[name], fromA[name])
-            to[name] = _.concat(to[name], fromB[name])
-          }
-
-          concatArrays('edges', implementation, trueImp, falseImp)
-          concatArrays('nodes', implementation, trueImp, falseImp)
-
-          implementation.edges.push(gEdge(variable, demux.name + ':' + demuxC.input[0]))
-          break
-
+          return newNode // return the last exprs node
         case 'match':
           var input = data[1].val
           var variables = getVariables(input)
@@ -1020,16 +876,6 @@ function parseEDNtoJSON (ednObj, inputCode) {
             error('The input/output ports for component ' + node.meta +
                   ' are not defined via (defcop ' + node.meta + ' [...] [...]), only for ' + componentNames, getLocation(data[0]))
             return
-          }
-
-          var newComponent = _.find(nodes, (n) => n.id === node.meta)
-
-          if (newComponent && false /* do -not- add the component */) {
-            delete node.meta
-            node.id = newComponent.id
-            node.inputPorts = newComponent.inputPorts
-            node.outputPorts = newComponent.outputPorts
-            node.implementation = newComponent.implementation
           }
 
           if (outPort && !_.find(component.output, (id) => { return id === outPort })) {
@@ -1405,16 +1251,8 @@ export function edn_add_components (ednObj, specialResolver) { // eslint-disable
       case 'lambda':
         walkAndFindFunctions(root[2].val)
         break
-      case 'parse':
-        walkAndFindFunctions(root[1].val)
-        break
       case 'port':
         walkAndFindFunctions(root[2].val)
-        break
-      case 'ifOLD':
-        walkAndFindFunctions(root[1].val)
-        walkAndFindFunctions(root[2].val)
-        walkAndFindFunctions(root[3].val)
         break
       case 'let':
         let vars = root[1].val
