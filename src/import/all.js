@@ -29,3 +29,7 @@ strings['all'] = math + logic + io + control + functional + array + translator
 
 export var string = strings['all']
 export { strings }
+
+// import { strings } from './all'
+// import { getImport } from './import'
+// getAllImports(code).then((imports) => Promise.all(imports.map((i) => getImport(i))).then((codes) => codes.join('\n'))
