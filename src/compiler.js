@@ -25,6 +25,6 @@ function compileWithContext (ednObj, context) {
 }
 
 export function compile (ednObj) {
-  const context = { modules: {}, variables: {} }
+  const context = { modules: {}, variables: {}, count: 0 }
   return compileWithContext(ednObj, context)
 }
