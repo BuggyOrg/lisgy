@@ -1,7 +1,7 @@
 /* global describe, it */
 import { expect } from 'chai'
-import { parse } from '../src/parser'
-import { compile } from '../src/compiler'
+import { parse } from '../../src/parser'
+import { compile } from '../../src/compiler'
 
 let logJson = (json) => {
   console.log(JSON.stringify(json, null, 2))
