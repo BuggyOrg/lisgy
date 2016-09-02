@@ -1,12 +1,5 @@
 import * as Graph from '@buggyorg/graphtools'
-
-function cleanPort (port) {
-  return (port[0] === ':') ? port.slice(1) : port
-}
-
-function createPort (name, kind, type) {
-  return { name: cleanPort(name), kind, type }
-}
+import { createPort } from '../util/graph'
 
 /**
  * (defco NAME (INPUT*) (:OUTPUT1 (FN1) :OUTPUT2 (FN2) ...))
