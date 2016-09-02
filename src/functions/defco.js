@@ -37,9 +37,9 @@ export default function (ednObject, { context, compile, graph }) {
 
     newContext.toPortName = outPort.name
     let next = ednObject.val[3]
-    graph = compile(next, newContext).graph
+    graph = compile(next, newContext, graph).graph
   } else {
-  // defco with defined ports
+    // defco with defined ports
     let outputs = ednObject.val[3].val
     for (var i = 0; i < outputs.length; i++) {
       let outPort = createPort(outputs[i].val, 'output', 'generic')
@@ -47,7 +47,7 @@ export default function (ednObject, { context, compile, graph }) {
       i++
       let next = outputs[i]
       newContext.toPortName = outPort.name
-      compile(next, newContext)
+      graph = compile(next, newContext, graph)
     }
   }
 

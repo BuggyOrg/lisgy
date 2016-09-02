@@ -2,7 +2,7 @@ import * as Graph from '@buggyorg/graphtools'
 import _ from 'lodash'
 import { compilationError } from '../compiler'
 
-export default function (ednObject, { context, compile }) {
+export default function (ednObject, { context, compile, graph }) {
   // (FN exprs1 exprs2 ...)
   /* let newNode = graphTools.newNode('FN')
   for (exprs in ednObjct.args) {
@@ -16,17 +16,19 @@ export default function (ednObject, { context, compile }) {
 
   // let newNode = {'ref': name, 'id': id}
 
-  if (!context.modules[name]) {
+  const component = _.cloneDeep(context.components[name])
+  component.id = _.uniqueId('cmp_')
+  if (!component) {
     throw compilationError(`Undefined component "${name}"`, ednObject.val[0])
   }
 
-  let port = context.modules[name].ports.find((port) => { return port.kind === 'output' })
+  let port = component.ports.find((port) => { return port.kind === 'output' })
 
   console.log('default fn called ' + name + ' from ' + port.name + ' to ' + context.toPortName)
 
-  let inputPorts = context.modules[name].ports.filter((port) => { return port.kind === 'input' })
+  let inputPorts = component.ports.filter((port) => { return port.kind === 'input' })
 
-  let newGraph = Graph.empty()
+  let newGraph = graph.addNode(component)
 
   // compile exprsns
   for (let i = 1; i < ednObject.val.length; i++) {
@@ -45,7 +47,7 @@ export default function (ednObject, { context, compile }) {
       let tempResult = compile(element, context, Graph.empty())
 
       if (!tempResult.result || tempResult.result.port) {
-        throw new Error(':( no result out port')
+        throw compilationError('Component does not return a value', element)
       }
       // TODO: combine tempResult.graph with newGraph
       // newGraph.addEdge()

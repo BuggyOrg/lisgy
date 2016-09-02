@@ -6,7 +6,6 @@ function createPort (name, kind, type) {
 
 export default function (ednObject, { context, graph }) {
   let name = ednObject.val[1].val
-  console.log('defcop for ' + name)
 
   let allPorts = []
   let newNode = {'componentId': name, 'ports': allPorts, 'Nodes': [], 'Edges': [], 'Note': 'defcop'}
