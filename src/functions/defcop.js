@@ -1,8 +1,10 @@
+import _ from 'lodash'
+
 function createPort (name, kind, type) {
   return {'name': name, 'kind': kind, 'type': type}
 }
 
-export default function (ednObject, { context }) {
+export default function (ednObject, { context, graph }) {
   let name = ednObject.val[1].val
   console.log('defcop for ' + name)
 
@@ -19,7 +21,8 @@ export default function (ednObject, { context }) {
     return true
   })
 
-  context.modules[name] = newNode
-
-  return {context}
+  return {
+    context: Object.assign({}, context, {
+      components: _.set(_.clone(context.components || {}), name, newNode)
+    }), graph}
 }
