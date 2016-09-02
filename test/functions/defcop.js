@@ -1,16 +1,25 @@
 /* global describe, it */
 import { expect } from 'chai'
+import * as Graph from '@buggyorg/graphtools'
 import { parse } from '../../src/parser'
-import { compile } from '../../src/compiler'
+import { defaultContext } from '../../src/compiler'
+import defcopImpl from '../../src/functions/defcop'
 
-let logJson = (json) => {
-  console.log(JSON.stringify(json, null, 2))
+function defcop (code) {
+  return defcopImpl(parse(code).val[0], {
+    context: defaultContext(),
+    graph: Graph.empty()
+  })
 }
 
-describe('defcop test', () => {
-  it.only('Test One', () => {
-    const parsed = parse('(defcop + [s1 s2] [o1])')
-    const compiled = compile(parsed)
-    // TODO: add tests
+describe('defcop', () => {
+  it('should define components', () => {
+    const { context } = defcop('(defcop + [s1 s2] [o1])')
+    expect(context.components['+']).to.be.defined
+  })
+
+  it('should not return a modified graph', () => {
+    const { graph } = defcop('(defcop + [s1 s2] [o1])')
+    expect(graph.toJSON()).to.deep.equal(Graph.empty().toJSON())
   })
 })

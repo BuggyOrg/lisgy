@@ -24,5 +24,7 @@ export default function (ednObject, { context, graph }) {
   return {
     context: Object.assign({}, context, {
       components: _.set(_.clone(context.components || {}), name, newNode)
-    }), graph}
+    }),
+    graph
+  }
 }
