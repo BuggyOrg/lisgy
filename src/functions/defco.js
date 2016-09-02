@@ -5,7 +5,7 @@ import { createPort } from '../util/graph'
  * (defco NAME (INPUT*) (:OUTPUT1 (FN1) :OUTPUT2 (FN2) ...))
  * (defco NAME (INPUT*) (FN1))
  */
-export default function (ednObject, { context, compile }) {
+export default function (ednObject, { context, compile, graph }) {
   if (!ednObject.val || ednObject.val.length < 1) {
     console.log('bäh')
     throw new Error('b#h')
@@ -17,22 +17,27 @@ export default function (ednObject, { context, compile }) {
   let allPorts = ednObject.val[2].val.map((port) => createPort(port.val, 'input', 'generic'))
 
   let newNode = {
+    id: name + '_' + context.count++,
     componentId: name,
     ports: allPorts,
     Nodes: [],
     Edges: []
   }
 
-  context.parent = newNode
+  let newContext = Object.assign({}, context, {
+    parent: newNode,
+    variables: inputPorts, // TODO: cleanup
+    toPortName: ''
+  })
 
   // defco with defaul output
   if (ednObject.val[3].val[0].val[0] !== ':') {
     let outPort = createPort('value', 'output', 'generic')
     allPorts.push(outPort)
 
-    context.toPortName = outPort.name
+    newContext.toPortName = outPort.name
     let next = ednObject.val[3]
-    compile(next, context)
+    graph = compile(next, newContext).graph
   } else {
   // defco with defined ports
     let outputs = ednObject.val[3].val
@@ -41,25 +46,25 @@ export default function (ednObject, { context, compile }) {
       allPorts.push(outPort)
       i++
       let next = outputs[i]
-      context.toPortName = outPort.name
-      compile(next, context)
+      newContext.toPortName = outPort.name
+      compile(next, newContext)
     }
   }
 
-  delete context.toPortName
-  delete context.parent
+  delete newContext.toPortName
+  delete newContext.parent
 
-  context.modules[name] = newNode
+  // newContext.modules[name] = newNode
+  let cmpt = Graph.compound(newNode)
+  console.log(cmpt, null, 2)
+  let newGraph = Graph.addComponent(graph, cmpt)
 
-  if (!context.graph) {
-    context.graph = Graph.empty()
-  }
-  // let cmpt = Graph.compound(newNode)
   // context.graph.addNode(cmpt)
 
   // TODO create and return { graph, port }
   return {
-    context // new context (with new deco'ed component)
+    context: newContext,
+    graph: newGraph
     // node, // created node
     // outputPort: 'output' // output port for next component (not applicable for defco)
   }

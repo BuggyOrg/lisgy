@@ -8,12 +8,12 @@ export default function (ednObject, { context, compile }) {
       newNode.add(compile(exprs, context).node)
       // create edges
   } */
-  let parent = context.parent
+  // let parent = context.parent
 
   let name = ednObject.val[0].val
   let id = name + '_' + context.count++
 
-  let newNode = {'ref': name, 'id': id}
+  // let newNode = {'ref': name, 'id': id}
 
   if (!context.modules[name]) {
     throw new Error('unable to find module ' + name)
@@ -23,10 +23,9 @@ export default function (ednObject, { context, compile }) {
 
   console.log('default fn called ' + name + ' from ' + port.name + ' to ' + context.toPortName)
 
-  parent.Nodes.push(newNode)
-  parent.Edges.push({'from': id + ':' + port.name, 'to': context.toPortName})
-
   let inputPorts = context.modules[name].ports.filter((port) => { return port.kind === 'input' })
+
+  let newGraph = Graph.empty()
 
   // compile exprsns
   for (let i = 1; i < ednObject.val.length; i++) {
@@ -35,14 +34,28 @@ export default function (ednObject, { context, compile }) {
     let toPortName = id + ':' + inputPorts[i - 1].name
     if (_.isString(value)) {
       console.log('TODO: std/const string', value, toPortName)
+      // newGraph.addNode()
     } else if (_.isNumber(value)) {
       console.log('TODO: std/const number', value, toPortName)
     } else {
       console.log('TODO?: compile', element)
+
       context.toPortName = toPortName
-      compile(element, context)
+      let tempResult = compile(element, context, Graph.empty())
+
+      if (!tempResult.result || tempResult.result.port) {
+        throw new Error(':( no result out port')
+      }
+      // TODO: combine tempResult.graph with newGraph
+      // newGraph.addEdge()
+      // parent.Edges.push({'from': id + ':' + port.name, 'to': tempResult.result.port})
+
+
+      /**
+       * (add (add (add 1 2) 3) 4)
+       */
+      // newGraph.addNode(tempResult.graph)
     }
   }
-
-  return { context }
+  return { context, graph: newGraph }
 }
