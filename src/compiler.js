@@ -10,7 +10,7 @@ function compileWithContext (ednObj, context, graph) {
   if (_.isArray(ednObj.val)) {
     if (_.isString(ednObj.val[0].val)) {
       const fn = getFunctionHandler(ednObj.val[0].val)
-      const result = fn(ednObj, { context, compile: compileWithContext })
+      const result = fn(ednObj, { context, graph, compile: compileWithContext })
       if (result) {
         return { context: result.context || context, graph: result.graph || graph }
       } else {
