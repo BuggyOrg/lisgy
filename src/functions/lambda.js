@@ -1,6 +1,7 @@
 import * as Graph from '@buggyorg/graphtools'
 import _ from 'lodash'
 import { createPort } from '../util/graph'
+import { compilationError } from '../../src/compiler'
 
 /**
  * (lambda [p1 p2 ...] (fn ...))
@@ -17,9 +18,7 @@ export default function (ednObject, { context, compile, graph }) {
     componentId: 'functional/lambda',
     ports: [
       { name: 'fn', kind: 'output', type: 'function' }
-    ],
-    Nodes: [],
-    Edges: []
+    ]
   })
 
   const compiledImplementation = compile(implementation, context, Graph.compound({
@@ -29,15 +28,24 @@ export default function (ednObject, { context, compile, graph }) {
       createPort('output', 'output', 'generic')
     ]
   }))
+  
+  if (!compiledImplementation.result) {
+    throw compilationError('Component has no value', implementation.val[2])
+  }
 
   lambdaNode = lambdaNode.addNode(compiledImplementation.graph)
   // TODO add the edge
 
   const newGraph = graph.addNode(lambdaNode)
+
   console.log(JSON.stringify(newGraph, null, 2))
 
   return {
     context: Object.assign({}, context, {}),
-    graph: newGraph
+    graph: newGraph,
+    result: {
+      node: [lambdaNode.id],
+      port: 'fn'
+    }
   }
 }
