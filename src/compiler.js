@@ -39,11 +39,14 @@ function compileWithContext (ednObj, context, graph) {
 }
 
 export function compile (ednObj) {
-  const context = {
+  return compileWithContext(ednObj, defaultContext(), Graph.empty()).graph
+}
+
+export function defaultContext () {
+  return {
     modules: {},
     variables: {},
     components: {},
     count: 0
   }
-  return compileWithContext(ednObj, context, Graph.empty()).graph
 }
