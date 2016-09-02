@@ -50,3 +50,27 @@ export function defaultContext () {
     count: 0
   }
 }
+
+export function compilationError (msg, ednObj, moduleName) {
+  return new CompilationError(msg, CompilationError.getErrorLocation(ednObj), moduleName)
+}
+
+export class CompilationError extends Error {
+  constructor (err, location, moduleName = 'unknown-module') {
+    super(`[${moduleName}:${location.startLine}:${location.startCol}] ${err}`)
+    this.moduleName = moduleName
+    this.location = CompilationError.getErrorLocation(err)
+  }
+
+  /**
+   * Gets the location (line, column) of the given edn object.
+   */
+  static getErrorLocation (ednObj) {
+    return {
+      startLine: ednObj.posLineStart,
+      startCol: ednObj.posColStart,
+      endLine: ednObj.posLineEnd,
+      endCol: ednObj.posColEnd
+    }
+  }
+}

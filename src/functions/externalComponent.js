@@ -1,5 +1,6 @@
-// import {graphTools} from '@buggyorg/graphtools'
+import * as Graph from '@buggyorg/graphtools'
 import _ from 'lodash'
+import { compilationError } from '../compiler'
 
 export default function (ednObject, { context, compile }) {
   // (FN exprs1 exprs2 ...)
@@ -16,7 +17,7 @@ export default function (ednObject, { context, compile }) {
   // let newNode = {'ref': name, 'id': id}
 
   if (!context.modules[name]) {
-    throw new Error('unable to find module ' + name)
+    throw compilationError(`Undefined component "${name}"`, ednObject.val[0])
   }
 
   let port = context.modules[name].ports.find((port) => { return port.kind === 'output' })
