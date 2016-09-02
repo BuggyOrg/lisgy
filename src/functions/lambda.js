@@ -5,7 +5,7 @@ import { createPort } from '../util/graph'
 /**
  * (lambda [p1 p2 ...] (fn ...))
  */
-export default function (ednObject, { context, compile }) {
+export default function (ednObject, { context, compile, graph }) {
   const parameters = ednObject.val[1].val
   console.log(JSON.stringify(parameters, null, 2))
 
@@ -33,7 +33,7 @@ export default function (ednObject, { context, compile }) {
   lambdaNode = lambdaNode.addNode(compiledImplementation.graph)
   // TODO add the edge
 
-  const newGraph = context.addNode(lambdaNode)
+  const newGraph = graph.addNode(lambdaNode)
   console.log(JSON.stringify(newGraph, null, 2))
 
   return {

@@ -1,21 +1,20 @@
 import _ from 'lodash'
 import * as Graph from '@buggyorg/graphtools'
 import { parse } from '../../src/parser'
-import { compile } from '../../src/compiler'
-import { defaultContext } from '../../src/compiler'
+import { compile, defaultContext } from '../../src/compiler'
 
-export {Graph, parse, compile}
+export { Graph, parse, compile, defaultContext }
 
 /**
  * @param{Implementation} implementation The implementation that will be called.
  * @param{Context} [context] If no context is given, the default context will be used.
  * @returns A function that can be called with a code string or jsedn object as argument
  */
-export function wrapFunction (implementation, context) {
-  return function (code) {
+export function wrapFunction (implementation) {
+  return function (code, context = defaultContext()) {
     return implementation(
       _.isString(code) ? parse(code).val[0] : code, {
-        context: context || defaultContext(),
+        context: context,
         graph: Graph.empty()
       })
   }
