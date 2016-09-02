@@ -2,8 +2,6 @@ import _ from 'lodash'
 import * as Graph from '@buggyorg/graphtools'
 import * as functions from './functions'
 
-function ifDefinedOr(value, )
-
 function getFunctionHandler (name) {
   return functions[name] || functions.externalComponent
 }
