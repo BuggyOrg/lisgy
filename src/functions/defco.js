@@ -5,7 +5,7 @@ function cleanPort (port) {
 }
 
 function createPort (name, kind, type) {
-  return {'name': cleanPort(name), 'kind': kind, 'type': type}
+  return { name: cleanPort(name), kind, type }
 }
 
 /**
@@ -20,16 +20,15 @@ export default function (ednObject, { context, compile }) {
   const name = ednObject.val[1].val
   console.log('Creating new component ' + name)
 
-  let allPorts = []
+  let inputPorts = ednObject.val[2].val.map((port) => port.val)
+  let allPorts = ednObject.val[2].val.map((port) => createPort(port.val, 'input', 'generic'))
 
-  let inputPorts = []
-  ednObject.val[2].val.every((iPort) => {
-    inputPorts.push(iPort.val)
-    allPorts.push(createPort(iPort.val, 'input', 'generic'))
-    return true
-  })
-
-  let newNode = {'componentId': name, 'ports': allPorts, 'Nodes': [], 'Edges': []}
+  let newNode = {
+    componentId: name,
+    ports: allPorts,
+    Nodes: [],
+    Edges: []
+  }
 
   context.parent = newNode
 
@@ -45,8 +44,9 @@ export default function (ednObject, { context, compile }) {
   // defco with defined ports
     let outputs = ednObject.val[3].val
     for (var i = 0; i < outputs.length; i++) {
-      let outPort = createPort(outputs[i++].val, 'output', 'generic')
+      let outPort = createPort(outputs[i].val, 'output', 'generic')
       allPorts.push(outPort)
+      i++
       let next = outputs[i]
       context.toPortName = outPort.name
       compile(next, context)
