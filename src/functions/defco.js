@@ -11,13 +11,14 @@ export default function (ednObject, { context, compile, graph }) {
     throw new Error('b#h')
   }
   const name = ednObject.val[1].val
-  console.log('Creating new component ' + name)
+  // console.log('Creating new component ' + name)
 
   let inputPorts = ednObject.val[2].val.map((port) => port.val)
   let allPorts = ednObject.val[2].val.map((port) => createPort(port.val, 'input', 'generic'))
 
-  let newNode = {
+  const newNode = {
     id: name + '_' + context.count++,
+    version: '0.0.0', // TODO: add version string
     componentId: name,
     ports: allPorts,
     Nodes: [],
@@ -30,34 +31,47 @@ export default function (ednObject, { context, compile, graph }) {
     toPortName: ''
   })
 
+  let cmpt = Graph.compound(newNode)
+
   // defco with defaul output
   if (ednObject.val[3].val[0].val[0] !== ':') {
     let outPort = createPort('value', 'output', 'generic')
-    allPorts.push(outPort)
+    cmpt.ports.push(outPort)
 
     newContext.toPortName = outPort.name
     let next = ednObject.val[3]
-    graph = compile(next, newContext, graph).graph
+    let out = compile(next, newContext, cmpt)
+    cmpt = out.graph
+    if (out.context.toPortName) {
+      cmpt = cmpt.addEdge({from: out.context.toPortName, to: newNode.id + '@value'})
+    } else {
+      console.log('NO EXTRA EDGE!', allPorts)
+    }
   } else {
     // defco with defined ports
+    // TODO: NIJ
     let outputs = ednObject.val[3].val
     for (var i = 0; i < outputs.length; i++) {
       let outPort = createPort(outputs[i].val, 'output', 'generic')
-      allPorts.push(outPort)
+      cmpt.ports.push(outPort)
       i++
       let next = outputs[i]
       newContext.toPortName = outPort.name
-      graph = compile(next, newContext, graph)
+      // cmpt = compile(next, newContext, cmpt).graph
     }
   }
 
   delete newContext.toPortName
   delete newContext.parent
 
-  // newContext.modules[name] = newNode
-  let cmpt = Graph.compound(newNode)
-  console.log(cmpt, null, 2)
-  let newGraph = Graph.addComponent(graph, cmpt)
+  let newGraph
+
+  try {
+    newGraph = graph.addComponent(cmpt)
+  } catch (e) {
+    console.log('ERROR MÄH :(', e)
+    newGraph = graph
+  }
 
   // context.graph.addNode(cmpt)
 

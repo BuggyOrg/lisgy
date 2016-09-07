@@ -1,32 +1,28 @@
 import * as Graph from '@buggyorg/graphtools'
 import _ from 'lodash'
 import { compilationError } from '../compiler'
+import { createPort, contextHasVariable } from '../util/graph'
 
 export default function (ednObject, { context, compile, graph }) {
   // (FN exprs1 exprs2 ...)
-  /* let newNode = graphTools.newNode('FN')
-  for (exprs in ednObjct.args) {
-      newNode.add(compile(exprs, context).node)
-      // create edges
-  } */
-  // let parent = context.parent
-
   let name = ednObject.val[0].val
-  let id = name + '_' + context.count++
 
-  // let newNode = {'ref': name, 'id': id}
+  let newContext = _.cloneDeep(context)
 
   const component = _.cloneDeep(context.components[name])
-  component.id = _.uniqueId('cmp_')
+  component.id = _.uniqueId(name + '_')
   if (!component) {
     throw compilationError(`Undefined component "${name}"`, ednObject.val[0])
   }
 
+
   let port = component.ports.find((port) => { return port.kind === 'output' })
 
-  console.log('default fn called ' + name + ' from ' + port.name + ' to ' + context.toPortName)
+  // console.log('default fn called ' + name + ' from ' + port.name + ' to ' + context.toPortName)
 
   let inputPorts = component.ports.filter((port) => { return port.kind === 'input' })
+
+  newContext.toPortName = component.id + '@' + port.name // TODO: cleanup?
 
   let newGraph = graph.addNode(component)
 
@@ -34,31 +30,46 @@ export default function (ednObject, { context, compile, graph }) {
   for (let i = 1; i < ednObject.val.length; i++) {
     let element = ednObject.val[i]
     let value = element.val || element
-    let toPortName = id + ':' + inputPorts[i - 1].name
+    let toPortName = component.id + '@' + inputPorts[i - 1].name // TODO: should be (i - 1)
     if (_.isString(value)) {
-      console.log('TODO: std/const string', value, toPortName)
-      // newGraph.addNode()
+      if (contextHasVariable(context, value)) {
+        newGraph = newGraph.addEdge({'from': '@' + value, 'to': toPortName})
+        continue
+      }
+
+      let stdNode = {
+        ref: 'std/const',
+        id: _.uniqueId('const_'),
+        MetaInformation: {type: 'string', value: value}
+      }
+      // add new node and edge
+      newGraph = newGraph.addNode(stdNode)
+                         .addEdge({'from': stdNode.id + '@0', 'to': toPortName})
     } else if (_.isNumber(value)) {
-      console.log('TODO: std/const number', value, toPortName)
+      let stdNode = {
+        ref: 'std/const',
+        id: _.uniqueId('const_'),
+        MetaInformation: {type: 'number', value: value}
+      }
+      // add new node and edge
+      newGraph = newGraph.addNode(stdNode)
+                         .addEdge({'from': stdNode.id + '@0', 'to': toPortName})
     } else {
-      console.log('TODO?: compile', element)
+      newContext.toPortName = toPortName // TODO: cleanup?
 
-      context.toPortName = toPortName
-      let tempResult = compile(element, context, Graph.empty())
+      // add new node(s)
+      let result = compile(element, newContext, newGraph)
 
-      if (!tempResult.result || tempResult.result.port) {
+      if (!result.result || result.result.port) {
+        // TODO: allow no values returned
         throw compilationError('Component does not return a value', element)
       }
-      // TODO: combine tempResult.graph with newGraph
-      // newGraph.addEdge()
-      // parent.Edges.push({'from': id + ':' + port.name, 'to': tempResult.result.port})
 
+      newContext.toPortName = result.context.toPortName
 
-      /**
-       * (add (add (add 1 2) 3) 4)
-       */
-      // newGraph.addNode(tempResult.graph)
+      // add new edge
+      newGraph = result.graph.addEdge({'from': result.context.toPortName, 'to': toPortName})
     }
   }
-  return { context, graph: newGraph }
+  return { context: newContext, graph: newGraph }
 }

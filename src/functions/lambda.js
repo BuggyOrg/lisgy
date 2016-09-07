@@ -8,10 +8,10 @@ import { compilationError } from '../../src/compiler'
  */
 export default function (ednObject, { context, compile, graph }) {
   const parameters = ednObject.val[1].val
-  console.log(JSON.stringify(parameters, null, 2))
+  // console.log(JSON.stringify(parameters, null, 2))
 
   const implementation = ednObject.val[2]
-  console.log(JSON.stringify(implementation, null, 2))
+  // console.log(JSON.stringify(implementation, null, 2))
 
   let lambdaNode = Graph.compound({
     id: _.uniqueId('lambdaNode_'),
@@ -28,7 +28,7 @@ export default function (ednObject, { context, compile, graph }) {
       createPort('output', 'output', 'generic')
     ]
   }))
-  
+
   if (!compiledImplementation.result) {
     throw compilationError('Component has no value', implementation.val[2])
   }
@@ -38,7 +38,7 @@ export default function (ednObject, { context, compile, graph }) {
 
   const newGraph = graph.addNode(lambdaNode)
 
-  console.log(JSON.stringify(newGraph, null, 2))
+  // console.log(JSON.stringify(newGraph, null, 2))
 
   return {
     context: Object.assign({}, context, {}),
