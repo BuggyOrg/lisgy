@@ -57,6 +57,14 @@ class ParseError extends Error {
         endLine: end[0],
         endCol: end[1]
       }
+    } else {
+      // TODO: update jsedn error strings :sad:
+      return {
+        startLine: 0,
+        startCol: 0,
+        endLine: 0,
+        endCol: 0
+      }
     }
   }
 }
