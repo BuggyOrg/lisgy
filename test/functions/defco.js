@@ -41,6 +41,13 @@ describe('defco test', () => {
     expect(edges[2]).to.containSubset({from: 'math/add_3', to: 'myInc_0'})
   })
 
+  it('should create a new component with a version number', () => {
+    const parsed = parse('(defcop math/add [s1 s2] [o1]) (defco myInc@1.33.7 [x] (math/add 1 x))')
+    const compiled = compile(parsed)
+    let inc = compiled.components()[0]
+    expect(inc).to.containSubset({version: '1.33.7'})
+  })
+
   it('should create a new component inc with two named output ports', () => {
     const parsed = parse('(defcop + [s1 s2] [o1]) (defco inc [x] [:one (+ 1 x) :two (+ 2 x)])')
     const compiled = compile(parsed)

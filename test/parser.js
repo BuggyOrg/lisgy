@@ -34,4 +34,9 @@ describe('the parser', () => {
       expect.fail()
     }
   })
+
+  it('should parse a string with @', () => {
+    const edn = parse('(hello@1.33.8)')
+    // should not fail
+  })
 })
