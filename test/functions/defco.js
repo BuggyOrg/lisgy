@@ -42,10 +42,11 @@ describe('defco test', () => {
   })
 
   it('should create a new component with a version number', () => {
-    const parsed = parse('(defcop math/add [s1 s2] [o1]) (defco myInc@1.33.7 [x] (math/add 1 x))')
+    const parsed = parse('(defcop math/add [s1 s2] [o1]) (defco myInc@1.33.7 [x] (math/add@1.0.11 1 x))')
     const compiled = compile(parsed)
     let inc = compiled.components()[0]
     expect(inc).to.containSubset({version: '1.33.7'})
+    expect(inc.Nodes[0]).to.containSubset({version: '1.0.11'})
   })
 
   it('should create a new component inc with two named output ports', () => {

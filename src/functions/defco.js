@@ -10,7 +10,9 @@ export default function (ednObject, { context, compile, graph }) {
     console.log('bäh')
     throw new Error('b#h')
   }
-  const name = ednObject.val[1].val
+  let split = ednObject.val[1].val.split('@')
+  const name = split[0]
+  const version = split[1] || '0.0.0'
   // console.log('Creating new component ' + name)
 
   let inputPorts = ednObject.val[2].val.map((port) => port.val)
@@ -18,7 +20,7 @@ export default function (ednObject, { context, compile, graph }) {
 
   const newNode = {
     id: name + '_' + context.count++,
-    version: '0.0.0', // TODO: add version string
+    version: version, // TODO: add version string
     componentId: name,
     ports: allPorts,
     Nodes: [],

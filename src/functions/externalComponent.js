@@ -5,11 +5,13 @@ import { createPort, contextHasVariable } from '../util/graph'
 
 export default function (ednObject, { context, compile, graph }) {
   // (FN exprs1 exprs2 ...)
-  let name = ednObject.val[0].val
+  let split = ednObject.val[0].val.split('@')
+  const name = split[0]
+  const version = split[1]
 
   let newContext = _.cloneDeep(context)
 
-  const component = _.cloneDeep(context.components[name])
+  let component = _.cloneDeep(context.components[name])
   component.id = _.uniqueId(name + '_')
   if (!component) {
     throw compilationError(`Undefined component "${name}"`, ednObject.val[0])
@@ -23,6 +25,10 @@ export default function (ednObject, { context, compile, graph }) {
   let inputPorts = component.ports.filter((port) => { return port.kind === 'input' })
 
   newContext.toPortName = component.id + '@' + port.name // TODO: cleanup?
+
+  if (version) {
+    component.version = version
+  }
 
   let newGraph = graph.addNode(component)
 
