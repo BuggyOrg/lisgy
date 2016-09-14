@@ -2,6 +2,7 @@ import * as Graph from '@buggyorg/graphtools'
 import _ from 'lodash'
 import { compilationError } from '../compiler'
 import { createPort, contextHasVariable } from '../util/graph'
+import { constCompile, isConstValue} from './const'
 
 export default function (ednObject, { context, compile, graph }) {
   // (FN exprs1 exprs2 ...)
@@ -24,7 +25,8 @@ export default function (ednObject, { context, compile, graph }) {
 
   let inputPorts = component.ports.filter((port) => { return port.kind === 'input' })
 
-  newContext.toPortName = component.id + '@' + port.name // TODO: cleanup?
+  const externalToPortName = component.id + '@' + port.name // TODO: cleanup?
+  newContext.toPortName = externalToPortName
 
   if (version) {
     component.version = version
@@ -42,27 +44,12 @@ export default function (ednObject, { context, compile, graph }) {
         newGraph = newGraph.addEdge({'from': '@' + value, 'to': toPortName})
         continue
       }
+    }
 
-      let stdNode = {
-        ref: 'std/const',
-        id: _.uniqueId('const_'),
-        MetaInformation: {type: 'string', value: value}
-      }
-      // add new node and edge
-      newGraph = newGraph.addNode(stdNode)
-                         .addEdge({'from': stdNode.id + '@0', 'to': toPortName})
-    } else if (_.isNumber(value)) {
-      let stdNode = {
-        ref: 'std/const',
-        id: _.uniqueId('const_'),
-        MetaInformation: {type: 'number', value: value}
-      }
-      // add new node and edge
-      newGraph = newGraph.addNode(stdNode)
-                         .addEdge({'from': stdNode.id + '@0', 'to': toPortName})
+    newContext.toPortName = toPortName // TODO: cleanup?
+    if (isConstValue(value)) {
+      newGraph = constCompile(value, {context: newContext, graph: newGraph}).graph
     } else {
-      newContext.toPortName = toPortName // TODO: cleanup?
-
       // add new node(s)
       let result = compile(element, newContext, newGraph)
 
@@ -77,5 +64,6 @@ export default function (ednObject, { context, compile, graph }) {
       newGraph = result.graph.addEdge({'from': result.context.toPortName, 'to': toPortName})
     }
   }
+  newContext.toPortName = externalToPortName
   return { context: newContext, graph: newGraph }
 }

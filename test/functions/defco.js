@@ -36,9 +36,9 @@ describe('defco test', () => {
 
     // bad syntax
     let edges = inc.edges()
-    expect(edges[0]).to.containSubset({from: 'const_4', to: 'math/add_3'})
-    expect(edges[1]).to.containSubset({from: 'myInc_0', to: 'math/add_3'})
-    expect(edges[2]).to.containSubset({from: 'math/add_3', to: 'myInc_0'})
+    expect(edges[0]).to.containSubset({from: 'const_5', to: 'math/add_4'})
+    expect(edges[1]).to.containSubset({from: 'myInc_0', to: 'math/add_4'})
+    expect(edges[2]).to.containSubset({from: 'math/add_4', to: 'myInc_0'})
   })
 
   it('should create a new component with a version number', () => {
