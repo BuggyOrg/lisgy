@@ -20,7 +20,7 @@ create simple buggy graphs from lisp code
 2) `#(EXP) with VARS as %0,..., %n = VAR_N`
 
 - [ ] `(let [VARS] EXPRS)`
-- [ ]  extra Node data `(FN ARGS {:data 'Some data'})`
+- [x]  extra Node data `(FN ARGS {:data 'Some data'})` or `(defco [ARGS] ... {:data 'Some data'})`
 - [ ] `(port EXPRS)`
 
 

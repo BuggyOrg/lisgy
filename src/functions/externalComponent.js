@@ -1,8 +1,9 @@
-import * as Graph from '@buggyorg/graphtools'
+// import * as Graph from '@buggyorg/graphtools'
 import _ from 'lodash'
 import { compilationError } from '../compiler'
-import { createPort, contextHasVariable } from '../util/graph'
-import { constCompile, isConstValue} from './const'
+import { contextHasVariable } from '../util/graph'
+import { constCompile, isConstValue } from './const'
+import { extraInfosAdded, isInfoObject } from '../util/edn.js'
 
 export default function (ednObject, { context, compile, graph }) {
   // (FN exprs1 exprs2 ...)
@@ -18,7 +19,6 @@ export default function (ednObject, { context, compile, graph }) {
     throw compilationError(`Undefined component "${name}"`, ednObject.val[0])
   }
 
-
   let port = component.ports.find((port) => { return port.kind === 'output' })
 
   // console.log('default fn called ' + name + ' from ' + port.name + ' to ' + context.toPortName)
@@ -32,11 +32,19 @@ export default function (ednObject, { context, compile, graph }) {
     component.version = version
   }
 
+  // add extra info from last element
+  extraInfosAdded(component, ednObject.val[ednObject.val.length - 1])
+
   let newGraph = graph.addNode(component)
 
   // compile exprsns
   for (let i = 1; i < ednObject.val.length; i++) {
     let element = ednObject.val[i]
+
+    if (isInfoObject(element)) {
+      continue
+    }
+
     let value = element.val || element
     let toPortName = component.id + '@' + inputPorts[i - 1].name // TODO: should be (i - 1)
     if (_.isString(value)) {

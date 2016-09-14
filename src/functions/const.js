@@ -54,7 +54,7 @@ export function isConstValue (ednObject, context) {
     // Note: check if the string is a variable from the context?
     return true
   }
-  if (_.isArray(value) && value.length === 0 ) { 
+  if (_.isArray(value) && value.length === 0) {
     return true
   }
 

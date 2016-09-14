@@ -1,5 +1,6 @@
 import * as Graph from '@buggyorg/graphtools'
 import { createPort } from '../util/graph'
+import { extraInfosAdded } from '../util/edn.js'
 
 /**
  * (defco NAME (INPUT*) (:OUTPUT1 (FN1) :OUTPUT2 (FN2) ...))
@@ -49,17 +50,23 @@ export default function (ednObject, { context, compile, graph }) {
     } else {
       console.log('NO EXTRA EDGE!', allPorts)
     }
+
+    extraInfosAdded(cmpt, ednObject.val[4])
   } else {
     // defco with defined ports
     // TODO: NIJ
     let outputs = ednObject.val[3].val
     for (var i = 0; i < outputs.length; i++) {
+      if (extraInfosAdded(cmpt, outputs[i])) {
+        continue
+      }
+
       let outPort = createPort(outputs[i].val, 'output', 'generic')
       cmpt.ports.push(outPort)
       i++
       let next = outputs[i]
       newContext.toPortName = outPort.name
-      // cmpt = compile(next, newContext, cmpt).graph
+      cmpt = compile(next, newContext, cmpt).graph
     }
   }
 

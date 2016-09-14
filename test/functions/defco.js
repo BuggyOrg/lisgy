@@ -55,6 +55,15 @@ describe('defco test', () => {
     // logJson(compiled)
   })
 
+  it('should add extra infos to the new component', () => {
+    const parsed = parse('(defcop math/add [s1 s2] [o1]) (defco myInc [x] (math/add 1 x) {info "extra" info2 "extra2"})')
+    const compiled = compile(parsed)
+    let inc = compiled.components()[0]
+    console.log(inc.info)
+    expect(inc).to.be.defined
+    expect(inc).to.containSubset({info: 'extra', info2: 'extra2'})
+  })
+
   it('should throw on missing module/component', () => {
     let compiled = false
     try {
