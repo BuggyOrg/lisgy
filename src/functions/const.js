@@ -6,12 +6,17 @@ export function constCompile (ednObject, { context, graph }) {
   let value = ednObject.val || ednObject
   let stdNode
 
-  if (_.isArray(value) && value.length > 1) {
-    if (value[0].val !== 'const') {
-      // TODO: add error if not (const ...)
-      return {context, graph}
+  if (_.isArray(value)) {
+    if (value.length === 0) {
+      // empty array []
+      console.log('TODO array/empty NYI')
+    } else if (value.length > 1) {
+      if (value[0].val !== 'const') {
+        // TODO: add error if not (const ...)
+        return {context, graph}
+      }
+      value = value[1]
     }
-    value = value[1]
   }
 
   if (_.isString(value)) {
@@ -40,7 +45,7 @@ export function constCompile (ednObject, { context, graph }) {
   return {graph: newGraph, context}
 }
 
-export function isConstValue (ednObject) {
+export function isConstValue (ednObject, context) {
   let value = ednObject.val || ednObject
   if (_.isNumber(value)) {
     return true
@@ -49,5 +54,9 @@ export function isConstValue (ednObject) {
     // Note: check if the string is a variable from the context?
     return true
   }
+  if (_.isArray(value) && value.length === 0 ) { 
+    return true
+  }
+
   return false
 }

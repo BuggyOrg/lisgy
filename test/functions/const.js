@@ -8,10 +8,10 @@ const constC = wrapFunction(constCompile)
 describe('const', () => {
   it('should check if we have a const value', () => {
     let context = {}
-    expect(isConstValue('a', context))
-    expect(isConstValue(42, context))
-    expect(isConstValue('[]', context))
-    expect(isConstValue([], context))
+    expect(isConstValue('a', context)).to.be.true
+    expect(isConstValue(42, context)).to.be.true
+    expect(isConstValue('[]', context)).to.be.true
+    expect(isConstValue([], context)).to.be.true
     // TODO: variables?
   })
 
