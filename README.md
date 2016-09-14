@@ -7,6 +7,29 @@ create simple buggy graphs from lisp code
    :output2 (math/add inputA inputB)})
 ```
 
+**REWRITE TODO**
+
+- [ ] lambdas
+
+1) `(F [VAR_0 ... VAR_N] EXPRS)`
+```
+  F = [fn, lambda]
+  VARS multiple variables
+  EXPS multiple expressions, only the last expression is 'returned'
+```
+2) `#(EXP) with VARS as %0,..., %n = VAR_N`
+
+- [ ] `(let [VARS] EXPRS)`
+- [ ]  extra Node data `(FN ARGS {:data 'Some data'})`
+- [ ] `(port EXPRS)`
+
+
+--------------------------------------------------------
+
+**OLD README**
+
+
+
 **TODO**
 - [ ] Anonymous functions `#(...)`
 - [ ] Better error handling with lines for components/edn objects
