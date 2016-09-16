@@ -54,6 +54,7 @@ export default function (ednObject, { context, compile, graph }) {
     if (isConstValue(element)) {
       newGraph = constCompile(value, {context: context, graph: newGraph}).graph
     } else {
+      // TODO element might be a variable, create an edge if that is the case (Maik will do that soon)
       // add new node(s)
       let result = compile(element, context, newGraph)
 
