@@ -51,7 +51,7 @@ export default function (ednObject, { context, compile, graph }) {
       }
     }
 
-    if (isConstValue(value)) {
+    if (isConstValue(element)) {
       newGraph = constCompile(value, {context: context, graph: newGraph}).graph
     } else {
       // add new node(s)
