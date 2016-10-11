@@ -10,15 +10,9 @@ create simple buggy graphs from lisp code
 **REWRITE TODO**
 
 - [ ] lambdas
-
-1) `(F [VAR_0 ... VAR_N] EXPRS)`
-```
-  F = [fn, lambda]
-  VARS multiple variables
-  EXPS multiple expressions, only the last expression is 'returned'
-```
-2) `#(EXP) with VARS as %0,..., %n = VAR_N`
-
+  - [ ] `(lambda [var_0 ... var_n] expressions)` where only the last expression is 'returned'
+  - [ ] `(fn [var_0 ... var_n] expressions)` where only the last expression is 'returned'
+  - [x] `#(expression)` where `%1`...`%n` are implicit arguments, i.e. `#(math/add %1 %2)` is the same as `(lambda [%1 %2] (math/add %1 %2))`
 - [ ] `(let [VARS] EXPRS)`
 - [x]  extra Node data `(FN ARGS {:data 'Some data'})` or `(defco [ARGS] ... {:data 'Some data'})`
 - [ ] `(port EXPRS)`

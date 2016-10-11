@@ -48,17 +48,17 @@ export function constCompile (ednObject, { context, graph }) {
 }
 
 export function isConstValue (ednObject, context) {
-  let value = ednObject.val || ednObject
-  if (_.isNumber(value)) {
+  if (_.isString(ednObject)) {
+    // if the ednObject (!) is a string, then it was an actual string and not a variable
+    // otherwise, ednObject has a structure like { name: "variableName", ... }
     return true
   }
-  if (_.isString(value)) {
-    // Note: check if the string is a variable from the context?
+  const value = ednObject.val || ednObject
+  if (_.isNumber(value)) {
     return true
   }
   if (_.isArray(value) && value.length === 0) {
     return true
   }
-
   return false
 }

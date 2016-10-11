@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import * as Graph from '@buggyorg/graphtools'
 import * as functions from './functions'
+import anonymousLambda from './functions/anonymousLambda'
 
 function getFunctionHandler (name) {
   return functions[name] || functions.externalComponent
@@ -32,6 +33,13 @@ function compileWithContext (ednObj, context, graph) {
         }
       })
       return current
+    }
+  } else if (ednObj._tag) {
+    // This is a tagged object
+    if (ednObj._tag.namespace === '') {
+      return anonymousLambda(ednObj._obj, { context, graph, compile: compileWithContext })
+    } else {
+      throw compilationError(`Unsupported tag "${ednObj._tag.namespace}"`, ednObj)
     }
   } else {
     return { context, graph }

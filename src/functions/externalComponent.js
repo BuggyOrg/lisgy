@@ -12,8 +12,6 @@ export default function (ednObject, { context, compile, graph }) {
   let name = split[0]
   const version = split[1]
 
-  let newContext = _.cloneDeep(context)
-
   let component = _.cloneDeep(context.components[name])
   if (!component) {
     throw compilationError(`Undefined component "${name}"`, ednObject.val[0])
@@ -36,7 +34,6 @@ export default function (ednObject, { context, compile, graph }) {
   name = result[1]
 
   const externalToPortName = name + '@' + port.name // TODO: cleanup?
-  newContext.toPortName = externalToPortName
   console.error('EXTERNAL TO PORT IS ', externalToPortName)
 
   if (version) {
@@ -62,24 +59,29 @@ export default function (ednObject, { context, compile, graph }) {
       }
     }
 
-    newContext.toPortName = toPortName // TODO: cleanup?
-    if (isConstValue(value)) {
-      newGraph = constCompile(value, {context: newContext, graph: newGraph}).graph
+    if (isConstValue(element)) {
+      newGraph = constCompile(value, {context: context, graph: newGraph}).graph
     } else {
+      // TODO element might be a variable, create an edge if that is the case (Maik will do that soon)
       // add new node(s)
-      let result = compile(element, newContext, newGraph)
+      let result = compile(element, context, newGraph)
 
       if (!result.result || result.result.port) {
         // TODO: allow no values returned
         throw compilationError('Component does not return a value', element)
       }
 
-      newContext.toPortName = result.context.toPortName
-
       // add new edge
       newGraph = Graph.addEdge({'from': result.context.toPortName, 'to': toPortName}, result.graph)
     }
   }
-  newContext.toPortName = externalToPortName
-  return { context: newContext, graph: newGraph }
+
+  return {
+    context,
+    graph: newGraph,
+    result: {
+      node: component,
+      port: externalToPortName
+    }
+  }
 }
