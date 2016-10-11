@@ -33,10 +33,10 @@ export default function (ednObject, { context, compile, graph }) {
     throw compilationError('Component has no value', implementation.val[2])
   }
 
-  lambdaNode = lambdaNode.addNode(compiledImplementation.graph)
+  lambdaNode = Graph.addNode(compiledImplementation.graph, lambdaNode)
   // TODO add the edge
 
-  const newGraph = graph.addNode(lambdaNode)
+  const newGraph = Graph.addNode(lambdaNode, graph)
 
   // console.log(JSON.stringify(newGraph, null, 2))
 

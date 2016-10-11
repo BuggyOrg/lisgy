@@ -19,13 +19,12 @@ export default function (ednObject, { context, compile, graph }) {
   let inputPorts = ednObject.val[2].val.map((port) => port.val)
   let allPorts = ednObject.val[2].val.map((port) => createPort(port.val, 'input', 'generic'))
 
+  // TODO: use Graph....
   const newNode = {
-    id: name + '_' + context.count++,
+    name: name + '_' + context.count++,
     version: version, // TODO: add version string
     componentId: name,
-    ports: allPorts,
-    Nodes: [],
-    Edges: []
+    ports: allPorts
   }
 
   let newContext = Object.assign({}, context, {
@@ -46,7 +45,7 @@ export default function (ednObject, { context, compile, graph }) {
     let out = compile(next, newContext, cmpt)
     cmpt = out.graph
     if (out.context.toPortName) {
-      cmpt = cmpt.addEdge({from: out.context.toPortName, to: newNode.id + '@value'})
+      cmpt = Graph.addEdge({from: out.context.toPortName, to: newNode.id + '@value'}, cmpt)
     } else {
       console.log('NO EXTRA EDGE!', allPorts)
     }
@@ -76,7 +75,7 @@ export default function (ednObject, { context, compile, graph }) {
   let newGraph
 
   try {
-    newGraph = graph.addComponent(cmpt)
+    newGraph = Graph.addComponent(cmpt, graph)
   } catch (e) {
     console.log('ERROR MÄH :(', e)
     newGraph = graph

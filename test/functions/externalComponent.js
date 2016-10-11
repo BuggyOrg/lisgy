@@ -19,8 +19,8 @@ describe('external components', () => {
             createPort('s2', 'input', 'generic'),
             createPort('sum', 'output', 'generic')
           ],
-          Nodes: [],
-          Edges: [],
+          nodes: [],
+          edges: [],
           Note: 'defcop'
         }
       }
