@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import * as Graph from '@buggyorg/graphtools'
+import { log } from '../util/log.js'
 
 export default constCompile
 
@@ -10,7 +11,7 @@ export function constCompile (ednObject, { context, graph }) {
   if (_.isArray(value)) {
     if (value.length === 0) {
       // empty array []
-      console.log('TODO array/empty NYI')
+      log('TODO array/empty NYI')
     } else if (value.length > 1) {
       if (value[0].val !== 'const') {
         // TODO: add error if not (const ...)
@@ -32,19 +33,23 @@ export function constCompile (ednObject, { context, graph }) {
       MetaInformation: {type: 'number', value: value}
     }
   } else {
-    console.log('TODO/NYI const for ' + value)
+    log('TODO/NYI const for ' + value)
     return {context, graph}
   }
   let result = Graph.addNodeTuple(stdNode, graph)
   let newGraph = result[0]
-  console.error('NEW GRAPH LBUB')
-  console.error(Graph.toJSON(newGraph))
   if (context.toPortName) {
-    console.error('adding a node from ' + result[1] + ' TO ' + context.toPortName)
-    newGraph = Graph.addEdge({'from': result[1] + '@0', 'to': context.toPortName}, newGraph)
+    log('adding a node from ' + result[1] + ' TO ' + context.toPortName)
+    // newGraph = Graph.addEdge({'from': result[1] + '@0', 'to': context.toPortName}, newGraph)
   }
 
-  return {graph: newGraph, context}
+  return {
+    graph: newGraph,
+    context,
+    result: {
+      node: stdNode,
+      port: result[1] + '@0' // TODO: cleanup
+    }}
 }
 
 export function isConstValue (ednObject, context) {

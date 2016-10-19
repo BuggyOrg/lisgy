@@ -40,3 +40,14 @@ export function warning (...args) {
     console.error.call(console.error, ...args)
   }
 }
+
+export function log (...args) {
+  if (errorsWithColor) {
+    args[0] = chalk.bold.green(args[0])
+  }
+  if (!logsDisabled) {
+    console.error.call(console.error, ...args)
+  }
+}
+
+export default log
