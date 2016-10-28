@@ -14,7 +14,7 @@ let logJson = (json) => {
 
 
 describe('defco test', () => {
-  it.only('should create a new component inc with default output port', () => {
+  it('should create a new component inc with default output port', () => {
     const parsed = parse('(defcop math/add [s1 s2] [o1]) (defco myInc [x] (math/add 1 x))')
     const compiled = compile(parsed)
 

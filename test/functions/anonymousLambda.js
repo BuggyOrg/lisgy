@@ -12,6 +12,6 @@ describe('anonymous lambda', () => {
     expect(transformed.val[2].val).to.deep.equal(anonymousFunction.val) // implies that the token positions are not modified
 
     // the lambda function has two arguments, not the 42 of the nested anonymous function:
-    expect(transformed.val[1].val).to.have.length(2) 
+    expect(transformed.val[1].val).to.have.length(2)
   })
 })
