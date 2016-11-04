@@ -5,7 +5,8 @@ export function cleanPort (port) {
 }
 
 export function createPort (name, kind, type) {
-  return { name: cleanPort(name), kind, type }
+  var port = cleanPort(name)
+  return { port: port, kind, type }
 }
 
 export function contextHasVariable (context, variable) {

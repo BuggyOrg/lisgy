@@ -1,28 +1,33 @@
 import * as Graph from '@buggyorg/graphtools'
 import { createPort } from '../util/graph'
 import { extraInfosAdded } from '../util/edn.js'
+import { log, error, warning } from '../util/log.js'
 
 /**
  * (defco NAME (INPUT*) (:OUTPUT1 (FN1) :OUTPUT2 (FN2) ...))
  * (defco NAME (INPUT*) (FN1))
  */
 export default function (ednObject, { context, compile, graph }) {
+  log('compil (defco ...)')
   if (!ednObject.val || ednObject.val.length < 1) {
-    console.log('bäh')
-    throw new Error('b#h')
+    let length = -1
+    if (ednObject.val) {
+      length = ednObject.val.length
+    }
+    error('defco used wrongly with ' + length)
+    throw new Error('defco used wrong') 
   }
   let split = ednObject.val[1].val.split('@')
   const name = split[0]
   const version = split[1] || '0.0.0'
-  // console.log('Creating new component ' + name)
+  log('defco creating new component ' + name)
 
   let inputPorts = ednObject.val[2].val.map((port) => port.val)
   let allPorts = ednObject.val[2].val.map((port) => createPort(port.val, 'input', 'generic'))
 
-  // TODO: use Graph....
   const newNode = {
-    name: name + '_' + context.count++,
-    version: version, // TODO: add version string
+    // name: name + '_' + context.count++,
+    version: version,
     componentId: name,
     ports: allPorts
   }
@@ -37,6 +42,7 @@ export default function (ednObject, { context, compile, graph }) {
 
   // defco with defaul output
   if (ednObject.val[3].val[0].val[0] !== ':') {
+    log('defco with default output port \'value\'')
     let outPort = createPort('value', 'output', 'generic')
     cmpt.ports.push(outPort)
 
@@ -45,13 +51,17 @@ export default function (ednObject, { context, compile, graph }) {
     let out = compile(next, newContext, cmpt)
     cmpt = out.graph
     if (out.context.toPortName) {
-      cmpt = Graph.addEdge({from: out.context.toPortName, to: newNode.id + '@value'}, cmpt)
+      warning('Depricated?!')
     } else {
-      console.log('NO EXTRA EDGE!', allPorts)
+      log('Result is', out.result)
+      let edge = {from: out.result.port, to: '@value'}
+      log('defco adding edge from ' + edge.from + ' to ' + edge.to)
+      cmpt = Graph.addEdge(edge, cmpt)
     }
 
     extraInfosAdded(cmpt, ednObject.val[4])
   } else {
+    log('defco with named output ports')
     // defco with defined ports
     // TODO: NIJ
     let outputs = ednObject.val[3].val
@@ -66,6 +76,7 @@ export default function (ednObject, { context, compile, graph }) {
       let next = outputs[i]
       newContext.toPortName = outPort.name
       cmpt = compile(next, newContext, cmpt).graph
+      error('TODO: Add EDGE')
     }
   }
 

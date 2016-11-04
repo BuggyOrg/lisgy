@@ -1,6 +1,6 @@
 import _ from 'lodash'
 import * as Graph from '@buggyorg/graphtools'
-import { log } from '../util/log.js'
+import { log, warning, error } from '../util/log.js'
 
 export default constCompile
 
@@ -11,10 +11,11 @@ export function constCompile (ednObject, { context, graph }) {
   if (_.isArray(value)) {
     if (value.length === 0) {
       // empty array []
-      log('TODO array/empty NYI')
+      warning('TODO array/empty NYI')
     } else if (value.length > 1) {
       if (value[0].val !== 'const') {
         // TODO: add error if not (const ...)
+        error('constCompile not in the form of (const ...)')
         return {context, graph}
       }
       value = value[1]
@@ -33,15 +34,18 @@ export function constCompile (ednObject, { context, graph }) {
       MetaInformation: {type: 'number', value: value}
     }
   } else {
-    log('TODO/NYI const for ' + value)
+    warning('TODO/NYI const for ' + value)
     return {context, graph}
   }
+
+  log('constCompiling type: ' + stdNode.MetaInformation.type, value)
+
   let result = Graph.addNodeTuple(stdNode, graph)
   let newGraph = result[0]
-  if (context.toPortName) {
-    log('adding a node from ' + result[1] + ' TO ' + context.toPortName)
+  // if (context.toPortName) {
+    // log('adding a node from ' + result[1] + ' TO ' + context.toPortName)
     // newGraph = Graph.addEdge({'from': result[1] + '@0', 'to': context.toPortName}, newGraph)
-  }
+  // }
 
   return {
     graph: newGraph,

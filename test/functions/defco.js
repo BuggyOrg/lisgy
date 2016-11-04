@@ -12,20 +12,52 @@ let logJson = (json) => {
   console.log(JSON.stringify(json, null, 2))
 }
 
+import * as Graph from '@buggyorg/graphtools'
 
 describe('defco test', () => {
+  it('Graphcheck', () => {
+    let json = {components: [{ nodes:
+      [ { ref: 'math/add',
+          id: '#ciujosdzi00039gmrvpsab3rv',
+          settings: {},
+          ports: [] },
+        { ref: 'std/const',
+          MetaInformation: [Object],
+          id: '#ciujosdzm00049gmrdrmv864z',
+          settings: {},
+          ports: [] } ],
+      metaInformation: {},
+      edges: [],
+      components: [],
+      ports:
+      [ { name: 'x', kind: 'input', type: 'generic' },
+        { name: 'value', kind: 'output', type: 'generic' } ],
+      atomic: false,
+      name: 'blub',
+      id: '#ciujosdzf00029gmrfkjkbe4i',
+      version: '0.0.0',
+      componentId: 'myInc' }]}
+    let graph = Graph.fromJSON(json)
+    console.log('JSONGRAPH===\n', graph)
+    let temp = Graph.compound({name: 'c', ports: [{port: 'inC', kind: 'input'}, {port: 'outC', kind: 'output'}]})
+    console.log('TEMPGRAPH===\n', temp)
+    console.log(Graph.addEdge({from: '@inC', to: '@outC'}, temp))
+    console.log(Graph.addEdge({from: 'c@inC', to: 'c@outC'}, temp))
+    // console.log(Graph.addEdge({from: 'blub@x', to: 'blub@value'}, graph))
+  })
+
   it('should create a new component inc with default output port', () => {
     const parsed = parse('(defcop math/add [s1 s2] [o1]) (defco myInc [x] (math/add 1 x))')
     const compiled = compile(parsed)
 
-    expect(compiled.nodes()).to.have.length(0)
-    expect(compiled.edges()).to.have.length(0)
-    expect(compiled.components()).to.have.length(1)
+    expect(compiled.nodes).to.have.length(0)
+    expect(compiled.edges).to.have.length(0)
+    expect(compiled.components).to.have.length(1)
 
-    let inc = compiled.components()[0]
-    expect(inc.nodes()).to.have.length(2)
-    expect(inc.edges()).to.have.length(3)
-    expect(inc.components()).to.have.length(0)
+    let inc = compiled.components[0]
+    expect(inc.nodes).to.have.length(2)
+    expect(inc.edges).to.have.length(3)
+    expect(inc.components).to.have.length(0)
 
     // cleaner syntax
     // expect(inc.node('/std/const')).exists
@@ -35,7 +67,8 @@ describe('defco test', () => {
     // expect(inc.hasEdge('/math/add', '/myInc'))
 
     // bad syntax
-    let edges = inc.edges()
+    // TODO: UPDATE!!
+    let edges = inc.edges
     expect(edges[0]).to.containSubset({from: 'const_5', to: 'math/add_4'})
     expect(edges[1]).to.containSubset({from: 'myInc_0', to: 'math/add_4'})
     expect(edges[2]).to.containSubset({from: 'math/add_4', to: 'myInc_0'})

@@ -13,7 +13,7 @@ export default function (ednObject, { context, compile, graph }) {
   let name = split[0]
   const version = split[1]
 
-  log('called external component for', name)
+  log('compile external component for', name)
 
   let component = _.cloneDeep(context.components[name])
   if (!component) {
@@ -21,22 +21,19 @@ export default function (ednObject, { context, compile, graph }) {
   }
 
   let port = component.ports.find((port) => { return port.kind === 'output' })
-
   if (!port) {
     error('failed to find a output port')
   }
-
-  // console.log('default fn called ' + name + ' from ' + port.name + ' to ' + context.toPortName)
 
   let inputPorts = component.ports.filter((port) => { return port.kind === 'input' })
 
   // add extra info from last element
   extraInfosAdded(component, ednObject.val[ednObject.val.length - 1])
-  let result = Graph.addNodeTuple({ref: component.name}, graph)
+  let result = Graph.addNodeTuple({ref: component.componentId, ports: component.ports}, graph)
   let newGraph = result[0]
   name = result[1]
 
-  const externalToPortName = name + '@' + port.name // TODO: cleanup?
+  const externalToPortName = name + '@' + port.port // TODO: cleanup?
   log('external component output port is', externalToPortName)
 
   if (version) {
@@ -55,12 +52,18 @@ export default function (ednObject, { context, compile, graph }) {
     }
 
     let value = element.val || element
-    let toPortName = name + '@' + inputPorts[i - 1].name // TODO: should be (i - 1)
+    let toPortName = name + '@' + inputPorts[i - 1].port // TODO: should be (i - 1)
     if (_.isString(value)) {
       if (contextHasVariable(context, value)) {
+        let fromPortName = '@' + value
+        /*
         log('adding variable to edges:', value)
-        log('from ' + value + ' to ' + toPortName)
-        newGraph = Graph.addEdge({'from': '@' + value, 'to': toPortName}, newGraph)
+        log('Old GRAPH IS=========\n', graph)
+        log('Graph is=============\n', Graph.toJSON(newGraph))
+        log('from ' + fromPortName + ' to ' + toPortName)
+        */
+        log('add edge from ' + fromPortName + ' to ' + toPortName)
+        newGraph = Graph.addEdge({'from': fromPortName, 'to': toPortName}, newGraph)
         continue
       }
     }
@@ -70,8 +73,12 @@ export default function (ednObject, { context, compile, graph }) {
 
       let result = constCompile(value, {context: context, graph: newGraph})
       newGraph = result.graph
-      error('need to add ', result.result)
+      // error('need to add ', result.result)
       // log('adding a node from ' + result[1] + ' TO ' + context.toPortName)
+
+      var edge = {'from': result.result.port, 'to': toPortName}
+      log('add edge from (const value) ' + edge.from + ' to ' + edge.to)
+      newGraph = Graph.addEdge(edge, newGraph)
     } else {
       log('compiling exprsn')
       // TODO element might be a variable, create an edge if that is the case (Maik will do that soon)
@@ -84,7 +91,9 @@ export default function (ednObject, { context, compile, graph }) {
       }
 
       // add new edge
-      newGraph = Graph.addEdge({'from': result.context.toPortName, 'to': toPortName}, result.graph)
+      var edge = {'from': result.context.toPortName, 'to': toPortName}
+      log('add edge from ' + edge.from + ' to ' + edge.to)
+      newGraph = Graph.addEdge(edge, result.graph)
     }
   }
 

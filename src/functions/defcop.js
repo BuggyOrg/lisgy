@@ -1,9 +1,7 @@
 import _ from 'lodash'
 import * as Graph from '@buggyorg/graphtools'
-
-function createPort (name, kind, type) {
-  return {'name': name, 'kind': kind, 'type': type}
-}
+import { log } from '../util/log.js'
+import { createPort } from '../util/graph'
 
 export default function (ednObject, { context, graph }) {
   let name = ednObject.val[1].val
@@ -20,6 +18,8 @@ export default function (ednObject, { context, graph }) {
     newNode.ports.push(createPort(iPort.val, 'output', 'generic'))
     return true
   })
+
+  log('defcop added ' + name)
 
   return {
     context: Object.assign({}, context, {
