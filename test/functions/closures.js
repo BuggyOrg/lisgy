@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { parse } from '../../src/parser'
 import { transformClosures } from '../../src/functions/closures'
 
-describe.only('closures', () => {
+describe('closures', () => {
   it('should bind variables in closures', () => {
     const anonymousFunction = parse('(let [b 42] (lambda [a] (add a b)))').val[0]
     const lambdaFunction = _.last(anonymousFunction.val)
