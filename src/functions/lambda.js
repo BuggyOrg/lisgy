@@ -2,11 +2,20 @@ import * as Graph from '@buggyorg/graphtools'
 import _ from 'lodash'
 import { createPort } from '../util/graph'
 import { compilationError } from '../../src/compiler'
+import externalComponent from './externalComponent'
+import { transformClosures } from './closures'
 
 /**
  * (lambda [p1 p2 ...] (fn ...))
  */
 export default function (ednObject, { context, compile, graph }) {
+  const transformed = transformClosures(ednObject, context.letvars) // TODO rename letvars
+  if (transformed !== ednObject) {
+    return externalComponent(transformed, { context, compile, graph })
+  } else {
+    ednObject = transformed
+  }
+
   const parameters = ednObject.val[1].val
   // console.log(JSON.stringify(parameters, null, 2))
 

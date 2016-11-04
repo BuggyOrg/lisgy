@@ -2,9 +2,10 @@
 import { expect } from 'chai'
 import _ from 'lodash'
 import { parse } from '../../src/parser'
+import { compile } from '../../src/compiler'
 import { transformClosures } from '../../src/functions/closures'
 
-describe('closures', () => {
+describe('closure transformer', () => {
   it('should bind variables in closures', () => {
     const anonymousFunction = parse('(let [b 42] (lambda [a] (add a b)))').val[0]
     const lambdaFunction = _.last(anonymousFunction.val)
@@ -46,4 +47,14 @@ describe('closures', () => {
     expect(transformed.val[0].val).to.equal('lambda')
     expect(transformed.val[1].val.map(({ name }) => name)).to.deep.equal(['a'])
   })
+
+  /* TODO enable this test
+  it('should transform closures when compiling', () => {
+    const parsed = parse('(defcop add [s1 s2] [o1]) ((let [b 42] (lambda [a] (add a b))))')
+    const compiled = compile(parsed)
+    const node = compiled.nodes[1]
+    expect(node).to.be.defined
+    console.log(JSON.stringify(compiled, null, 2))
+  })
+  */
 })
