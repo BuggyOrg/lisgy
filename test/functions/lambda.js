@@ -2,17 +2,18 @@
 import { expect } from 'chai'
 import { parse } from '../../src/parser'
 import { compile } from '../../src/compiler'
+import { Graph } from './utils.js'
 
 describe('lambda test', () => {
   it('should create a new lambda component', () => {
     const parsed = parse('(defcop math/add [s1 s2] [sum]) (lambda [p1 p2] (math/add p1 p2))')
     const compiled = compile(parsed)
 
-    expect(compiled.nodes()).to.have.length(1)
-    expect(compiled.components()).to.have.length(0)
+    expect(Graph.nodes(compiled)).to.have.length(1)
+    expect(Graph.components(compiled)).to.have.length(0)
 
-    const lambda = compiled.nodes()[0]
-    const lambdaImpl = lambda.nodes()[0]
-    expect(lambdaImpl.nodes()).to.have.length(1)
+    const lambda = Graph.nodes(compiled)[0]
+    const lambdaImpl = Graph.nodes(lambda)[0]
+    expect(Graph.nodes(lambdaImpl)).to.have.length(1)
   })
 })

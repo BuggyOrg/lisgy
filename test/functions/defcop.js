@@ -13,6 +13,6 @@ describe('defcop', () => {
 
   it('should not return a modified graph', () => {
     const { graph } = defcop('(defcop + [s1 s2] [o1])')
-    expect(graph.toJSON()).to.deep.equal(Graph.empty().toJSON())
+    expect(Graph.toJSON(graph)).to.deep.equal(Graph.toJSON(Graph.empty()))
   })
 })
