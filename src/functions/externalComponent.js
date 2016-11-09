@@ -91,7 +91,7 @@ export default function (ednObject, { context, compile, graph }) {
       }
 
       // add new edge
-      var edge = {'from': result.context.toPortName, 'to': toPortName}
+      edge = {'from': result.context.toPortName, 'to': toPortName}
       log('add edge from ' + edge.from + ' to ' + edge.to)
       newGraph = Graph.addEdge(edge, result.graph)
     }
