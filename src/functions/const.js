@@ -28,19 +28,19 @@ export function constCompile (ednObject, { context, graph }) {
     // Note: Add contextHasVariable check here?
     stdNode = {
       ref: 'std/const',
-      MetaInformation: {type: 'string', value: value}
+      metaInformation: {type: 'string', value: value}
     }
   } else if (_.isNumber(value)) {
     stdNode = {
       ref: 'std/const',
-      MetaInformation: {type: 'number', value: value}
+      metaInformation: {type: 'number', value: value}
     }
   } else {
     warning('TODO/NYI const for ' + value)
     return {context, graph}
   }
 
-  log('constCompiling type: ' + stdNode.MetaInformation.type, value)
+  log('constCompiling type: ' + stdNode.metaInformation.type, value)
 
   let result = Graph.addNodeTuple(stdNode, graph)
   let newGraph = result[0]

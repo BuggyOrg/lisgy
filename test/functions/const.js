@@ -15,14 +15,15 @@ describe('const', () => {
     // TODO: variables?
   })
 
-  it('should define components', () => {
+  it('should add one const node component', () => {
     const { graph } = constC('(const "hallo")')
     expect(graph).to.be.defined
+
+    let node = Graph.node('/std/const', graph)
+    expect(node).exists
+
+    let meta = Graph.meta(node)
+    expect(meta).exists
+    expect(meta).to.be.deep.equal({type: 'string', value: 'hallo'})
   })
-/*
-  it('should not return a modified graph', () => {
-    const { graph } = constC('(defcop + [s1 s2] [o1])')
-    expect(graph.toJSON()).to.deep.equal(Graph.empty().toJSON())
-  })
-*/
 })
