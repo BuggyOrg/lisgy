@@ -63,8 +63,8 @@ describe('defco test', () => {
 
     let inc = Graph.components(compiled)[0]
 
-    expect(Graph.node('/std/const', inc)).exists
-    expect(Graph.node('/+', inc)).exists
+    expect(Graph.node('/std/const', inc)).to.exist
+    expect(Graph.node('/+', inc)).to.exist
     expect(Graph.hasEdge({from: '/std/const', to: '/+'}, inc)).to.be.true
     expect(Graph.hasEdge({from: '/std/const', to: '/-'}, inc)).to.be.true
     expect(Graph.hasEdge({from: '@x', to: '/+'}, inc)).to.be.true

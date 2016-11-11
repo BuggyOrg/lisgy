@@ -7,11 +7,13 @@ describe('the compiler', () => {
   it('compiles parsed programs', () => {
     const parsed = parse('(defcop + [s1 s2] [o1]) (import math) (defco inc [x] (+ 1 x))')
     const compiled = compile(parsed)
+    expect(compiled).to.exist
   })
 
-  it('supports anonymous functions', () => {
+  it.skip('supports anonymous functions', () => {
     const parsed = parse('(defcop + [s1 s2] [sum]) #(+ %1 %1)')
     const compiled = compile(parsed)
+    expect(compiled).to.exist
   })
 
   it('throws an error if a tag is unsupported', () => {

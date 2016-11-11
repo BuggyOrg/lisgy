@@ -13,6 +13,11 @@ describe('defcop', () => {
 
   it('should not return a modified graph', () => {
     const { graph } = defcop('(defcop + [s1 s2] [o1])')
-    expect(Graph.toJSON(graph)).to.deep.equal(Graph.toJSON(Graph.empty()))
+    const json = Graph.toJSON(graph)
+    const empty = Graph.toJSON(Graph.empty())
+    // expect(json).to.deep.equal(empty) // wrong ids for empty graph!
+    expect(Graph.nodes(json)).to.deep.equal(Graph.nodes(empty))
+    expect(Graph.edges(json)).to.deep.equal(Graph.edges(empty))
+    expect(Graph.components(json)).to.deep.equal(Graph.components(empty))
   })
 })

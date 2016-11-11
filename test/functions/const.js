@@ -20,10 +20,10 @@ describe('const', () => {
     expect(graph).to.be.defined
 
     let node = Graph.node('/std/const', graph)
-    expect(node).exists
+    expect(node).to.exist
 
     let meta = Graph.meta(node)
-    expect(meta).exists
+    expect(meta).to.exist
     expect(meta).to.be.deep.equal({type: 'string', value: 'hallo'})
   })
 })

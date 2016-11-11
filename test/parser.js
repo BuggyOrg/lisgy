@@ -40,7 +40,7 @@ describe('the parser', () => {
     // should not fail
   })
 
-  it('should support tags', () => {
+  it.skip('should support tags', () => {
     const edn = parse('#(add %1 %1)')
     expect(edn.val[0]._tag.namespace).to.equal('')
     expect(edn.val[0]._obj.val).to.have.length(3)
