@@ -15,7 +15,7 @@ export default function (ednObject, { context, compile, graph }) {
       length = ednObject.val.length
     }
     error('defco used wrongly with ' + length)
-    throw new Error('defco used wrong') 
+    throw new Error('defco used wrong')
   }
   let split = ednObject.val[1].val.split('@')
   const name = split[0]
@@ -53,7 +53,6 @@ export default function (ednObject, { context, compile, graph }) {
     if (out.context.toPortName) {
       warning('Depricated?!')
     } else {
-      log('Result is', out.result)
       let edge = {from: out.result.port, to: '@value'}
       log('defco adding edge from ' + edge.from + ' to ' + edge.to)
       cmpt = Graph.addEdge(edge, cmpt)
@@ -74,9 +73,11 @@ export default function (ednObject, { context, compile, graph }) {
       cmpt.ports.push(outPort)
       i++
       let next = outputs[i]
-      newContext.toPortName = outPort.name
-      cmpt = compile(next, newContext, cmpt).graph
-      error('TODO: Add EDGE')
+      let out = compile(next, newContext, cmpt)
+
+      let edge = {from: out.result.port, to: '@' + outPort.port}
+      log('defco adding edge from ' + edge.from + ' to ' + edge.to)
+      cmpt = Graph.addEdge(edge, out.graph)
     }
   }
 

@@ -8,6 +8,8 @@ export function constCompile (ednObject, { context, graph }) {
   let value = ednObject.val || ednObject
   let stdNode
 
+  log('using const compile')
+
   if (_.isArray(value)) {
     if (value.length === 0) {
       // empty array []
