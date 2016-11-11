@@ -2,7 +2,7 @@ import chalk from 'chalk'
 
 // TODO: This log states should/could be added to the context?
 var message, errorsWithColor, logsDisabled
-set({verbose: false, colors: true, disable: false})
+set({verbose: false, colors: true, disable: true})
 // export {message}
 
 /**
