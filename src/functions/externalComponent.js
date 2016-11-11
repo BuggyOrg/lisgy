@@ -15,25 +15,29 @@ export default function (ednObject, { context, compile, graph }) {
 
   log('compile external component for', name)
 
+  let port
+  let inputPorts
   let component = _.cloneDeep(context.components[name])
   if (!component) {
-    throw compilationError(`Undefined component "${name}"`, ednObject.val[0])
+    // throw compilationError(`Undefined component "${name}"`, ednObject.val[0])
+    warning(`Undefined component "${name}"`, ednObject.val[0])
+    component = {componentId: name}
+  } else {
+    port = component.ports.find((port) => { return port.kind === 'output' })
+    if (!port) {
+      error('failed to find a output port')
+    }
+    inputPorts = component.ports.filter((port) => { return port.kind === 'input' })
   }
-
-  let port = component.ports.find((port) => { return port.kind === 'output' })
-  if (!port) {
-    error('failed to find a output port')
-  }
-
-  let inputPorts = component.ports.filter((port) => { return port.kind === 'input' })
 
   // add extra info from last element
   extraInfosAdded(component, ednObject.val[ednObject.val.length - 1])
-  let result = Graph.addNodeTuple({ref: component.componentId, ports: component.ports}, graph)
+  let tempRef = {ref: component.componentId, ports: component.ports || []}
+  let result = Graph.addNodeTuple(tempRef, graph)
   let newGraph = result[0]
   name = result[1]
 
-  const externalToPortName = name + '@' + port.port // TODO: cleanup?
+  const externalToPortName = name + '@' + (port ? port.port : 0) // TODO: cleanup?
   log('external component output port is', externalToPortName)
 
   if (version) {
@@ -52,7 +56,7 @@ export default function (ednObject, { context, compile, graph }) {
     }
 
     let value = element.val || element
-    let toPortName = name + '@' + inputPorts[i - 1].port // TODO: should be (i - 1)
+    let toPortName = name + '@' + (inputPorts ? inputPorts[i - 1].port : (i - 1))
     if (_.isString(value)) {
       if (contextHasVariable(context, value)) {
         let fromPortName = '@' + value

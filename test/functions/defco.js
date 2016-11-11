@@ -28,12 +28,55 @@ describe('defco test', () => {
     expect(Graph.node('/std/const', inc)).exists
     expect(Graph.node('/math/add', inc)).exists
     expect(Graph.hasEdge({from: '/std/const', to: '/math/add'}, inc)).to.be.true
+    expect(Graph.hasEdge({from: '/std/const', to: '/math/add@0'}, inc)).to.be.true
+    expect(Graph.hasEdge({from: '/std/const@0', to: '/math/add@0'}, inc)).to.be.true
+
     expect(Graph.hasEdge({from: '@x', to: '/math/add'}, inc)).to.be.true
+    expect(Graph.hasEdge({from: '@x', to: '/math/add@s2'}, inc)).to.be.true
+    expect(Graph.hasEdge({from: '@x', to: '/math/add@1'}, inc)).to.be.true
+    expect(Graph.hasEdge({from: '@0', to: '/math/add@s2'}, inc)).to.be.true
+    expect(Graph.hasEdge({from: '@0', to: '/math/add@1'}, inc)).to.be.true
+    // false's
+    expect(Graph.hasEdge({from: '@x', to: '/math/add@s1'}, inc)).to.be.false
+    expect(Graph.hasEdge({from: '@x', to: '/math/add@0'}, inc)).to.be.false
+    expect(Graph.hasEdge({from: '@0', to: '/math/add@s1'}, inc)).to.be.false
+    expect(Graph.hasEdge({from: '@0', to: '/math/add@0'}, inc)).to.be.false
+
     expect(Graph.hasEdge({from: '/math/add', to: '@value'}, inc)).to.be.true // NOTE: value is the default output port
 
     expect(Graph.hasEdge({from: '/myInc', to: '/math/add'}, inc)).to.be.true
     expect(Graph.hasEdge({from: '/math/add', to: '/myInc'}, inc)).to.be.true
 
+
+    expect(Graph.nodes(inc)).to.have.length(2)
+    expect(Graph.edges(inc)).to.have.length(3)
+    expect(Graph.components(inc)).to.have.length(0)
+  })
+
+  it('should create a new component inc with default output port without defcop', () => {
+    const parsed = parse('(defco myInc [x] (math/add 1 x))')
+    const compiled = compile(parsed)
+
+    expect(Graph.nodes(compiled)).to.have.length(0)
+    expect(Graph.edges(compiled)).to.have.length(0)
+    expect(Graph.components(compiled)).to.have.length(1)
+
+    let inc = Graph.components(compiled)[0]
+
+    expect(Graph.node('/std/const', inc)).exists
+    expect(Graph.node('/math/add', inc)).exists
+    expect(Graph.hasEdge({from: '/std/const', to: '/math/add'}, inc)).to.be.true
+    expect(Graph.hasEdge({from: '/std/const', to: '/math/add@0'}, inc)).to.be.true
+
+    expect(Graph.hasEdge({from: '@x', to: '/math/add'}, inc)).to.be.true
+    expect(Graph.hasEdge({from: '@x', to: '/math/add@1'}, inc)).to.be.true
+
+    expect(Graph.hasEdge({from: '/math/add', to: '@value'}, inc)).to.be.true // NOTE: value is the default output port
+    expect(Graph.hasEdge({from: '/math/add', to: '@0'}, inc)).to.be.true
+    expect(Graph.hasEdge({from: '/math/add@0', to: '@0'}, inc)).to.be.true
+
+    // expect(Graph.hasEdge({from: '/math/add', to: '/myInc'}, inc)).to.be.true     // NOTE: not supported by graphtools
+    // expect(Graph.hasEdge({from: '/math/add@0', to: '/myInc@0'}, inc)).to.be.true //
 
     expect(Graph.nodes(inc)).to.have.length(2)
     expect(Graph.edges(inc)).to.have.length(3)
@@ -53,7 +96,7 @@ describe('defco test', () => {
     const parsed = parse(`
     (defcop + [s1 s2] [o1])
     (defcop - [s1 s2] [o1])
-    (defco inc [x y] [:one (+ 1 x) 
+    (defco inc [x y] [:one (+ 1 x)
                       :two (- 2 y)])`)
     const compiled = compile(parsed)
 
@@ -86,7 +129,7 @@ describe('defco test', () => {
     expect(inc).to.containSubset({info: 'extra', info2: 'extra2'})
   })
 
-  it('should throw on missing module/component', () => {
+  it('should not throw on missing module/component', () => {
     let compiled = false
     try {
       compile(parse('(defco inc [x] (+ 1 x))'))
@@ -97,9 +140,9 @@ describe('defco test', () => {
       expect(err.location).to.be.defined
       expect(err.moduleName).to.be.defined
     }
-
-    if (compiled) {
-      expect.fail()
-    }
+    expect(compiled).to.be.true
+    // if (compiled) {
+    //   expect.fail()
+    // }
   })
 })
