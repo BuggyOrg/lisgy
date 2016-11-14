@@ -47,7 +47,6 @@ describe('defco test', () => {
     expect(Graph.hasEdge({from: '/myInc', to: '/math/add'}, inc)).to.be.true
     expect(Graph.hasEdge({from: '/math/add', to: '/myInc'}, inc)).to.be.true
 
-
     expect(Graph.nodes(inc)).to.have.length(2)
     expect(Graph.edges(inc)).to.have.length(3)
     expect(Graph.components(inc)).to.have.length(0)
@@ -129,6 +128,37 @@ describe('defco test', () => {
     expect(inc).to.containSubset({info: 'extra', info2: 'extra2'})
   })
 
+  describe('(defco ... [(type name typename) ...] ...)', () => {
+    it('should add a type info to the variables', () => {
+      const parsed = parse(`(defco inc [(type x Number) (type y Lumber)] (+ x y))`)
+      const compiled = compile(parsed)
+      let inc = Graph.components(compiled)[0]
+      let ports = inc.ports
+      expect(ports).to.have.length(3)
+      expect(ports[0]).to.containSubset({type: 'Number', port: 'x'})
+      expect(ports[1]).to.containSubset({type: 'Lumber', port: 'y'})
+      expect(ports[2]).to.containSubset({type: 'generic', port: 'value'})
+    })
+
+    it('should throw a error if the typename is missing', () => {
+      let compiled = false
+      try {
+        compile(parse(`(defco inc [(type x)] (+ x 1))`))
+
+        compiled = true
+      } catch (err) {
+        // console.log('error is', err)
+        expect(err.message).to.be.defined
+        expect(err.location).to.be.defined // TODO: check for defined startLine,endLine etc locations!
+        expect(err.moduleName).to.be.defined
+      }
+      expect(compiled).to.be.false
+      if (compiled) {
+        expect.fail()
+      }
+    })
+  })
+
   it('should not throw on missing module/component', () => {
     let compiled = false
     try {
@@ -141,8 +171,8 @@ describe('defco test', () => {
       expect(err.moduleName).to.be.defined
     }
     expect(compiled).to.be.true
-    // if (compiled) {
-    //   expect.fail()
-    // }
+  // if (compiled) {
+  //   expect.fail()
+  // }
   })
 })

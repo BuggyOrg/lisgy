@@ -22,8 +22,8 @@ export default function (ednObject, { context, compile, graph }) {
   const version = split[1] || '0.0.0'
   log('defco creating new component ' + name)
 
-  let inputPorts = ednObject.val[2].val.map((port) => port.val)
   let allPorts = ednObject.val[2].val.map((port) => createPort(port.val, 'input', 'generic'))
+  let inputPorts = allPorts.map((port) => port.port)
 
   const newNode = {
     // name: name + '_' + context.count++,
@@ -34,7 +34,7 @@ export default function (ednObject, { context, compile, graph }) {
 
   let newContext = Object.assign({}, context, {
     parent: newNode,
-    variables: inputPorts, // TODO: cleanup
+    variables: inputPorts, // TODO: cleanup | currently it is used inside of contextHasVariable
     toPortName: ''
   })
 
