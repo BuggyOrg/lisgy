@@ -1,7 +1,7 @@
 import * as Graph from '@buggyorg/graphtools'
 import _ from 'lodash'
 import { createPort } from '../util/graph'
-import { compilationError } from '../../src/compiler'
+import { compilationError } from '../compiler'
 import externalComponent from './externalComponent'
 import { transformClosures } from './closures'
 
