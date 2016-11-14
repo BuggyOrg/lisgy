@@ -52,6 +52,12 @@ describe('defco test', () => {
     expect(Graph.components(inc)).to.have.length(0)
   })
 
+  it.skip('should not forget the input variable', () => {
+    const compiled = compile(parse(`(defco test [x] (+ x (+ x 1)))`))
+    let inc = Graph.components(compiled)[0]
+    console.log(inc)
+  })
+
   it('should create a new component inc with default output port without defcop', () => {
     const parsed = parse('(defco myInc [x] (math/add 1 x))')
     const compiled = compile(parsed)
