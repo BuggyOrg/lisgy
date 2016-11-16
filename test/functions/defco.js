@@ -14,6 +14,13 @@ let logJson = (json) => {
 
 import * as Graph from '@buggyorg/graphtools'
 
+const expectEdge = function (from, to, graph) {
+  expect(Graph.hasEdge({from: from, to: to}, graph)).to.be.true
+}
+const expectNoEdge = function (from, to, graph) {
+  expect(Graph.hasEdge({from: from, to: to}, graph)).to.be.false
+}
+
 describe('defco test', () => {
   it('should create a new component inc with default output port', () => {
     const parsed = parse('(defcop math/add [s1 s2] [o1]) (defco myInc [x] (math/add 1 x))')
@@ -27,25 +34,25 @@ describe('defco test', () => {
 
     expect(Graph.node('/std/const', inc)).exists
     expect(Graph.node('/math/add', inc)).exists
-    expect(Graph.hasEdge({from: '/std/const', to: '/math/add'}, inc)).to.be.true
-    expect(Graph.hasEdge({from: '/std/const', to: '/math/add@0'}, inc)).to.be.true
-    expect(Graph.hasEdge({from: '/std/const@0', to: '/math/add@0'}, inc)).to.be.true
+    expectEdge('/std/const', '/math/add', inc)
+    expectEdge('/std/const', '/math/add@0', inc)
+    expectEdge('/std/const@0', '/math/add@0', inc)
 
-    expect(Graph.hasEdge({from: '@x', to: '/math/add'}, inc)).to.be.true
-    expect(Graph.hasEdge({from: '@x', to: '/math/add@s2'}, inc)).to.be.true
-    expect(Graph.hasEdge({from: '@x', to: '/math/add@1'}, inc)).to.be.true
-    expect(Graph.hasEdge({from: '@0', to: '/math/add@s2'}, inc)).to.be.true
-    expect(Graph.hasEdge({from: '@0', to: '/math/add@1'}, inc)).to.be.true
+    expectEdge('@x', '/math/add', inc)
+    expectEdge('@x', '/math/add@s2', inc)
+    expectEdge('@x', '/math/add@1', inc)
+    expectEdge('@0', '/math/add@s2', inc)
+    expectEdge('@0', '/math/add@1', inc)
     // false's
-    expect(Graph.hasEdge({from: '@x', to: '/math/add@s1'}, inc)).to.be.false
-    expect(Graph.hasEdge({from: '@x', to: '/math/add@0'}, inc)).to.be.false
-    expect(Graph.hasEdge({from: '@0', to: '/math/add@s1'}, inc)).to.be.false
-    expect(Graph.hasEdge({from: '@0', to: '/math/add@0'}, inc)).to.be.false
+    expectNoEdge('@x', '/math/add@s1', inc)
+    expectNoEdge('@x', '/math/add@0', inc)
+    expectNoEdge('@0', '/math/add@s1', inc)
+    expectNoEdge('@0', '/math/add@0', inc)
 
-    expect(Graph.hasEdge({from: '/math/add', to: '@value'}, inc)).to.be.true // NOTE: value is the default output port
+    expectEdge('/math/add', '@value', inc) // NOTE: value is the default output port
 
-    expect(Graph.hasEdge({from: '/myInc', to: '/math/add'}, inc)).to.be.true
-    expect(Graph.hasEdge({from: '/math/add', to: '/myInc'}, inc)).to.be.true
+    expectEdge('/myInc', '/math/add', inc)
+    expectEdge('/math/add', '/myInc', inc)
 
     expect(Graph.nodes(inc)).to.have.length(2)
     expect(Graph.edges(inc)).to.have.length(3)
@@ -72,18 +79,18 @@ describe('defco test', () => {
 
     expect(Graph.node('/std/const', inc)).exists
     expect(Graph.node('/math/add', inc)).exists
-    expect(Graph.hasEdge({from: '/std/const', to: '/math/add'}, inc)).to.be.true
-    expect(Graph.hasEdge({from: '/std/const', to: '/math/add@0'}, inc)).to.be.true
+    expectEdge('/std/const', '/math/add', inc)
+    expectEdge('/std/const', '/math/add@0', inc)
 
-    expect(Graph.hasEdge({from: '@x', to: '/math/add'}, inc)).to.be.true
-    expect(Graph.hasEdge({from: '@x', to: '/math/add@1'}, inc)).to.be.true
+    expectEdge('@x', '/math/add', inc)
+    expectEdge('@x', '/math/add@1', inc)
 
-    expect(Graph.hasEdge({from: '/math/add', to: '@value'}, inc)).to.be.true // NOTE: value is the default output port
-    expect(Graph.hasEdge({from: '/math/add', to: '@0'}, inc)).to.be.true
-    expect(Graph.hasEdge({from: '/math/add@0', to: '@0'}, inc)).to.be.true
+    expectEdge('/math/add', '@value', inc) // NOTE: value is the default output port
+    expectEdge('/math/add', '@0', inc)
+    expectEdge('/math/add@0', '@0', inc)
 
-    // expect(Graph.hasEdge({from: '/math/add', to: '/myInc'}, inc)).to.be.true     // NOTE: not supported by graphtools
-    // expect(Graph.hasEdge({from: '/math/add@0', to: '/myInc@0'}, inc)).to.be.true //
+    // expectEdge('/math/add', 'myInc', inc)     // NOTE: not supported by graphtools
+    // expectEdge('/math/add@0', 'myInc@0', inc) //
 
     expect(Graph.nodes(inc)).to.have.length(2)
     expect(Graph.edges(inc)).to.have.length(3)
@@ -101,15 +108,15 @@ describe('defco test', () => {
     expect(Graph.node('/+', fac)).exists
     expect(Graph.node('/std/const', fac)).exists
 
-    expect(Graph.hasEdge({from: '/std/const', to: '/<'}, fac)).to.be.true
-    expect(Graph.hasEdge({from: '@n', to: '/<'}, fac)).to.be.true
-    expect(Graph.hasEdge({from: '/std/const', to: '/if'}, fac)).to.be.true
-    expect(Graph.hasEdge({from: '/*', to: '/if'}, fac)).to.be.true
-    expect(Graph.hasEdge({from: '@n', to: '/*'}, fac)).to.be.true
-    expect(Graph.hasEdge({from: '/fac', to: '/*'}, fac)).to.be.true
-    expect(Graph.hasEdge({from: '/+', to: '/fac'}, fac)).to.be.true
-    expect(Graph.hasEdge({from: '@n', to: '/+'}, fac)).to.be.true
-    expect(Graph.hasEdge({from: '/std/const', to: '/+'}, fac)).to.be.true
+    expectEdge('/std/const', '/<', fac)
+    expectEdge('@n', '/<', fac)
+    expectEdge('/std/const', '/if', fac)
+    expectEdge('/*', '/if', fac)
+    expectEdge('@n', '/*', fac)
+    expectEdge('/fac', '/*', fac)
+    expectEdge('/+', '/fac', fac)
+    expectEdge('@n', '/+', fac)
+    expectEdge('/std/const', '/+', fac)
 
     expect(Graph.nodes(fac)).to.have.length(8)
     expect(Graph.edges(fac)).to.have.length(11)
@@ -141,12 +148,12 @@ describe('defco test', () => {
 
     expect(Graph.node('/std/const', inc)).to.exist
     expect(Graph.node('/+', inc)).to.exist
-    expect(Graph.hasEdge({from: '/std/const', to: '/+'}, inc)).to.be.true
-    expect(Graph.hasEdge({from: '/std/const', to: '/-'}, inc)).to.be.true
-    expect(Graph.hasEdge({from: '@x', to: '/+'}, inc)).to.be.true
-    expect(Graph.hasEdge({from: '@y', to: '/-'}, inc)).to.be.true
-    expect(Graph.hasEdge({from: '/+', to: '@one'}, inc)).to.be.true
-    expect(Graph.hasEdge({from: '/-', to: '@two'}, inc)).to.be.true
+    expectEdge('/std/const', '/+', inc)
+    expectEdge('/std/const', '/-', inc)
+    expectEdge('@x', '/+', inc)
+    expectEdge('@y', '/-', inc)
+    expectEdge('/+', '@one', inc)
+    expectEdge('/-', '@two', inc)
 
     expect(Graph.nodes(inc)).to.have.length(4)
     expect(Graph.edges(inc)).to.have.length(6)
