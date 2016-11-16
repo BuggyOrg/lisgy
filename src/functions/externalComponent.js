@@ -1,6 +1,6 @@
 // import * as Graph from '@buggyorg/graphtools'
 import _ from 'lodash'
-import { compilationError } from '../compiler'
+// import { compilationError } from '../compiler'
 import { contextHasVariable } from '../util/graph'
 import { constCompile, isConstValue } from './const'
 import { extraInfosAdded, isInfoObject } from '../util/edn.js'
@@ -86,18 +86,26 @@ export default function (ednObject, { context, compile, graph }) {
     } else {
       log('compiling exprsn')
       // TODO element might be a variable, create an edge if that is the case (Maik will do that soon)
-      // add new node(s)
       let result = compile(element, context, newGraph)
 
-      if (!result.result || result.result.port) {
-        // TODO: allow no values returned
-        throw compilationError('Component does not return a value', element)
+      // TODO: allow no values returned
+      // TODO: Add (port # ...) support
+      // throw compilationError('Component does not return a value', element)
+      if (result.result && result.result.port) {
+        edge = {'from': result.result.port, 'to': toPortName}
+        log('add edge from ' + edge.from + ' to ' + edge.to)
+        newGraph = Graph.addEdge(edge, result.graph)
+      } else {
+        edge = {'from': result[1] + '@0', 'to': toPortName}
+        log('add edge from ' + edge.from + ' to ' + edge.to)
+        newGraph = Graph.addEdge(edge, result[0])
       }
-
-      // add new edge
-      edge = {'from': result.context.toPortName, 'to': toPortName}
-      log('add edge from ' + edge.from + ' to ' + edge.to)
-      newGraph = Graph.addEdge(edge, result.graph)
+      // else {
+      //   // add new edge
+      //   edge = {'from': result.context.toPortName, 'to': toPortName}
+      //   log('add edge from ' + edge.from + ' to ' + edge.to)
+      //   newGraph = Graph.addEdge(edge, result.graph)
+      // }
     }
   }
 

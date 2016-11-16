@@ -52,10 +52,12 @@ describe('defco test', () => {
     expect(Graph.components(inc)).to.have.length(0)
   })
 
-  it.skip('should not forget the input variable', () => {
+  it('should not forget the input variable', () => {
     const compiled = compile(parse(`(defco test [x] (+ x (+ x 1)))`))
     let inc = Graph.components(compiled)[0]
-    console.log(inc)
+    expect(Graph.nodes(inc)).to.have.length(3)
+    expect(Graph.edges(inc)).to.have.length(5)
+    expect(Graph.components(inc)).to.have.length(0)
   })
 
   it('should create a new component inc with default output port without defcop', () => {
