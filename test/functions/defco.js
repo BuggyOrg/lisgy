@@ -90,6 +90,32 @@ describe('defco test', () => {
     expect(Graph.components(inc)).to.have.length(0)
   })
 
+  it('should handle a a simple factorial example', () => {
+    const compiled = compile(parse(`(defco fac (n) (if (< n 1) 1 (* n (fac (+ n -1)))))`))
+    let fac = Graph.components(compiled)[0]
+
+    expect(Graph.node('/if', fac)).exists
+    expect(Graph.node('/<', fac)).exists
+    expect(Graph.node('/*', fac)).exists
+    expect(Graph.node('/fac', fac)).exists
+    expect(Graph.node('/+', fac)).exists
+    expect(Graph.node('/std/const', fac)).exists
+
+    expect(Graph.hasEdge({from: '/std/const', to: '/<'}, fac)).to.be.true
+    expect(Graph.hasEdge({from: '@n', to: '/<'}, fac)).to.be.true
+    expect(Graph.hasEdge({from: '/std/const', to: '/if'}, fac)).to.be.true
+    expect(Graph.hasEdge({from: '/*', to: '/if'}, fac)).to.be.true
+    expect(Graph.hasEdge({from: '@n', to: '/*'}, fac)).to.be.true
+    expect(Graph.hasEdge({from: '/fac', to: '/*'}, fac)).to.be.true
+    expect(Graph.hasEdge({from: '/+', to: '/fac'}, fac)).to.be.true
+    expect(Graph.hasEdge({from: '@n', to: '/+'}, fac)).to.be.true
+    expect(Graph.hasEdge({from: '/std/const', to: '/+'}, fac)).to.be.true
+
+    expect(Graph.nodes(fac)).to.have.length(8)
+    expect(Graph.edges(fac)).to.have.length(11)
+    expect(Graph.components(fac)).to.have.length(0)
+  })
+
   // TODO: Add version numbers
   it.skip('should create a new component with a version number', () => {
     const parsed = parse('(defcop math/add [s1 s2] [o1]) (defco myInc@1.33.7 [x] (math/add@1.0.11 1 x))')
