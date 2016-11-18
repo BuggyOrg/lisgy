@@ -4,21 +4,13 @@ import chaiSubset from 'chai-subset'
 import _ from 'lodash'
 import { parse } from '../../src/parser'
 import { compile } from '../../src/compiler'
+import { Graph, expectEdge, expectNoEdge } from './utils.js'
 
 chai.use(chaiSubset)
 let expect = chai.expect
 
 let logJson = (json) => {
   console.log(JSON.stringify(json, null, 2))
-}
-
-import * as Graph from '@buggyorg/graphtools'
-
-const expectEdge = function (from, to, graph) {
-  expect(Graph.hasEdge({from: from, to: to}, graph)).to.be.true
-}
-const expectNoEdge = function (from, to, graph) {
-  expect(Graph.hasEdge({from: from, to: to}, graph)).to.be.false
 }
 
 describe('defco', () => {
