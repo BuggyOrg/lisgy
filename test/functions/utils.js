@@ -31,9 +31,9 @@ export function logJson (json) {
 let expect = chai.expect
 
 export const expectEdge = function (from, to, graph) {
-  expect(Graph.hasEdge({from: from, to: to}, graph)).to.be.true
+  expect(Graph.hasEdge({from: from, to: to}, graph), 'Expected an edge from ' + from + ' to ' + to).to.be.true
 }
 
 export const expectNoEdge = function (from, to, graph) {
-  expect(Graph.hasEdge({from: from, to: to}, graph)).to.be.false
+  expect(Graph.hasEdge({from: from, to: to}, graph), 'Expected NO edge from ' + from + ' to ' + to).to.be.false
 }
