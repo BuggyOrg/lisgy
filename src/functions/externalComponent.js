@@ -1,7 +1,7 @@
 // import * as Graph from '@buggyorg/graphtools'
 import _ from 'lodash'
 // import { compilationError } from '../compiler'
-import { contextHasVariable } from '../util/graph'
+import { contextHasVariable, getContextLets } from '../util/graph'
 import { constCompile, isConstValue } from './const'
 import { extraInfosAdded, isInfoObject } from '../util/edn.js'
 import * as Graph from '@buggyorg/graphtools'
@@ -59,14 +59,15 @@ export default function (ednObject, { context, compile, graph }) {
     let value = element.val || element
     let toPortName = name + '@' + (inputPorts ? inputPorts[i - 1].port : (i - 1))
     if (_.isString(value)) {
-      if (contextHasVariable(context, value)) {
+      let v = getContextLets(context, value)
+      if (v) {
+        let fromPortName = v.port
+        log('add edge from ' + fromPortName + ' to ' + toPortName)
+        newGraph = Graph.addEdge({'from': fromPortName, 'to': toPortName}, newGraph)
+        continue
+      } else if (contextHasVariable(context, value)) {
         let fromPortName = '@' + value
-        /*
-        log('adding variable to edges:', value)
-        log('Old GRAPH IS=========\n', graph)
-        log('Graph is=============\n', Graph.toJSON(newGraph))
-        log('from ' + fromPortName + ' to ' + toPortName)
-        */
+
         log('add edge from ' + fromPortName + ' to ' + toPortName)
         newGraph = Graph.addEdge({'from': fromPortName, 'to': toPortName}, newGraph)
         continue
@@ -97,6 +98,7 @@ export default function (ednObject, { context, compile, graph }) {
         log('add edge from ' + edge.from + ' to ' + edge.to)
         newGraph = Graph.addEdge(edge, result.graph)
       } else {
+        log('result is', result)
         edge = {'from': result[1] + '@0', 'to': toPortName}
         log('add edge from ' + edge.from + ' to ' + edge.to)
         newGraph = Graph.addEdge(edge, result[0])

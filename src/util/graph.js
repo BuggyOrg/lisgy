@@ -18,6 +18,23 @@ export function createPort (name, kind, type) {
   return { port: port, kind, type }
 }
 
+export function getContextLets (context, variable) {
+  var letVar
+  if (!context.letvars) {
+    return false
+  }
+
+  _.forEachRight(context.letvars, (v) => {
+    var found = _.find(v, (e) => e[0] === variable)
+    if (found) {
+      letVar = found[1]
+      return false
+    }
+  })
+
+  return letVar
+}
+
 export function contextHasVariable (context, variable) {
   if (!context || !context.variables) {
     return false
