@@ -31,20 +31,21 @@ export default function (ednObject, { context, compile, graph }) {
   }
 
   // add extra info from last element
-  extraInfosAdded(component, ednObject.val[ednObject.val.length - 1])
   let tempRef = {ref: component.componentId, ports: component.ports || []}
+  extraInfosAdded(tempRef, ednObject.val[ednObject.val.length - 1])
+
+  if (version) {
+    tempRef.version = version
+  } else {
+    warning('using default version \'0.0.0\'')
+  }
+
   let result = Graph.addNodeTuple(tempRef, graph)
   let newGraph = result[0]
   name = result[1]
 
   const externalToPortName = name + '@' + (port ? port.port : 0) // TODO: cleanup?
   log('external component output port is', externalToPortName)
-
-  if (version) {
-    component.version = version
-  } else {
-    warning('using default version \'0.0.0\'')
-  }
 
   log('looping over ' + ednObject.val.length + ' exprsns')
   // compile exprsns
