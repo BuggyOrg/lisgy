@@ -2,7 +2,7 @@
 import { expect } from 'chai'
 import externalComponentImpl from '../../src/functions/externalComponent'
 import { createPort } from '../../src/util/graph'
-import { wrapFunction, Graph, defaultContext } from './utils'
+import { wrapFunction, Graph, defaultContext, expectEdge } from './utils'
 import { parse } from '../../src/parser'
 import { compile } from '../../src/compiler'
 
@@ -36,5 +36,34 @@ describe('external components', () => {
     const node = Graph.toJSON(compiled).nodes[0]
     expect(node).to.be.defined
     expect(node).to.containSubset({extraA: 'info', extraB: {A: [1, 2, 3]}})
+  })
+
+  it('creates multiple nodes and edges', () => {
+    const compiled = compile(parse(`(defco inc (n) (+ n 1)) (inc 2) (+ 2 (inc 4))`))
+    expect(Graph.components(compiled)).to.have.length(1)
+
+    let fac = Graph.components(compiled)[0]
+
+    expect(Graph.node('/+', fac)).exists
+    expect(Graph.node('/std/const', fac)).exists
+
+    expectEdge('/+', '/inc', fac)
+    expectEdge('@n', '/+', fac)
+    expectEdge('/std/const', '/+', fac)
+
+    expect(Graph.nodes(fac)).to.have.length(2)
+    expect(Graph.edges(fac)).to.have.length(3)
+    expect(Graph.components(fac)).to.have.length(0)
+
+    expect(Graph.nodes(compiled)).to.have.length(6)
+    expect(Graph.edges(compiled)).to.have.length(4)
+
+    expect(Graph.node('/inc', compiled)).exists
+    expect(Graph.node('/std/const', compiled)).exists
+    expect(Graph.node('/+', compiled)).exists
+
+    expectEdge('/std/const', '/inc', compiled)
+    expectEdge('/std/const', '/+', compiled)
+    expectEdge('/inc', '/+', compiled)
   })
 })
