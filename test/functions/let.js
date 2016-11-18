@@ -59,4 +59,29 @@ describe('let', () => {
     expect(Graph.edges(compiled)).to.have.length(4)
     expect(Graph.components(compiled)).to.have.length(0)
   })
+
+  it.skip('should be able to get the last let output port', () => {
+    const compiled = compile(parse(`(- (let [a 1] (+ a a)) 2)`))
+
+    expect(Graph.nodes(compiled)).to.have.length(4)
+    expect(Graph.edges(compiled)).to.have.length(4)
+    expect(Graph.components(compiled)).to.have.length(0)
+
+    expectEdge('/std/const', '/+', compiled)
+    expectEdge('/std/const', '/-', compiled)
+    expectEdge('/+', '/-', compiled)
+  })
+
+  it.skip('allowes multiple nested lets', () => {
+    const parsed = parse(`
+      (let [a (add 1 2)
+            b 3]
+           (let [a 4]
+                (add b a)))`)
+    const compiled = compile(parsed)
+
+    expect(Graph.nodes(compiled)).to.have.length(6)
+    expect(Graph.edges(compiled)).to.have.length(4)
+    expect(Graph.components(compiled)).to.have.length(0)
+  })
 })
