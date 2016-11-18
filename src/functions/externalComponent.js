@@ -1,6 +1,6 @@
 // import * as Graph from '@buggyorg/graphtools'
 import _ from 'lodash'
-// import { compilationError } from '../compiler'
+import { compilationError } from '../compiler'
 import { contextHasVariable, getContextLets } from '../util/graph'
 import { constCompile, isConstValue } from './const'
 import { extraInfosAdded, isInfoObject } from '../util/edn.js'
@@ -101,6 +101,11 @@ export default function (ednObject, { context, compile, graph }) {
         log('result is', result)
         edge = {'from': result[1] + '@0', 'to': toPortName}
         log('add edge from ' + edge.from + ' to ' + edge.to)
+
+        if (!result || !result[0] || !result[1]) {
+          throw compilationError('Cant add a edge to a undefined node!', ednObject, 'externalComponent')
+        }
+
         newGraph = Graph.addEdge(edge, result[0])
       }
       // else {
