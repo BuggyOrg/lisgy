@@ -10,7 +10,7 @@ describe('the compiler', () => {
     expect(compiled).to.exist
   })
 
-  it.skip('supports anonymous functions', () => {
+  it('supports anonymous functions', () => {
     const parsed = parse('(defcop + [s1 s2] [sum]) #(+ %1 %1)')
     const compiled = compile(parsed)
     expect(compiled).to.exist

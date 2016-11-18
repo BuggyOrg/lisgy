@@ -4,7 +4,7 @@ import { parse } from '../../src/parser'
 import { compile } from '../../src/compiler'
 import { Graph } from './utils.js'
 
-describe.skip('lambda test', () => {
+describe('lambda', () => {
   it('should create a new lambda component', () => {
     const parsed = parse('(defcop math/add [s1 s2] [sum]) (lambda [p1 p2] (math/add p1 p2))')
     const compiled = compile(parsed).graph

@@ -21,7 +21,7 @@ const expectNoEdge = function (from, to, graph) {
   expect(Graph.hasEdge({from: from, to: to}, graph)).to.be.false
 }
 
-describe('defco test', () => {
+describe('defco', () => {
   it('should create a new component inc with default output port', () => {
     const parsed = parse('(defcop math/add [s1 s2] [o1]) (defco myInc [x] (math/add 1 x))')
     const compiled = compile(parsed)
@@ -123,8 +123,7 @@ describe('defco test', () => {
     expect(Graph.components(fac)).to.have.length(0)
   })
 
-  // TODO: Add version numbers
-  it.skip('should create a new component with a version number', () => {
+  it('should create a new component with a version number', () => {
     const parsed = parse('(defcop math/add [s1 s2] [o1]) (defco myInc@1.33.7 [x] (math/add@1.0.11 1 x))')
     const compiled = compile(parsed)
     let inc = Graph.components(compiled)[0]

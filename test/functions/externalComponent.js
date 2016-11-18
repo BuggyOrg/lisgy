@@ -29,7 +29,7 @@ describe('external components', () => {
     expect(Graph.toJSON(graph)).to.not.deep.equal(Graph.toJSON(Graph.empty()))
   })
 
-  it.skip('adds extra info to a node', () => {
+  it('adds extra info to a node', () => {
     const parsed = parse(`(defcop math/add [s1 s2] [o1]) (math/add 1 2 {:extraA "info"
                                                                         :extraB {A [1 2 3]}})`)
     const compiled = compile(parsed)

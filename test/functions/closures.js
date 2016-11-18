@@ -48,8 +48,7 @@ describe('closure transformer', () => {
     expect(transformed.val[1].val.map(({ name }) => name)).to.deep.equal(['a'])
   })
 
-  // TODO: implement let?!
-  it.skip('should transform closures when compiling', () => {
+  it('should transform closures when compiling', () => {
     const parsed = parse('(defcop add [s1 s2] [o1]) ((let [b (const 42)] (lambda [a] (add a b))))')
     const compiled = compile(parsed)
     const node = compiled.nodes[1]

@@ -9,7 +9,7 @@ import { Graph } from './utils.js'
 chai.use(chaiSubset)
 let expect = chai.expect
 
-describe.skip('let test', () => {
+describe('let', () => {
   it('should create extra nodes', () => {
     const parsed = parse('(defcop math/add [s1 s2] [o1]) (let [a (math/add 1 2)] (math/add a 3))')
     const compiled = compile(parsed)

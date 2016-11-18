@@ -37,10 +37,10 @@ describe('the parser', () => {
 
   it('should parse a string with @', () => {
     const edn = parse('(hello@1.33.8)')
-    // should not fail
+    expect(edn).to.be.defined
   })
 
-  it.skip('should support tags', () => {
+  it('should support tags', () => {
     const edn = parse('#(add %1 %1)')
     expect(edn.val[0]._tag.namespace).to.equal('')
     expect(edn.val[0]._obj.val).to.have.length(3)
