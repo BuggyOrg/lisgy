@@ -36,11 +36,35 @@ describe('let', () => {
     expectEdge('/std/const', '/+', compiled)
   })
 
-  it.skip('allowes variable reuse', () => {
+  it('allowes variable reuse', () => {
     const compiled = compile(parse(`
-    (let [a (- 1 2) 
-          b (/ 2 b)] 
-          (+ a b))`))
+    (let [a (+ 1 2) 
+          b (- 3 a)] 
+          (/ a b))`))
+
+    expect(Graph.nodes(compiled)).to.have.length(6)
+    expect(Graph.edges(compiled)).to.have.length(6)
+    expect(Graph.components(compiled)).to.have.length(0)
+
+    expect(Graph.node('/+', compiled)).exists
+    expect(Graph.node('/-', compiled)).exists
+    expect(Graph.node('//', compiled)).exists
+    expect(Graph.node('/std/const', compiled)).exists
+
+    expectEdge('/std/const', '/+', compiled)
+    expectEdge('/std/const', '/-', compiled)
+    expectEdge('/+', '/-', compiled)
+    expectEdge('/+', '//', compiled)
+    expectEdge('/-', '//', compiled)
+  })
+
+  it.skip('let inside variables?', () => {
+    const compiled = compile(parse(`
+    (let [a (+ 1 2)
+          b (let [c a
+                  d 3] 
+                  (- c d))]
+          (/ a b))`))
   })
 
   it('works inside a external component', () => {

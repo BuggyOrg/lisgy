@@ -11,30 +11,32 @@ export default function (ednObject, { context, compile, graph }) {
 
   log('let')
 
+  if (!newContext.letvars) {
+    newContext.letvars = []
+  }
+
+  var curLetdepth = newContext.letvars.length
+  newContext.letvars.push([])
+
   // create [var, exprs] pairs
   const varexprs = _.chunk(ednObject.val[1].val, 2).map((data) => {
     let varName = data[0].val || data[0]
     let expr = data[1]
     let out
-    // TODO: add compiled expr node to newGraph
-    // NOTE: (let [a 2 b a] ...) would not work that way!
+
     if (isConstValue(expr)) {
       out = constCompile(expr, {context: newContext, graph: newGraph})
     } else {
       out = compile(expr, newContext, newGraph)
     }
     newGraph = out.graph
-    return [varName, out.result]
+    newContext.letvars[curLetdepth].push([varName, out.result])
   })
 
   log('with ' + varexprs.length + ' variable(s)')
 
-  if (!newContext.letvars) {
-    newContext.letvars = []
-  }
-
   // Add new vars to back!
-  newContext.letvars.push(varexprs)
+  // newContext.letvars.push(varexprs)
   // use _.findLast(context.letvars, (varexpr) => varexpr[0] === 'A')
 
   const elements = ednObject.val
