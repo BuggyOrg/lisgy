@@ -4,7 +4,7 @@ import chaiSubset from 'chai-subset'
 import _ from 'lodash'
 import { parse } from '../../src/parser'
 import { compile } from '../../src/compiler'
-import { Graph, expectEdge } from './utils.js'
+import { Graph, expectEdge, expectNoEdge } from './utils.js'
 
 chai.use(chaiSubset)
 let expect = chai.expect
@@ -21,6 +21,26 @@ describe('let', () => {
     expect(Graph.node('/std/const', compiled)).exists
 
     expectEdge('/std/const', '/+', compiled)
+  })
+
+  it('allowes const expansion', () => {
+    const compiled = compile(parse(`(let [a 1 b 2] (+ a b))`))
+
+    expect(Graph.nodes(compiled)).to.have.length(3)
+    expect(Graph.edges(compiled)).to.have.length(2)
+    expect(Graph.components(compiled)).to.have.length(0)
+
+    expect(Graph.node('/+', compiled)).exists
+    expect(Graph.node('/std/const', compiled)).exists
+
+    expectEdge('/std/const', '/+', compiled)
+  })
+
+  it.skip('allowes variable reuse', () => {
+    const compiled = compile(parse(`
+    (let [a (- 1 2) 
+          b (/ 2 b)] 
+          (+ a b))`))
   })
 
   it('works inside a external component', () => {
@@ -60,8 +80,8 @@ describe('let', () => {
     expect(Graph.components(compiled)).to.have.length(0)
   })
 
-  it.skip('should be able to get the last let output port', () => {
-    const compiled = compile(parse(`(- (let [a 1] (+ a a)) 2)`))
+  it('should be able to get the last let output port', () => {
+    const compiled = compile(parse(`(- (let [a (const 1)] (+ a a)) 2)`))
 
     expect(Graph.nodes(compiled)).to.have.length(4)
     expect(Graph.edges(compiled)).to.have.length(4)
@@ -72,11 +92,11 @@ describe('let', () => {
     expectEdge('/+', '/-', compiled)
   })
 
-  it.skip('allowes multiple nested lets', () => {
+  it('allowes multiple nested lets', () => {
     const parsed = parse(`
       (let [a (add 1 2)
-            b 3]
-           (let [a 4]
+            b (const 3)]
+           (let [a (const 4)]
                 (add b a)))`)
     const compiled = compile(parsed)
 
