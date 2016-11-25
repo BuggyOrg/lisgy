@@ -30,7 +30,7 @@ export default function (ednObject, { context, compile, graph }) {
       out = compile(expr, newContext, newGraph)
     }
     newGraph = out.graph
-    newContext.letvars[curLetdepth].push([varName, out.result])
+    newContext.letvars[curLetdepth].push({varName: varName, source: out.result})
   })
 
   log('with ' + varexprs.length + ' variable(s)')
