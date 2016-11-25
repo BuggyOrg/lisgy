@@ -25,9 +25,8 @@ export function getContextLets (context, variable) {
   }
 
   _.forEachRight(context.letvars, (v) => {
-    var found = _.find(v, (e) => e.varName === variable)
-    if (found) {
-      source = found.source
+    if (v.varName === variable) {
+      source = v.source
       return false
     }
   })

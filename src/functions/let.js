@@ -15,9 +15,6 @@ export default function (ednObject, { context, compile, graph }) {
     newContext.letvars = []
   }
 
-  var curLetdepth = newContext.letvars.length
-  newContext.letvars.push([])
-
   // create [var, exprs] pairs
   const varexprs = _.chunk(ednObject.val[1].val, 2).map((data) => {
     let varName = data[0].val || data[0]
@@ -30,7 +27,7 @@ export default function (ednObject, { context, compile, graph }) {
       out = compile(expr, newContext, newGraph)
     }
     newGraph = out.graph
-    newContext.letvars[curLetdepth].push({varName: varName, source: out.result})
+    newContext.letvars.push({varName: varName, source: out.result})
   })
 
   log('with ' + varexprs.length + ' variable(s)')
