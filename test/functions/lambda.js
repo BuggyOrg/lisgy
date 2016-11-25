@@ -2,9 +2,29 @@
 import { expect } from 'chai'
 import { parse } from '../../src/parser'
 import { compile } from '../../src/compiler'
-import { Graph } from './utils.js'
+import { Graph, expectEdge } from './utils.js'
 
 describe('lambda', () => {
+  it('should create a simple lambda node', () => {
+    const parsed = parse('(lambda [p1 p2] (+ p1 p2))')
+    const compiled = compile(parsed)
+
+    expect(Graph.nodes(compiled)).to.have.length(1) // One lambda node
+    expect(Graph.edges(compiled)).to.have.length(0)
+    expect(Graph.components(compiled)).to.have.length(0)
+
+    var lambda = Graph.node('/functional/lambda', compiled)
+    expect(lambda).exists
+    // is lambda node atomic?
+
+    expect(Graph.nodes(lambda.λ)).to.have.length(1)
+    expect(Graph.node('/+', lambda.λ)).exists
+
+    expect(Graph.edges(lambda.λ)).to.have.length(2)
+    expectEdge('@p1', '/+', lambda.λ) // Note sure
+    expectEdge('@p2', '/+', lambda.λ)
+  })
+
   it('should create a new lambda component', () => {
     const parsed = parse('(defcop math/add [s1 s2] [sum]) (lambda [p1 p2] (math/add p1 p2))')
     const compiled = compile(parsed).graph
