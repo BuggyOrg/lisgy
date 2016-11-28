@@ -3,47 +3,28 @@ import yargs from 'yargs'
 import { parse } from './parser'
 import { compile } from './compiler'
 import * as Graph from '@buggyorg/graphtools'
+import * as cli from 'cli-ext'
 
-// var argv = yargs.argv
+function parseCompileCode (code) {
+  const parsed = parse(code)
+  const compiled = compile(parsed)
+  const graph = Graph.toJSON(compiled)
+  console.log(JSON.stringify(graph, null, 2))
+}
 
-// yargs
-//   .usage('$0 <cmd> [args]')
-//   .command('parse [code]', 'welcome ter yargs!', {
-//     name: {
-//       default: ''
-//     }
-//   }, function (argv) {
-//     console.log('hello', argv.name, 'welcome to yargs!')
-//   })
-//   .help()
-//   .argv
+var version = require('../package.json').version
 
-var argv = yargs
+yargs
+  .usage('Lisgy CLI [version ' + version + ']')
   .command(['pc [code]'], 'Parse and compile the lisgy code', {}, (argv) => {
-    // console.log('starting up the', argv.code || 'default', 'app')
-    const parsed = parse(argv.code)
-    const compiled = compile(parsed)
-    const graph = Graph.toJSON(compiled)
-    console.log(JSON.stringify(graph, null, 2))
+    parseCompileCode(argv.code)
   })
-  .count('verbose')
-  .alias('v', 'verbose')
-  // .option('size', {
-  //   alias: 's',
-  //   describe: 'choose a size',
-  //   choices: ['xs', 's', 'm', 'l', 'xl']
-  // })
-  .usage('$0 [options] code')
+  .command(['input', 'i'], 'Use the stdin input as lisgy code or if none is given open an editor', {}, (argv) => {
+    cli.input('', {fileType: '.clj'}).then(parseCompileCode)
+  })
+  .command(['edit [file]', 'e [file]'], 'Opens an editor to edit the file [file] and use its content as lisgy code', {}, (argv) => {
+    cli.edit(argv.file).then(parseCompileCode)
+  })
   .help()
-  .alias('h', 'help')
+  .completion('completion')
   .argv
-
-let VERBOSE_LEVEL = argv.verbose
-
-function WARN () { VERBOSE_LEVEL >= 0 && console.log.apply(console, arguments) }
-function INFO () { VERBOSE_LEVEL >= 1 && console.log.apply(console, arguments) }
-function DEBUG () { VERBOSE_LEVEL >= 2 && console.log.apply(console, arguments) }
-
-WARN('Showing only important stuff')
-INFO('Showing semi-important stuff too')
-DEBUG('Extra chatty mode')
