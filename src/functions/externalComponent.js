@@ -86,6 +86,10 @@ export default function (ednObject, { context, compile, graph }) {
       log('add edge from (const value) ' + edge.from + ' to ' + edge.to)
       newGraph = Graph.addEdge(edge, newGraph)
     } else {
+      if (_.isString(value)) {
+        throw compilationError('Can not use the string \'' + value + '\' as a exprsn', ednObject, 'externalComponent')
+      }
+
       log('compiling exprsn')
       // TODO element might be a variable, create an edge if that is the case (Maik will do that soon)
       let result = compile(element, context, newGraph)
