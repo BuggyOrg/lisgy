@@ -66,4 +66,24 @@ describe('external components', () => {
     expectEdge('/std/const', '/+', compiled)
     expectEdge('/inc', '/+', compiled)
   })
+
+  it('throws a error if a undefined variable is used', () => {
+    var count = 0
+    try {
+      // Numbers should work
+      expect(compile(parse('(+ 1 2)'))).to.be.defined
+      count++
+      // Strings should work
+      expect(compile(parse('(add "Hello" " World")'))).to.be.defined
+      count++
+      // Undefined variables should NOT work
+      compile(parse('(+ a b)'))
+      count++
+    } catch (err) {
+      expect(err.message).to.be.defined
+      expect(err.location).to.be.defined
+      expect(err.moduleName).to.be.defined
+    }
+    expect(count).to.equal(2)
+  })
 })
