@@ -37,7 +37,7 @@ export default function lambda (ednObject, { context, compile, graph }) {
           varName: p.name,
           source: {
             node: lambdaImplNode,
-            port: `${lambdaImplNode}@in_${p.name}`
+            port: `${lambdaImplNode.id}@in_${p.name}`
           }
         }))
       ]
