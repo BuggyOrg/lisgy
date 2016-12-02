@@ -57,16 +57,16 @@ export default function (ednObject, { context, compile, graph }) {
     }
 
     let value = element.val || element
-    let toPortName = name + '@' + (inputPorts ? inputPorts[i - 1].port : (i - 1))
+    let toPortName = `${name}@${inputPorts ? inputPorts[i - 1].port : (i - 1)}`
     if (_.isString(value)) {
       let v = getContextLets(context, value)
       if (v) {
-        let fromPortName = v.port
+        let fromPortName = `@${v.port}`
         log('add edge from ' + fromPortName + ' to ' + toPortName)
         newGraph = Graph.addEdge({'from': fromPortName, 'to': toPortName}, newGraph)
         continue
       } else if (contextHasVariable(context, value)) {
-        let fromPortName = '@' + value
+        let fromPortName = `@${value}`
 
         log('add edge from ' + fromPortName + ' to ' + toPortName)
         newGraph = Graph.addEdge({'from': fromPortName, 'to': toPortName}, newGraph)
@@ -112,12 +112,6 @@ export default function (ednObject, { context, compile, graph }) {
 
         newGraph = Graph.addEdge(edge, result[0])
       }
-      // else {
-      //   // add new edge
-      //   edge = {'from': result.context.toPortName, 'to': toPortName}
-      //   log('add edge from ' + edge.from + ' to ' + edge.to)
-      //   newGraph = Graph.addEdge(edge, result.graph)
-      // }
     }
   }
 

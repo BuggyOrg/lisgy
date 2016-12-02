@@ -1,17 +1,15 @@
 import * as Graph from '@buggyorg/graphtools'
-import _ from 'lodash'
 import { createPort } from '../util/graph'
 import { compilationError } from '../compiler'
-import externalComponent from './externalComponent'
 import { transformClosures } from './closures'
 
 /**
  * (lambda [p1 p2 ...] (fn ...))
  */
-export default function (ednObject, { context, compile, graph }) {
+export default function lambda (ednObject, { context, compile, graph }) {
   const transformed = transformClosures(ednObject, context.letvars) // TODO rename letvars
   if (transformed !== ednObject) {
-    return externalComponent(transformed, { context, compile, graph })
+    return lambda(transformed, { context, compile, graph })
   } else {
     ednObject = transformed
   }
@@ -22,30 +20,42 @@ export default function (ednObject, { context, compile, graph }) {
   const implementation = ednObject.val[2]
   // console.log(JSON.stringify(implementation, null, 2))
 
-  let lambdaNode = Graph.compound({
-    id: _.uniqueId('lambdaNode_'),
-    componentId: 'functional/lambda',
+  const lambdaImplNode = Graph.compound({
     ports: [
-      { name: 'fn', kind: 'output', type: 'function' }
+      ...parameters.map((p) => createPort(`in_${p.name}`, 'input', 'generic')),
+      createPort('output', 'output', 'generic')
     ]
   })
 
-  const compiledImplementation = compile(implementation, context, Graph.compound({
-    id: _.uniqueId('lambdaImplNode_'),
-    ports: [
-      ...parameters.map((p) => createPort(`in_${p}`, 'input', 'generic')),
-      createPort('output', 'output', 'generic')
-    ]
-  }))
+  const compiledImplementation = compile(
+    implementation,
+    Object.assign({}, context, {
+      graph,
+      letvars: [
+        ...(context.letvars || []),
+        ...parameters.map((p) => ({
+          varName: p.name,
+          source: {
+            node: lambdaImplNode,
+            port: `in_${p.name}`
+          }
+        }))
+      ]
+    }),
+    lambdaImplNode
+  )
 
   if (!compiledImplementation.result) {
     throw compilationError('Component has no value', implementation.val[2])
   }
 
-  lambdaNode = Graph.addNode(compiledImplementation.graph, lambdaNode)
-  // TODO add the edge
-
-  const newGraph = Graph.addNode(lambdaNode, graph)
+  const [newGraph, lambdaId] = Graph.addNodeTuple({
+    componentId: 'functional/lambda',
+    ports: [
+      { port: 'fn', kind: 'output', type: 'function' }
+    ],
+    λ: compiledImplementation.graph
+  }, graph)
 
   // console.log(JSON.stringify(newGraph, null, 2))
 
@@ -53,7 +63,7 @@ export default function (ednObject, { context, compile, graph }) {
     context: Object.assign({}, context, {}),
     graph: newGraph,
     result: {
-      node: [lambdaNode.id],
+      node: lambdaId,
       port: 'fn'
     }
   }
