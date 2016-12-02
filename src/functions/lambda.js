@@ -7,11 +7,10 @@ import { transformClosures } from './closures'
  * (lambda [p1 p2 ...] (fn ...))
  */
 export default function lambda (ednObject, { context, compile, graph }) {
-  const transformed = transformClosures(ednObject, context.letvars) // TODO rename letvars
+  const transformed = transformClosures(ednObject, context.letvars.map((v) => v.varName))
+
   if (transformed !== ednObject) {
-    return lambda(transformed, { context, compile, graph })
-  } else {
-    ednObject = transformed
+    return compile(transformed, context, graph)
   }
 
   const parameters = ednObject.val[1].val
@@ -64,7 +63,7 @@ export default function lambda (ednObject, { context, compile, graph }) {
     graph: newGraph,
     result: {
       node: lambdaId,
-      port: 'fn'
+      port: `${lambdaId}@fn`
     }
   }
 }

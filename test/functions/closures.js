@@ -49,7 +49,7 @@ describe('closure transformer', () => {
   })
 
   it('should transform closures when compiling', () => {
-    const parsed = parse('(defcop add [s1 s2] [o1]) ((let [b (const 42)] (lambda [a] (add a b))))')
+    const parsed = parse('(let [b 42] (lambda [a] (add a b)))')
     const compiled = compile(parsed)
     const node = compiled.nodes[1]
     expect(node).to.be.defined
