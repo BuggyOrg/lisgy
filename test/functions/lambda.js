@@ -15,7 +15,6 @@ describe('lambda', () => {
 
     var lambda = Graph.node('/functional/lambda', compiled)
     expect(lambda).exists
-    // is lambda node atomic?
 
     expect(Graph.nodes(lambda.λ)).to.have.length(1)
     expect(Graph.node('/+', lambda.λ)).exists
@@ -27,13 +26,13 @@ describe('lambda', () => {
 
   it('should create a new lambda component', () => {
     const parsed = parse('(defcop math/add [s1 s2] [sum]) (lambda [p1 p2] (math/add p1 p2))')
-    const compiled = compile(parsed).graph
+    const compiled = compile(parsed)
 
     expect(Graph.nodes(compiled)).to.have.length(1)
     expect(Graph.components(compiled)).to.have.length(0)
 
     const lambda = Graph.nodes(compiled)[0]
-    const lambdaImpl = Graph.nodes(lambda)[0]
+    const lambdaImpl = lambda.λ
     expect(Graph.nodes(lambdaImpl)).to.have.length(1)
   })
 })
