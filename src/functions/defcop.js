@@ -14,10 +14,14 @@ export default function (ednObject, { context, graph }) {
     return true
   })
 
-  ednObject.val[3].val.every((iPort) => {
-    newNode.ports.push(createPort(iPort.val, 'output', 'generic'))
-    return true
-  })
+  if (ednObject.val.length < 4) {
+    newNode.ports.push(createPort('value', 'output', 'generic'))
+  } else {
+    ednObject.val[3].val.every((iPort) => {
+      newNode.ports.push(createPort(iPort.val, 'output', 'generic'))
+      return true
+    })
+  }
 
   log('defcop added ' + name)
 
