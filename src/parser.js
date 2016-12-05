@@ -9,13 +9,13 @@ function throwCostomError (name, ednObj) {
 export function parse (code, { moduleName = 'main' } = {}) {
   let ednObject
   try {
-    ednObject = edn.parse(`[${code}]`)
+    ednObject = edn.parse(`[${code}\n]`)
     if (!ednObject.val) { // no 'array'
       throwCostomError('Parsing found non-array element at root level', ednObject)
     }
     for (let i in ednObject.val) {
       let obj = ednObject.val[i]
-      if (!obj || obj instanceof edn.Symbol || typeof obj === 'number') {
+      if (!obj || obj instanceof edn.Symbol || typeof obj === 'number' || typeof obj === 'string') {
         throwCostomError('Parsing found symbol or number at root level', obj)
       }
     }

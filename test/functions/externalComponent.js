@@ -67,6 +67,14 @@ describe('external components', () => {
     expectEdge('/inc', '/+', compiled)
   })
 
+  it('can parse comments', () => {
+    const compiled = compile(parse(`(+ 1 2);commend`))
+    expect(Graph.node('/+', compiled)).exists
+    expect(Graph.node('/std/const', compiled)).exists
+
+    expectEdge('/std/const', '/+', compiled)
+  })
+
   it('throws a error if a undefined variable is used', () => {
     var count = 0
     try {
