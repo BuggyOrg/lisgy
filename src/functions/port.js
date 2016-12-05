@@ -1,5 +1,5 @@
-import _ from 'lodash'
-import * as Graph from '@buggyorg/graphtools'
+// import _ from 'lodash'
+// import * as Graph from '@buggyorg/graphtools'
 
 export default function (ednObject, { context, compile, graph }) {
   // TODO

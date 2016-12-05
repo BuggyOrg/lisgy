@@ -47,7 +47,13 @@ function compileWithContext (ednObj, context, graph) {
 }
 
 export function compile (ednObj) {
-  return compileWithContext(ednObj, defaultContext(), Graph.empty()).graph
+  var graph = compileWithContext(ednObj, defaultContext(), Graph.empty()).graph
+  // add code meta information from ednObj, if it exists
+  if (ednObj.code) {
+    // TODO: add input code
+    // Graph.meta(graph, )
+  }
+  return graph
 }
 
 export function defaultContext () {
