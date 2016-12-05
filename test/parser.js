@@ -35,6 +35,24 @@ describe('the parser', () => {
     }
   })
 
+  it('should throw on non lisgy code', () => {
+    let parsed = false
+    try {
+      parse('test (foo)')
+      parsed = true
+    } catch (err) {
+      expect(err.message).to.be.defined
+      expect(err.message).to.contain('Parsing found symbol or number at root')
+      expect(err.location).to.be.defined
+      expect(err.moduleName).to.be.defined
+      expect(err.location).to.be.defined
+    }
+
+    if (parsed) {
+      expect.fail()
+    }
+  })
+
   it('should parse a string with @', () => {
     const edn = parse('(hello@1.33.8)')
     expect(edn).to.be.defined

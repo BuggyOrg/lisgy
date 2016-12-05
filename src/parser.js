@@ -1,10 +1,24 @@
 import * as edn from 'jsedn'
 import _ from 'lodash'
 
+function throwCostomError (name, ednObj) {
+  throw new Error('Error:' + name + ' at line ' +
+  ednObj.posLineStart + ':' + ednObj.posColStart + '-' + ednObj.posLineEnd + ':' + ednObj.posColEnd)
+}
+
 export function parse (code, { moduleName = 'main' } = {}) {
   let ednObject
   try {
     ednObject = edn.parse(`[${code}]`)
+    if (!ednObject.val) { // no 'array'
+      throwCostomError('Parsing found non-array element at root level', ednObject)
+    }
+    for (let i in ednObject.val) {
+      let obj = ednObject.val[i]
+      if (!obj || obj instanceof edn.Symbol || typeof obj === 'number') {
+        throwCostomError('Parsing found symbol or number at root level', obj)
+      }
+    }
   } catch (err) {
     const parseErr = new ParseError(err, moduleName)
     if (parseErr.location.startLine === 1) {
@@ -45,6 +59,9 @@ class ParseError extends Error {
    * Gets the location (line, column) of the given edn error.
    */
   static getErrorLocation (message) {
+    if (message.message) {
+      message = message.message
+    }
     let location = message.split('at line ')
     if (location[1]) {
       location = location[1].split('-')
