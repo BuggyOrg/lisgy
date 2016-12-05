@@ -13,8 +13,7 @@ let logJson = (json) => {
 }
 
 describe('port', () => {
-  // TODO: name the tests
-  it('A', () => {
+  it('can get the port from a component by number', () => {
     const parsed = parse(`
     (+ (port 1 (testA 2)))`)
     const compiled = compile(parsed)
@@ -26,14 +25,12 @@ describe('port', () => {
     expectEdge('/testA', '/+', compiled)
     expectEdge('/std/const', '/testA', compiled)
 
-    logJson(Graph.toJSON(compiled))
-
     var portA = Graph.edge({from: '/testA', to: '/+'}, compiled)
     expect(portA).to.be.defined
     expect(portA.from.port).to.equal('1')
   })
 
-  it('Ab', () => {
+  it('can get the port from a defined component by number', () => {
     const parsed = parse(`
     (defcop testA [a ] [c d e])
     (+ (port 1 (testA 2)))`)
@@ -46,14 +43,12 @@ describe('port', () => {
     expectEdge('/testA', '/+', compiled)
     expectEdge('/std/const', '/testA', compiled)
 
-    logJson(Graph.toJSON(compiled))
-
     var portA = Graph.edge({from: '/testA', to: '/+'}, compiled)
     expect(portA).to.be.defined
     expect(portA.from.port).to.equal('d')
   })
 
-  it('Ac', () => {
+  it('can get the port from multiple defined components by name and number', () => {
     const parsed = parse(`
     (defcop testA [a b] [c d e])
     (defcop testB [a b] [c d e])
@@ -70,8 +65,6 @@ describe('port', () => {
     expectEdge('/std/const', '/testA', compiled)
     expectEdge('/std/const', '/testB', compiled)
 
-    logJson(Graph.toJSON(compiled))
-
     var portA = Graph.edge({from: '/testA', to: '/+'}, compiled)
     expect(portA).to.be.defined
     expect(portA.from.port).to.equal('d') // d ^= 1
@@ -81,7 +74,7 @@ describe('port', () => {
     expect(portB.from.port).to.equal('e')
   })
 
-  it.skip('B', () => {
+  it.skip('can get the port from a newly defined component with multiple output ports by number', () => {
     const parsed = parse(`
     (defco test [] [:a "test" :b 10])
     (+ 2 (port 1 (test)))`)
@@ -92,6 +85,7 @@ describe('port', () => {
     expect(Graph.components(compiled)).to.have.length(0)
   })
 
+  // TODO: name the test
   it.skip('C', () => {
     const parsed = parse(`
     (def test [a b] [:out (+ a b) :b (- a b)])
