@@ -48,11 +48,16 @@ describe('closure transformer', () => {
     expect(transformed.val[1].val.map(({ name }) => name)).to.deep.equal(['a'])
   })
 
+  it('should not bind known variables that are shadowed by lambda arguments', () => {
+    const lambdaFunction = parse('(lambda [a] (math/add a a))').val[0]
+    const transformed = transformClosures(lambdaFunction, ['a'])
+    expect(transformed).to.equal(lambdaFunction)
+  })
+
   it('should transform closures when compiling', () => {
     const parsed = parse('(let [b 42] (lambda [a] (add a b)))')
     const compiled = compile(parsed)
     const node = compiled.nodes[1]
     expect(node).to.be.defined
-    console.log(JSON.stringify(compiled, null, 2))
   })
 })

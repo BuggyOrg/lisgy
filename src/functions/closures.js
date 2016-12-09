@@ -34,7 +34,8 @@ function getUsedVariables (ednObject) {
 
 export function transformClosures (ednObject, knownVariables) {
   const lambdaArgs = ednObject.val[1].val.map(({ name }) => name)
-  const boundArgs = _.intersection(_.without(knownVariables, lambdaArgs), getUsedVariables(ednObject.val.slice(2)))
+  const usedVariables = getUsedVariables(ednObject.val.slice(2))
+  const boundArgs = _.difference(_.intersection(knownVariables, usedVariables), lambdaArgs)
 
   if (boundArgs.length === 0) {
     return ednObject
