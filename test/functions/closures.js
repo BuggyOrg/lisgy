@@ -2,7 +2,6 @@
 import { expect } from 'chai'
 import _ from 'lodash'
 import { parse } from '../../src/parser'
-import { compile } from '../../src/compiler'
 import { transformClosures } from '../../src/functions/closures'
 
 describe('closure transformer', () => {
@@ -52,12 +51,5 @@ describe('closure transformer', () => {
     const lambdaFunction = parse('(lambda [a] (math/add a a))').val[0]
     const transformed = transformClosures(lambdaFunction, ['a'])
     expect(transformed).to.equal(lambdaFunction)
-  })
-
-  it('should transform closures when compiling', () => {
-    const parsed = parse('(let [b 42] (lambda [a] (add a b)))')
-    const compiled = compile(parsed)
-    const node = compiled.nodes[1]
-    expect(node).to.be.defined
   })
 })

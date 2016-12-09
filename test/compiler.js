@@ -20,4 +20,14 @@ describe('the compiler', () => {
     const parsed = parse('#yolo(42)')
     expect(() => compile(parsed)).to.throw(/unsupported tag/i)
   })
+
+  it('supports closures', () => {
+    const parsed = parse('(let [b 42] (lambda [a] (add a b)))')
+    const compiled = compile(parsed)
+
+    expect(compiled.nodes.length).to.equal(3) // const, partial, lambda
+    expect(compiled.edges.length).to.equal(2) // const and lambda --> partial
+
+    // TODO add more specific tests when the node attributes in the graph are final
+  })
 })
