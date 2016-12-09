@@ -1,5 +1,5 @@
-# lisgy
-create simple buggy graphs from lisp code
+# lisgy ![Build status](https://api.travis-ci.org/BuggyOrg/lisgy.svg?branch=rewrite)
+Create Buggy graphs from Lisp-like code.
 
 ```clojure
 (defco newCoName [inputA inputB] 
