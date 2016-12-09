@@ -7,7 +7,7 @@ import { transformClosures } from './closures'
  * (lambda [p1 p2 ...] (fn ...))
  */
 export default function lambda (ednObject, { context, compile, graph }) {
-  const transformed = transformClosures(ednObject, context.letvars.map((v) => v.varName))
+  const transformed = transformClosures(ednObject, (context.letvars || []).map((v) => v.varName))
 
   if (transformed !== ednObject) {
     return compile(transformed, context, graph)
