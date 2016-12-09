@@ -30,4 +30,14 @@ describe('the compiler', () => {
 
     // TODO add more specific tests when the node attributes in the graph are final
   })
+
+  it('supports closures with anonymous functions', () => {
+    const parsed = parse('(let [b 42] #(add %1 b))')
+    const compiled = compile(parsed)
+
+    expect(compiled.nodes.length).to.equal(3) // const, partial, lambda
+    expect(compiled.edges.length).to.equal(2) // const and lambda --> partial
+
+    // TODO add more specific tests when the node attributes in the graph are final
+  })
 })
