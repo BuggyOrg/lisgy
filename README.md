@@ -9,13 +9,31 @@ Create Buggy graphs from Lisp-like code.
 
 **REWRITE TODO**
 
+- [x] simple cli `./lib/cli.js`
 - [ ] lambdas
   - [ ] `(lambda [var_0 ... var_n] expressions)` where only the last expression is 'returned'
   - [ ] `(fn [var_0 ... var_n] expressions)` where only the last expression is 'returned'
   - [x] `#(expression)` where `%1`...`%n` are implicit arguments, i.e. `#(math/add %1 %2)` is the same as `(lambda [%1 %2] (math/add %1 %2))`
-- [ ] `(let [VARS] EXPRS)`
+- [x] `(let [VARS] EXPRS)`
 - [x]  extra Node data `(FN ARGS {:data 'Some data'})` or `(defco [ARGS] ... {:data 'Some data'})`
-- [ ] `(port EXPRS)`
+- [x] `(port EXPRS)`
+- [ ] `(import DEFAULTPACKAGE | LISGYFILE | GRAPHFILEWITHCOMPONENTS)`
+
+
+```
+Lisgy CLI [version <VERSION>]
+
+Commands:
+  pc [code]     Parse and compile the lisgy code
+  input [file]  Use the stdin input as lisgy code or if none is given open an
+                editor                                              [aliases: i]
+  edit [file]   Opens an editor to edit the file [file] and use its content as
+                lisgy code                                          [aliases: e]
+  completion    generate bash completion script
+
+Options:
+  --help  Show help                                                    [boolean]
+```
 
 
 --------------------------------------------------------
