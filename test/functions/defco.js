@@ -207,16 +207,4 @@ describe('defco', () => {
   //   expect.fail()
   // }
   })
-
-  it.only('should run max\'s test ', () => {
-    const parsed = parse(`
-(import all)
-
-(defco add2 [a b] (+ a b))
-
-(io/stdout (translator/int_to_string (add2 1 2)))
-`)
-    const compiled = compile(parsed)
-    console.log(compiled)
-  })
 })
