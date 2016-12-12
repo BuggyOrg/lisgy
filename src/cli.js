@@ -17,13 +17,27 @@ var version = require('../package.json').version
 yargs
   .usage('Lisgy CLI [version ' + version + ']')
   .command(['pc [code]'], 'Parse and compile the lisgy code', {}, (argv) => {
-    parseCompileCode(argv.code)
+    try {
+      parseCompileCode(argv.code)
+    } catch (err) {
+      console.log('ERROR:', err.message)
+      process.exit(1)
+    }
   })
-  .command(['input', 'i'], 'Use the stdin input as lisgy code or if none is given open an editor', {}, (argv) => {
-    cli.input('', {fileType: '.clj'}).then(parseCompileCode)
+  .command(['input [file]', 'i [file]'], 'Use the stdin input as lisgy code or if none is given open an editor', {}, (argv) => {
+    if (!argv.file) {
+      argv.file = ''
+    }
+    cli.input(argv.file, {fileType: '.clj'}).then(parseCompileCode).catch((err) => {
+      console.log('ERROR:', err.message)
+      process.exit(1)
+    })
   })
   .command(['edit [file]', 'e [file]'], 'Opens an editor to edit the file [file] and use its content as lisgy code', {}, (argv) => {
-    cli.edit(argv.file).then(parseCompileCode)
+    cli.edit(argv.file).then(parseCompileCode).catch((err) => {
+      console.log('ERROR:', err.message)
+      process.exit(1)
+    })
   })
   .help()
   .completion('completion')

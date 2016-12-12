@@ -1,0 +1,22 @@
+{
+ // Use IntelliSense to find out which attributes exist for node debugging
+ // Use hover for the description of the existing attributes
+ // For further information visit https://go.microsoft.com/fwlink/?linkid=830387
+ "version": "0.2.0",
+ "configurations": [
+   {
+     "name": "Launch Program",
+     "type": "node2",
+     "request": "launch",
+     "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+     "cwd": "${workspaceRoot}",
+     "args": ["--compilers", "js:babel-register", "--recursive"],
+     "env": {
+       "NODE_ENV": "development"
+     },
+     "console": "internalConsole",
+     "sourceMaps": true,
+     "smartStep": false
+   }
+ ]
+}
