@@ -4,7 +4,8 @@
   "description": "",
   "main": "lib/lisgy.js",
   "bin": {
-    "lisgy": "./lib/cli.js"
+    "lisgy": "./lib/cli.js",
+    "lisgy-check": "./lib/valid.js" 
   },
   "scripts": {
     "mocha": "mocha --compilers js:babel-register",
