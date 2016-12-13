@@ -7,19 +7,11 @@ Create Buggy graphs from Lisp-like code.
    :output2 (math/add inputA inputB)})
 ```
 
-**REWRITE TODO**
-
-- [x] simple cli `./lib/cli.js`
-- [ ] lambdas
-  - [ ] `(lambda [var_0 ... var_n] expressions)` where only the last expression is 'returned'
-  - [ ] `(fn [var_0 ... var_n] expressions)` where only the last expression is 'returned'
-  - [x] `#(expression)` where `%1`...`%n` are implicit arguments, i.e. `#(math/add %1 %2)` is the same as `(lambda [%1 %2] (math/add %1 %2))`
-- [x] `(let [VARS] EXPRS)`
-- [x]  extra Node data `(FN ARGS {:data 'Some data'})` or `(defco [ARGS] ... {:data 'Some data'})`
-- [x] `(port EXPRS)`
-- [ ] `(import DEFAULTPACKAGE | LISGYFILE | GRAPHFILEWITHCOMPONENTS)`
+[**current rewrite status**]( https://github.com/BuggyOrg/lisgy/projects/1 )
 
 
+
+**CLI**
 ```
 Lisgy CLI [version <VERSION>]
 
@@ -37,24 +29,6 @@ Options:
 
 
 --------------------------------------------------------
-
-**OLD README**
-
-
-
-**TODO**
-- [ ] Anonymous functions `#(...)`
-- [ ] Better error handling with lines for components/edn objects
-
-**DONE**
-- [x] set a specific input port e.g. `(FN :portB (exprs1) :portA (exprs2))`
-- [x] get a specific output port with `(port :outputPort node)`
-- [x] let
-- [x] support for new components with just one default output port
-- [x] if same as logic/mux -> `(defco if [check truePath falsePath] (logic/mux truePath falsePath check))`
-- [x] `(import ...)` Include default mappings e.g. + to math/add 
-- [x] Extra node infos with `{:var value}`
-- [x] syntax errors with lines
 
 **API**
 ```clojure
@@ -91,24 +65,19 @@ Options:
 
 
 ; Import
-(import all) ; or math,logic,io,control,functional,array,translator
+(import math) ; Import all default math components
+(import lisgy.clj) ; Import all components from lisgy.clj
+(import graph.json) ; Import all components from graph.json
 (+ 2 3)
 
 
 ; Set extra node infos, e.g. the name with {}
-(+ 2 3 {:name add23})
+(+ 2 3 {:name "add23"})
 
 
 ; Intern
 ; Define the ports of a extern component
 (defcop name [inputs*] [outputs*])
-
-
-
-
-; TODO / NYI (Not yet implemented) !!!
-; Anonymous functions 
-#(...) ; with %n for the nth arg (1-based)
 ```
 
 ## example code
@@ -149,30 +118,6 @@ Options:
 
 ```
 
-## cli
-
-```bash
-  Usage: lisgy [options] [command]
-
-
-  Commands:
-
-    parse [lisp_code]
-
-  Options:
-  
-    -h, --help             output usage information
-    -V, --version          output the version number
-    -e, --elastic <host>   The elastic server to connect to. Defaults to BUGGY_COMPONENT_LIBRARY_HOST=http://localhost:9200
-    -n, --nice             Pretty print all JSON output
-    -k, --kgraph           Print the graph in kgraph format
-    -r, --resolve          Print the resolved json
-    -v, --verbose [depth]  Print further information.
-    --nocolor              Disable color output
-
-
-```
-
 ### installation
 ```bash
 npm i @buggyorg/lisgy
@@ -192,15 +137,15 @@ alias lisgy='PATH TO LISGY FOLDER/lib/cli.js'
 ### examples
 
 ```bash
-lisgy parse -n '(lambda (a b) (math/add a b))' > parsed.json
+lisgy pc '(lambda (a b) (math/add a b))' > parsed.json
 
 # with stdin
-echo '(lambda (a b) (math/add a b))' | lisgy parse -n > parsed.json
+echo '(lambda (a b) (math/add a b))' | lisgy input > parsed.json
 
 # open an editor (default nano)
-lisgy parse -n > parsed.json
+lisgy input > parsed.json
 
 # use a input file
-lisgy parse code.lisp -n > parsed.json
+lisgy input code.lisp -n > parsed.json
 ```
 
