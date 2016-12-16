@@ -14,10 +14,6 @@ export default function lambda (ednObject, { context, compile, graph }) {
   }
 
   const parameters = ednObject.val[1].val
-  // console.log(JSON.stringify(parameters, null, 2))
-
-  const implementation = ednObject.val[2]
-  // console.log(JSON.stringify(implementation, null, 2))
 
   const lambdaImplNode = Graph.compound({
     ports: [
@@ -26,8 +22,9 @@ export default function lambda (ednObject, { context, compile, graph }) {
     ]
   })
 
-  const compiledImplementation = compile(
-    implementation,
+  const expressions = ednObject.val.slice(2, -1)
+  let compiledImplementation = expressions.reduce((graph, expression) => compile(
+    expression,
     Object.assign({}, context, {
       graph,
       letvars: [
@@ -41,11 +38,30 @@ export default function lambda (ednObject, { context, compile, graph }) {
         }))
       ]
     }),
-    lambdaImplNode
+    graph
+  ).graph, lambdaImplNode)
+
+  const returnedExpression = ednObject.val[ednObject.val.length - 1]
+  compiledImplementation = compile(
+    returnedExpression,
+    Object.assign({}, context, {
+      graph,
+      letvars: [
+        ...(context.letvars || []),
+        ...parameters.map((p) => ({
+          varName: p.name,
+          source: {
+            node: lambdaImplNode,
+            port: `${lambdaImplNode.id}@in_${p.name}`
+          }
+        }))
+      ]
+    }),
+    compiledImplementation
   )
 
   if (!compiledImplementation.result) {
-    throw compilationError('Component has no value', implementation.val[2])
+    throw compilationError('Component has no value', returnedExpression)
   }
 
   compiledImplementation.graph = Graph.addEdge({
