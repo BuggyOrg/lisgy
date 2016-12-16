@@ -1,4 +1,4 @@
-# lisgy ![Build status](https://api.travis-ci.org/BuggyOrg/lisgy.svg?branch=rewrite)
+# lisgy ![Build status](https://api.travis-ci.org/BuggyOrg/lisgy.svg?branch=master)
 Create Buggy graphs from Lisp-like code.
 
 ```clojure
