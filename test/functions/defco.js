@@ -172,7 +172,6 @@ describe('defco', () => {
     const parsed = parse('(defcop math/add [s1 s2] [o1]) (defco myInc [x] (math/add 1 x) {info "extra" info2 "extra2"})')
     const compiled = compile(parsed)
     let inc = Graph.components(compiled)[0]
-    console.log(inc.info)
     expect(inc).to.be.defined
     expect(inc).to.containSubset({info: 'extra', info2: 'extra2'})
   })
