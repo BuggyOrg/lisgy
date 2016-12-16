@@ -11,7 +11,7 @@
     "mocha": "mocha --compilers js:babel-register",
     "gulp": "standard src/**/*.js && babel src -d lib",
     "build": "babel src -d lib",
-    "test": "mocha --compilers js:babel-register --recursive && standard src/**/*.js",
+    "test": "mocha --compilers js:babel-register --timeout 15000 --recursive && standard src/**/*.js",
     "prepublish": "babel src -d lib"
   },
   "author": "",
