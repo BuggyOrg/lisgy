@@ -1,10 +1,8 @@
-// import * as Graph from '@buggyorg/graphtools'
+import * as Graph from '@buggyorg/graphtools'
 import _ from 'lodash'
 import { compilationError } from '../compiler'
 import { contextHasVariable, getContextLets } from '../util/graph'
-import { constCompile, isConstValue } from './const'
 import { extraInfosAdded, isInfoObject } from '../util/edn.js'
-import * as Graph from '@buggyorg/graphtools'
 import { log, error, warning } from '../util/log.js'
 
 export default function (ednObject, { context, compile, graph }) {
@@ -73,45 +71,15 @@ export default function (ednObject, { context, compile, graph }) {
       }
     }
 
-    if (isConstValue(element)) {
-      log('found const value exprsn')
-
-      let result = constCompile(value, {context: context, graph: newGraph})
-      newGraph = result.graph
-      // error('need to add ', result.result)
-      // log('adding a node from ' + result[1] + ' TO ' + context.toPortName)
-
-      var edge = {'from': result.result.port, 'to': toPortName}
-      log('add edge from (const value) ' + edge.from + ' to ' + edge.to)
-      newGraph = Graph.addEdge(edge, newGraph)
-    } else {
-      if (_.isString(value)) {
-        throw compilationError('Can not use the string \'' + value + '\' as a exprsn', ednObject, 'externalComponent')
-      }
-
-      log('compiling exprsn')
-      // TODO element might be a variable, create an edge if that is the case (Maik will do that soon)
-      let result = compile(element, context, newGraph)
-
-      // TODO: allow no values returned
-      // TODO: Add (port # ...) support
-      // throw compilationError('Component does not return a value', element)
-      if (result.result && result.result.port) {
-        edge = {'from': result.result.port, 'to': toPortName}
-        log('add edge from ' + edge.from + ' to ' + edge.to)
-        newGraph = Graph.addEdge(edge, result.graph)
-      } else {
-        log('result is', result)
-        edge = {'from': result[1] + '@0', 'to': toPortName}
-        log('add edge from ' + edge.from + ' to ' + edge.to)
-
-        if (!result || !result[0] || !result[1]) {
-          throw compilationError('Cant add a edge to a undefined node!', ednObject, 'externalComponent')
-        }
-
-        newGraph = Graph.addEdge(edge, result[0])
-      }
+    log('compiling exprsn')
+    const expression = compile(element, context, newGraph)
+    // TODO: allow no values returned
+    if (!expression.result) {
+      throw compilationError('Component does not return a value', element)
     }
+    const edge = {'from': expression.result.port, 'to': toPortName}
+    log('add edge from ' + edge.from + ' to ' + edge.to)
+    newGraph = Graph.addEdge(edge, expression.graph)
   }
 
   return {

@@ -1,12 +1,9 @@
 /* global describe, it */
 import { expect } from 'chai'
-import externalComponentImpl from '../../src/functions/externalComponent'
 import { createPort } from '../../src/util/graph'
-import { wrapFunction, Graph, defaultContext, expectEdge } from './utils'
+import { Graph, defaultContext, expectEdge } from './utils'
 import { parse } from '../../src/parser'
 import { compile } from '../../src/compiler'
-
-const externalComponent = wrapFunction(externalComponentImpl)
 
 describe('external components', () => {
   it('finds and inserts components from the context', () => {
@@ -25,7 +22,7 @@ describe('external components', () => {
         }
       }
     })
-    const { graph } = externalComponent('(+ 3 3)', testContext)
+    const graph = compile(parse('(+ 3 3)'), testContext)
     expect(Graph.toJSON(graph)).to.not.deep.equal(Graph.toJSON(Graph.empty()))
   })
 
@@ -75,23 +72,15 @@ describe('external components', () => {
     expectEdge('/std/const', '/+', compiled)
   })
 
+  it('supports constant expressions', () => {
+    expect(compile(parse('(+ 1 2)'))).to.be.defined
+    expect(compile(parse('(add "Hello" " World")'))).to.be.defined
+    expect(compile(parse('(add "Hello" " World")'))).to.be.defined
+  })
+
   it('throws a error if a undefined variable is used', () => {
-    var count = 0
-    try {
-      // Numbers should work
-      expect(compile(parse('(+ 1 2)'))).to.be.defined
-      count++
-      // Strings should work
-      expect(compile(parse('(add "Hello" " World")'))).to.be.defined
-      count++
-      // Undefined variables should NOT work
+    expect(() => {
       compile(parse('(+ a b)'))
-      count++
-    } catch (err) {
-      expect(err.message).to.be.defined
-      expect(err.location).to.be.defined
-      expect(err.moduleName).to.be.defined
-    }
-    expect(count).to.equal(2)
+    }).to.throw()
   })
 })

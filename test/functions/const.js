@@ -1,9 +1,9 @@
 /* global describe, it */
 import { expect } from 'chai'
-import {constCompile, isConstValue} from '../../src/functions/const'
-import {wrapFunction, Graph} from './utils.js'
-
-const constC = wrapFunction(constCompile)
+import { isConstValue } from '../../src/functions/const'
+import { parse } from '../../src/parser'
+import { compile } from '../../src/compiler'
+import { Graph } from './utils.js'
 
 describe('const', () => {
   it('should check if we have a const value', () => {
@@ -16,7 +16,7 @@ describe('const', () => {
   })
 
   it('should add one const node component', () => {
-    const { graph } = constC('(const "hallo")')
+    const graph = compile(parse('(const "hallo")'))
     expect(graph).to.be.defined
 
     let node = Graph.node('/std/const', graph)

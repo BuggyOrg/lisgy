@@ -18,10 +18,10 @@ function compileWithContext (ednObj, context, graph) {
         result.graph = result.graph || graph
         return result
       } else {
-        return { context, graph }
+        return { context, graph, compile: compileWithContext }
       }
     } else {
-      let current = { context, graph }
+      let current = { context, graph, compile: compileWithContext }
       ednObj.val.forEach((v) => {
         const newCurrent = compileWithContext(v, current.context, current.graph)
         if (newCurrent) {
@@ -45,24 +45,25 @@ function compileWithContext (ednObj, context, graph) {
   } else if (isConstValue(ednObj)) {
     return functions.const(ednObj, { context, graph, compile: compileWithContext })
   } else {
-    return { context, graph }
+    return { context, graph, compile: compileWithContext }
   }
 }
 
-export function compile (ednObj) {
-  var graph = compileWithContext(ednObj, defaultContext(), Graph.empty()).graph
+export function compile (ednObj, context = defaultContext()) {
+  const { graph, context: newContext } = compileWithContext(ednObj, context, Graph.empty())
   // add code meta information from ednObj, if it exists
   if (ednObj.code) {
     // TODO: add input code
     // Graph.meta(graph, )
   }
-  return graph
+  return Object.assign({}, graph, { graph, context: newContext }) // TODO temporary fix
 }
 
 export function defaultContext () {
   return {
     modules: {},
     variables: {},
+    letvars: [],
     components: {},
     count: 0
   }

@@ -1,13 +1,12 @@
 /* global describe, it */
 import { expect } from 'chai'
-import defcopImpl from '../../src/functions/defcop'
-import {wrapFunction, Graph} from './utils.js'
-
-const defcop = wrapFunction(defcopImpl)
+import { parse } from '../../src/parser'
+import { compile } from '../../src/compiler'
+import { Graph } from './utils.js'
 
 describe('defcop', () => {
   it('should define components', () => {
-    const { context } = defcop('(defcop + [s1 s2] [o1])')
+    const { context } = compile(parse('(defcop + [s1 s2] [o1])'))
     var plus = context.components['+']
     expect(plus).to.be.defined
     expect(plus.ports).to.be.defined
@@ -18,7 +17,7 @@ describe('defcop', () => {
   })
 
   it('should not return a modified graph', () => {
-    const { graph } = defcop('(defcop + [s1 s2] [o1])')
+    const { graph } = compile(parse('(defcop + [s1 s2] [o1])'))
     const json = Graph.toJSON(graph)
     const empty = Graph.toJSON(Graph.empty())
     // expect(json).to.deep.equal(empty) // wrong ids for empty graph!
@@ -28,9 +27,9 @@ describe('defcop', () => {
   })
 
   it('should reture a default value output port', () => {
-    const { context } = defcop('(defcop + [s1 s2])')
+    const { context } = compile(parse('(defcop + [s1 s2])'))
 
-    var plus = context.components['+']
+    const plus = context.components['+']
     expect(plus).to.be.defined
     expect(plus.ports).to.be.defined
     expect(plus.ports).to.have.length(3)
