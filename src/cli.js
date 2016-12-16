@@ -11,6 +11,7 @@ function parseCompileCode (code) {
   const compiled = compile(parsed)
   const graph = Graph.toJSON(compiled)
   console.log(JSON.stringify(graph, null, 2))
+  process.exit(0)
 }
 
 const version = require('../package.json').version
@@ -29,7 +30,7 @@ const argv = yargs
       process.exit(1)
     }
   })
-  .command(['input [file]', '[file]'], 'Use the stdin input as lisgy code or if none is given open an editor', {}, (argv) => {
+  .command(['input [file]'], 'Use the stdin input as lisgy code or if none is given open an editor', {}, (argv) => {
     if (!argv.file) {
       argv.file = ''
     }
@@ -52,4 +53,3 @@ cli.input(argv._[0], {fileType: '.clj'}).then(parseCompileCode).catch((err) => {
   console.log('ERROR:', err.message)
   process.exit(1)
 })
-

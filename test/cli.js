@@ -37,9 +37,22 @@ describe('CLI Commands', () => {
     })
   })
 
-  describe('`input [file]` or `i [file]` -> process the stdin as lisgy code', () => {
+  describe('`input [file]` -> process the stdin as lisgy code', () => {
     it('can use a simple input string', () => {
-      let p = runCLI('i', '(defco test [a b] (+ a b))').then((a) => JSON.parse(a))
+      let p = runCLI('input', '(defco test [a b] (+ a b))').then((a) => JSON.parse(a))
+      expect(p).to.be.fulfilled
+      return p.then((a) => {
+        let g = Graph.fromJSON(a)
+        expect(Graph.nodes(g)).to.have.length(0)
+        expect(Graph.edges(g)).to.have.length(0)
+        expect(Graph.components(g)).to.have.length(1)
+      })
+    })
+  })
+
+  describe('`[file]` -> process the stdin as lisgy code', () => {
+    it('can use a simple input string', () => {
+      let p = runCLI('', '(defco test [a b] (+ a b))').then((a) => JSON.parse(a))
       expect(p).to.be.fulfilled
       return p.then((a) => {
         let g = Graph.fromJSON(a)

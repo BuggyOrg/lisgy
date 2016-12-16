@@ -8,9 +8,8 @@
     "lisgy-check": "./lib/valid.js" 
   },
   "scripts": {
-    "mocha": "mocha --compilers js:babel-register",
-    "gulp": "standard src/**/*.js && babel src -d lib",
     "build": "babel src -d lib",
+    "pretest": "npm run build",
     "test": "mocha --compilers js:babel-register --timeout 15000 --recursive && standard src/**/*.js",
     "prepublish": "babel src -d lib"
   },
