@@ -55,7 +55,8 @@ export function constCompile (ednObject, { context, graph }) {
     result: {
       node: stdNode,
       port: result[1] + '@0' // TODO: cleanup
-    }}
+    }
+  }
 }
 
 export function isConstValue (ednObject, context) {

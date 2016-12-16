@@ -2,6 +2,7 @@ import _ from 'lodash'
 import * as Graph from '@buggyorg/graphtools'
 import * as functions from './functions'
 import anonymousLambda from './functions/anonymousLambda'
+import { isConstValue } from './functions/const'
 
 function getFunctionHandler (name) {
   return functions[name] || functions.externalComponent
@@ -41,6 +42,8 @@ function compileWithContext (ednObj, context, graph) {
     } else {
       throw compilationError(`Unsupported tag "${ednObj._tag.namespace}"`, ednObj)
     }
+  } else if (isConstValue(ednObj)) {
+    return functions.const(ednObj, { context, graph, compile: compileWithContext })
   } else {
     return { context, graph }
   }

@@ -151,6 +151,24 @@ describe('defco', () => {
     expect(Graph.components(inc)).to.have.length(0)
   })
 
+  it('should create a component with a named port with a constant', () => {
+    const parsed = parse(`(defco test [] [:out "hello world"])`)
+    const compiled = compile(parsed)
+
+    expect(Graph.nodes(compiled)).to.have.length(0)
+    expect(Graph.edges(compiled)).to.have.length(0)
+    expect(Graph.components(compiled)).to.have.length(1)
+
+    let test = Graph.components(compiled)[0]
+
+    expect(Graph.node('/std/const', test)).to.exist
+    expectEdge('/std/const', '@out', test)
+
+    expect(Graph.nodes(test)).to.have.length(1)
+    expect(Graph.edges(test)).to.have.length(1)
+    expect(Graph.components(test)).to.have.length(0)
+  })
+
   it('should add extra infos to the new component', () => {
     const parsed = parse('(defcop math/add [s1 s2] [o1]) (defco myInc [x] (math/add 1 x) {info "extra" info2 "extra2"})')
     const compiled = compile(parsed)
