@@ -19,9 +19,10 @@ describe('lambda', () => {
     expect(Graph.nodes(lambda.λ)).to.have.length(1)
     expect(Graph.node('/+', lambda.λ)).exists
 
-    expect(Graph.edges(lambda.λ)).to.have.length(2)
+    expect(Graph.edges(lambda.λ)).to.have.length(3)
     expectEdge('@in_p1', '/+', lambda.λ)
     expectEdge('@in_p2', '/+', lambda.λ)
+    expectEdge('/+', '@output', lambda.λ)
   })
 
   it('should create a new lambda component', () => {

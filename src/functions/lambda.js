@@ -48,6 +48,11 @@ export default function lambda (ednObject, { context, compile, graph }) {
     throw compilationError('Component has no value', implementation.val[2])
   }
 
+  compiledImplementation.graph = Graph.addEdge({
+    from: compiledImplementation.result.port,
+    to: '@output'
+  }, compiledImplementation.graph)
+
   const [newGraph, lambdaId] = Graph.addNodeTuple({
     componentId: 'functional/lambda',
     ports: [
