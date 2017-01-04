@@ -1,11 +1,11 @@
 {
   "name": "@buggyorg/lisgy",
-  "version": "0.2.0-pre.1",
+  "version": "0.2.0-pre.2",
   "description": "",
   "main": "lib/lisgy.js",
   "bin": {
     "lisgy": "./lib/cli.js",
-    "lisgy-check": "./lib/valid.js" 
+    "lisgy-check": "./lib/valid.js"
   },
   "scripts": {
     "build": "babel src -d lib",
