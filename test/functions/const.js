@@ -16,7 +16,7 @@ describe('const', () => {
   })
 
   it('should add one const node component', () => {
-    const graph = compile(parse('(const "hallo")'))
+    const { graph } = compile(parse('(const "hallo")'))
     expect(graph).to.be.defined
 
     let node = Graph.node('/std/const', graph)

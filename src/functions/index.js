@@ -1,5 +1,6 @@
 import defco from './defco'
 import defcop from './defcop'
+import deftype from './deftype'
 import externalComponent from './externalComponent'
 import port from './port'
 import imports from './import'
@@ -9,6 +10,7 @@ import consts from './const'
 
 export { defco }
 export { defcop }
+export { deftype }
 export { externalComponent }
 export { port }
 export { imports as import }
