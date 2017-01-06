@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import fs from 'fs'
 import yargs from 'yargs'
 import { parse } from './parser'
 import { compile } from './compiler'
@@ -9,7 +8,7 @@ import * as cli from 'cli-ext'
 function parseCompileCode (code) {
   const parsed = parse(code)
   const compiled = compile(parsed)
-  const graph = Graph.toJSON(compiled)
+  const graph = Graph.toJSON(compiled.graph)
   console.log(JSON.stringify(graph, null, 2))
   process.exit(0)
 }
@@ -49,7 +48,10 @@ const argv = yargs
   .completion('completion')
   .argv
 
-cli.input(argv._[0], {fileType: '.clj'}).then(parseCompileCode).catch((err) => {
-  console.log('ERROR:', err.message)
-  process.exit(1)
-})
+var firstArg = argv._[0]
+if (firstArg !== 'pc' && firstArg !== 'input' && firstArg !== 'edit' && firstArg !== 'edit' && firstArg !== 'e') {
+  cli.input(firstArg, {fileType: '.clj'}).then(parseCompileCode).catch((err) => {
+    console.log('ERROR:', err.message)
+    process.exit(1)
+  })
+}
