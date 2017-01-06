@@ -11,6 +11,7 @@
     "build": "babel src -d lib",
     "pretest": "npm run build",
     "test": "mocha --compilers js:babel-register --timeout 15000 --recursive && standard src/**/*.js",
+    "test:watch": "mocha --compilers js:babel-register --timeout 15000 --recursive --watch",
     "prepublish": "babel src -d lib"
   },
   "author": "",
