@@ -56,7 +56,8 @@ export default function (ednObject, { context, compile, graph }) {
 
     let value = element.val || element
     let toPortName = `${name}@${inputPorts ? inputPorts[i - 1].port : (i - 1)}`
-    if (_.isString(value)) {
+
+    if (_.isString(value) && typeof element !== 'string') {
       let v = getContextLets(context, value)
       if (v) {
         let fromPortName = v.port

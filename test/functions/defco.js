@@ -176,6 +176,28 @@ describe('defco', () => {
     expect(inc).to.containSubset({info: 'extra', info2: 'extra2'})
   })
 
+  it('should not confuse variables with ports', () => {
+    const compiled = compile(parse(`
+      (defco main [IO] (print "Hello World" IO))
+      (main "IO")
+    `))
+    let co = Graph.components(compiled)[0]
+    expect(co).to.be.defined
+
+    expect(Graph.nodes(compiled)).to.have.length(2)
+    expect(Graph.edges(compiled)).to.have.length(1)
+    expect(Graph.components(compiled)).to.have.length(1)
+
+    expectEdge('/std/const', '/main', compiled)
+
+    expect(Graph.nodes(co)).to.have.length(2)
+    expect(Graph.edges(co)).to.have.length(3)
+
+    expectEdge('/std/const', '/print', co)
+    expectEdge('@IO', '/print', co)
+    expectEdge('/print', '@value', co)
+  })
+
   describe('(defco ... [(type name typename) ...] ...)', () => {
     it('should add a type info to the variables', () => {
       const parsed = parse(`(defco inc [(type x Number) (type y Lumber)] (+ x y))`)
