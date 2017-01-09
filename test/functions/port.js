@@ -74,7 +74,28 @@ describe('port', () => {
     expect(portB.from.port).to.equal('e')
   })
 
-  it.skip('can get the port from a newly defined component with multiple output ports by number', () => {
+  it('can get the port inside let', () => {
+    const parsed = parse(`
+    (defcop test [a b] [c d e])
+    (defcop test2 [a b c] [d])
+    (let [t (test 1 2)
+          tc (port c t)
+          te (port e t)]
+          (test2 tc 3 te))`)
+    const compiled = compile(parsed)
+
+    expect(Graph.nodes(compiled)).to.have.length(5)
+    expect(Graph.edges(compiled)).to.have.length(5)
+    expect(Graph.components(compiled)).to.have.length(0)
+
+    expectEdge('/std/const', '/test', compiled)
+    expectEdge('/std/const', '/test2', compiled)
+    expectEdge('/test', '/test2', compiled)
+    expectEdge('/test@c', '/test2', compiled)
+    expectEdge('/test@e', '/test2', compiled)
+  })
+
+  it('can get the port from a newly defined component with multiple output ports by number', () => {
     const parsed = parse(`
     (defco test [] [:a "test" :b 10])
     (+ 2 (port 1 (test)))`)
@@ -82,22 +103,42 @@ describe('port', () => {
 
     expect(Graph.nodes(compiled)).to.have.length(3)
     expect(Graph.edges(compiled)).to.have.length(2)
-    expect(Graph.components(compiled)).to.have.length(0)
+    expect(Graph.components(compiled)).to.have.length(1)
+
+
+    expectEdge('/std/const', '/+', compiled)
+    expectEdge('/test', '/+', compiled)
+    expectEdge('/test@1', '/+', compiled)
   })
 
-  // TODO: name the test
-  it.skip('C', () => {
+  it('can get the ports from a defco within a let', () => {
     const parsed = parse(`
-    (def test [a b] [:out (+ a b) :b (- a b)])
+    (defco test [a b] [:aa (+ a b) :bb (- a b)])
     (let [t (- 1 2) 
-          b (port out t)
-          c (port b t)]
+          a (port aa t)
+          b (port bb t)]
           (+ a b))`)
 
     const compiled = compile(parsed)
 
     expect(Graph.nodes(compiled)).to.have.length(4)
-    expect(Graph.edges(compiled)).to.have.length(2)
-    expect(Graph.components(compiled)).to.have.length(0)
+    expect(Graph.edges(compiled)).to.have.length(4)
+    expect(Graph.components(compiled)).to.have.length(1)
+  })
+
+
+  it.skip('can use let variables with the same name as defco variables', () => {
+    const parsed = parse(`
+    (defco test [a b] [:out (+ a b) :b (- a b)])
+    (let [t (- 1 2) 
+          a (port out t)
+          b (port bb t)]
+          (+ a b))`)
+
+    const compiled = compile(parsed)
+
+    expect(Graph.nodes(compiled)).to.have.length(4)
+    expect(Graph.edges(compiled)).to.have.length(4)
+    expect(Graph.components(compiled)).to.have.length(1)
   })
 })
