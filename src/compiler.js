@@ -73,9 +73,10 @@ export function compilationError (msg, ednObj, moduleName) {
   return new CompilationError(msg, CompilationError.getErrorLocation(ednObj), moduleName)
 }
 
-export class CompilationError extends Error {
+export class CompilationError {
   constructor (err, location, moduleName = 'unknown-module') {
-    super(`[${moduleName}:${location.startLine}:${location.startCol}] ${err}`)
+    this.name = 'CompilationError'
+    this.message = `[${moduleName}:${location.startLine}:${location.startCol}] ${err}`
     this.moduleName = moduleName
     this.location = CompilationError.getErrorLocation(err)
   }
@@ -90,5 +91,9 @@ export class CompilationError extends Error {
       endLine: ednObj.posLineEnd,
       endCol: ednObj.posColEnd
     }
+  }
+
+  toString () {
+    return this.message
   }
 }

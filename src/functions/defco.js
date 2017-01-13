@@ -2,6 +2,7 @@ import * as Graph from '@buggyorg/graphtools'
 import { createPort } from '../util/graph'
 import { extraInfosAdded } from '../util/edn.js'
 import { log, error, warning } from '../util/log.js'
+import { compilationError } from '../compiler'
 
 /**
  * (defco NAME (INPUT*) (:OUTPUT1 (FN1) :OUTPUT2 (FN2) ...))
@@ -9,13 +10,8 @@ import { log, error, warning } from '../util/log.js'
  */
 export default function (ednObject, { context, compile, graph }) {
   log('compil (defco ...)')
-  if (!ednObject.val || ednObject.val.length < 1) {
-    let length = -1
-    if (ednObject.val) {
-      length = ednObject.val.length
-    }
-    error('defco used wrongly with ' + length)
-    throw new Error('defco used wrong')
+  if (ednObject.val.length < 4) { // 4 because 'defco' is an argument itself
+    throw compilationError(`defco expects at least three arguments, but got only ${ednObject.val.length}`, ednObject)
   }
   let split = ednObject.val[1].val.split('@')
   const name = split[0]

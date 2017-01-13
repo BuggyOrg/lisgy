@@ -21,3 +21,12 @@ export const expectEdge = function (from, to, graph) {
 export const expectNoEdge = function (from, to, graph) {
   expect(Graph.hasEdge({from: from, to: to}, graph), 'Expected NO edge from ' + from + ' to ' + to).to.be.false
 }
+
+export const expectToThrow = function (test, callback) {
+  try {
+    test()
+    expect.fail('Expected function to throw, but did not throw')
+  } catch (e) {
+    callback(e)
+  }
+}

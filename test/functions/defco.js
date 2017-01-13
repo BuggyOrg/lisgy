@@ -2,8 +2,8 @@
 import chai from 'chai'
 import chaiSubset from 'chai-subset'
 import { parse } from '../../src/parser'
-import { compile } from '../../src/compiler'
-import { Graph, expectEdge, expectNoEdge } from './utils.js'
+import { compile, CompilationError } from '../../src/compiler'
+import { Graph, expectEdge, expectNoEdge, expectToThrow } from './utils.js'
 
 chai.use(chaiSubset)
 let expect = chai.expect
@@ -244,5 +244,11 @@ describe('defco', () => {
   // if (compiled) {
   //   expect.fail()
   // }
+  })
+
+  it.only('throws a compilation error if defco is used with less than three arguments', () => {
+    expectToThrow(() => compile(parse('(defco main (fac 10))')), (e) => {
+      expect(e).to.be.instanceOf(CompilationError)
+    })
   })
 })
