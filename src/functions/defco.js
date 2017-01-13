@@ -1,7 +1,7 @@
 import * as Graph from '@buggyorg/graphtools'
 import { createPort } from '../util/graph'
 import { extraInfosAdded } from '../util/edn.js'
-import { log, error, warning } from '../util/log.js'
+import { log, warning } from '../util/log.js'
 import { compilationError } from '../compiler'
 
 /**
@@ -9,7 +9,7 @@ import { compilationError } from '../compiler'
  * (defco NAME (INPUT*) (FN1))
  */
 export default function (ednObject, { context, compile, graph }) {
-  log('compil (defco ...)')
+  log('compile (defco ...)')
   if (ednObject.val.length < 4) { // 4 because 'defco' is an argument itself
     throw compilationError(`defco expects at least three arguments, but got only ${ednObject.val.length}`, ednObject)
   }
@@ -80,16 +80,7 @@ export default function (ednObject, { context, compile, graph }) {
   delete newContext.toPortName
   delete newContext.parent
 
-  let newGraph
-
-  try {
-    newGraph = Graph.addComponent(cmpt, graph)
-  } catch (e) {
-    console.log('ERROR MÄH :(', e)
-    newGraph = graph
-  }
-
-  // context.graph.addNode(cmpt)
+  const newGraph = Graph.addComponent(cmpt, graph)
 
   // TODO create and return { graph, port }
   return {
