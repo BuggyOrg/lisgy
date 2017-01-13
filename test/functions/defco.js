@@ -241,12 +241,9 @@ describe('defco', () => {
       expect(err.moduleName).to.be.defined
     }
     expect(compiled).to.be.true
-  // if (compiled) {
-  //   expect.fail()
-  // }
   })
 
-  it.only('throws a compilation error if defco is used with less than three arguments', () => {
+  it('throws a compilation error if defco is used with less than three arguments', () => {
     expectToThrow(() => compile(parse('(defco main (fac 10))')), (e) => {
       expect(e).to.be.instanceOf(CompilationError)
     })
