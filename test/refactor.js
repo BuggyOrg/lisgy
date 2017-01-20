@@ -1,5 +1,5 @@
 /* global describe, it */
-import * as parser from '../src/parser.js'
+import * as parser from '../src/parser'
 
 import * as graphAPI from '@buggyorg/graphtools'
 import * as chai from 'chai'

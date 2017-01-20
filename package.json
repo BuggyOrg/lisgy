@@ -29,6 +29,7 @@
     "graphlib": "^2.1.0",
     "jsedn": "BuggyOrg/jsedn#b14ba69ef0b3e95e91b43b94f6a57350610fd1f5",
     "lodash": "^4.8.2",
+    "pegjs": "^0.10.0",
     "tempfile": "^1.1.1",
     "wsl-lisp-parser": "^0.1.0",
     "yargs": "^6.3.0"

@@ -1,56 +1,35 @@
 /* global describe, it */
 import { expect } from 'chai'
-import { parse } from '../src/parser'
+import { parse, SyntaxError } from '../src/parser'
 
 describe('the parser', () => {
-  it('should parse code and return an edn object', () => {
-    const edn = parse(`
+  it('should parse code and return the expressions', () => {
+    const expressions = parse(`
       (import all)
-      (foo "bar")
+      (foo bar)
     `)
-    expect(edn.val).to.have.length(2)
+    expect(expressions).to.have.length(2)
   })
 
-  it('should subtract the offset from the columns of the first line', () => {
-    const edn = parse('(foo bar)')
-    expect(edn.val[0].val[0].posColStart).to.equal(1)
+  it('should return correct locations', () => {
+    const expressions = parse('(foo \n bar)')
+    expect(expressions[0].location).to.deep.equal({
+      start: {
+        offset: 0,
+        line: 1,
+        column: 1
+      },
+      end: {
+        offset: 11,
+        line: 2,
+        column: 6
+      }
+    })
   })
 
   it('should throw on syntax errors', () => {
-    let parsed = false
-    try {
-      parse('(foo))')
-      parsed = true
-    } catch (err) {
-      expect(err.message).to.be.defined
-      expect(err.location).to.be.defined
-      expect(err.moduleName).to.be.defined
-
-      expect(err.location.startLine).to.equal(1)
-      expect(err.location.startCol).to.equal(5)
-    }
-
-    if (parsed) {
-      expect.fail()
-    }
-  })
-
-  it('should throw on non lisgy code', () => {
-    let parsed = false
-    try {
-      parse('test (foo)')
-      parsed = true
-    } catch (err) {
-      expect(err.message).to.be.defined
-      expect(err.message).to.contain('Parsing found symbol or number at root')
-      expect(err.location).to.be.defined
-      expect(err.moduleName).to.be.defined
-      expect(err.location).to.be.defined
-    }
-
-    if (parsed) {
-      expect.fail()
-    }
+    expect(() => parse('(foo))')).to.throw(SyntaxError)
+    expect(() => parse('test (foo)')).to.throw(SyntaxError)
   })
 
   it('should parse a string with @', () => {
@@ -60,7 +39,11 @@ describe('the parser', () => {
 
   it('should support tags', () => {
     const edn = parse('#(add %1 %1)')
-    expect(edn.val[0]._tag.namespace).to.equal('')
-    expect(edn.val[0]._obj.val).to.have.length(3)
+    expect(edn[0].type).to.equal('tag')
+    expect(edn[0].tag).to.be.null // tag has no value
+
+    const expression = edn[0].expression
+    expect(expression.type).to.equal('list')
+    expect(expression.items).to.have.length(3)
   })
 })
