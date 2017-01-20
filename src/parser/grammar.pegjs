@@ -1,5 +1,9 @@
+// This is a pretty generic edn grammar for pegjs, except that
+// a program may only have lists at the root layer, instead of any
+// expression.
+
 Program
-  = _ expressions:(Expression _)* {
+  = _ expressions:(List _)* {
     return expressions.map((e) => e[0])
   }
 
@@ -10,28 +14,38 @@ Expression
   / TaggedExpression
   / Symbol
   / String
+  / Map
 
 List
-  = "(" _ items:(Expression (" " _ Expression)*) _ ")" {
+  = "(" _ items:(Expression (__ Expression)*) _ ")" {
     return {
       type: 'list',
-      items: [ items[0], ...items[1].map((i) => i[2])],
+      items: [ items[0], ...items[1].map((i) => i[1])],
       location: location()
     }
   }
 
 Vector
-  = "[" _ items:(Expression (" " _ Expression)*) _ "]" {
+  = "[" _ items:(Expression (__ Expression)*) _ "]" {
     return {
       type: 'vector',
-      items: [ items[0], ...items[1].map((i) => i[2])],
+      items: [ items[0], ...items[1].map((i) => i[1])],
       location: location()
     }
   }
 
-// TODO
 Map
-  = "{" (key:Symbol _ "=" _ Expression)* "}"
+  = "{" items:((":" key:Symbol _ value:Expression) ((__ ":") key:Symbol _ value:Expression)* _)? "}" {
+  	const mapEntry = (entry) => ({
+    	key: entry[1],
+        value: entry[3]
+    })
+    return {
+      type: 'map',
+      items: [ mapEntry(items[0]), ...items[1].map(mapEntry)],
+      location: location()
+    }
+  }
 
 Number
   = ([0-9]+("." [0-9]+)?) {
@@ -43,10 +57,10 @@ Number
   }
 
 String
-  = "\"" value:([0-9A-Za-z.*+!\-_?$%&=<>@\/:#/\u0080-\u9fff]*) "\"" {
+  = "\"" value:(("\\\"" / [^"])*) "\"" {
     return {
       type: 'string',
-      value: value.join(''),
+      value: value.join('').replace(/\\\"/g, '"'),
       location: location()
     }
   }
@@ -71,4 +85,12 @@ Symbol
   }
 
 _ "whitespace"
-  = [ \t\n\r]*
+  = [, \t\n\r]* Comment?
+  / Comment _
+
+__ "delimeter"
+  = [, \t\n\r]+ __?
+  / Comment _
+  
+Comment
+  = ";" [^\n\r]* [\n\r]?
