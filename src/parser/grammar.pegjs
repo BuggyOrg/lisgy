@@ -3,7 +3,7 @@
 // expression.
 
 Program
-  = _ expressions:(List _)* {
+  = _ expressions:((List / TaggedList) _)* {
     return expressions.map((e) => e[0])
   }
 
@@ -38,7 +38,7 @@ Map
   = "{" items:((":" key:Symbol _ value:Expression) ((__ ":") key:Symbol _ value:Expression)* _)? "}" {
   	const mapEntry = (entry) => ({
     	key: entry[1],
-        value: entry[3]
+      value: entry[3]
     })
     return {
       type: 'map',
@@ -66,7 +66,17 @@ String
   }
 
 TaggedExpression
-  = "#" tag:Symbol expression:(Expression) {
+  = "#" tag:Symbol? expression:(Expression) {
+    return {
+      type: 'tag',
+      tag,
+      expression,
+      location: location()
+    }
+  }
+
+TaggedList
+  = "#" tag:Symbol? expression:(List) {
     return {
       type: 'tag',
       tag,
