@@ -3,6 +3,8 @@ import { createPort } from '../util/graph'
 import { compilationError } from '../compiler'
 import { transformClosures } from './closures'
 
+const Lambda = Graph.Lambda
+
 /**
  * (lambda [p1 p2 ...] (fn ...))
  */
@@ -69,13 +71,8 @@ export default function lambda (ednObject, { context, compile, graph }) {
     to: '@output'
   }, compiledImplementation.graph)
 
-  const [newGraph, lambdaId] = Graph.addNodeTuple({
-    componentId: 'functional/lambda',
-    ports: [
-      { port: 'fn', kind: 'output', type: 'function' }
-    ],
-    λ: compiledImplementation.graph
-  }, graph)
+  const [newGraph, lambdaId] = Graph.addNodeTuple(
+    Lambda.createLambda(compiledImplementation.graph), graph)
 
   // console.log(JSON.stringify(newGraph, null, 2))
 
