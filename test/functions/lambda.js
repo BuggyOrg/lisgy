@@ -4,6 +4,8 @@ import { parse } from '../../src/parser'
 import { compile } from '../../src/compiler'
 import { Graph, expectEdge, expectNoEdge } from './utils.js'
 
+const Lambda = Graph.Lambda
+
 describe('lambda', () => {
   it('should create a simple lambda node', () => {
     const parsed = parse('(lambda [p1 p2] (+ p1 p2))')
@@ -16,13 +18,14 @@ describe('lambda', () => {
     var lambda = Graph.node('/functional/lambda', compiled)
     expect(lambda).exists
 
-    expect(Graph.nodes(lambda.λ)).to.have.length(1)
-    expect(Graph.node('/+', lambda.λ)).exists
+    expect(Lambda.isValid(lambda)).to.be.true
 
-    expect(Graph.edges(lambda.λ)).to.have.length(3)
-    expectEdge('@in_p1', '/+', lambda.λ)
-    expectEdge('@in_p2', '/+', lambda.λ)
-    expectEdge('/+', '@output', lambda.λ)
+    const λ = Lambda.implementation(lambda)
+
+    expect(Graph.edges(λ)).to.have.length(3)
+    expectEdge('@in_p1', '/+', λ)
+    expectEdge('@in_p2', '/+', λ)
+    expectEdge('/+', '@output', λ)
   })
 
   it('should create a new lambda component', () => {
@@ -33,7 +36,7 @@ describe('lambda', () => {
     expect(Graph.components(compiled)).to.have.length(0)
 
     const lambda = Graph.nodes(compiled)[0]
-    const lambdaImpl = lambda.λ
+    const lambdaImpl = Lambda.implementation(lambda)
     expect(Graph.nodes(lambdaImpl)).to.have.length(1)
   })
 
@@ -47,13 +50,16 @@ describe('lambda', () => {
 
     var lambda = Graph.node('/functional/lambda', compiled)
     expect(lambda).exists
-    expect(Graph.nodes(lambda.λ)).to.have.length(2)
 
-    expect(Graph.node('/+', lambda.λ)).exists
-    expect(Graph.node('/-', lambda.λ)).exists
+    const λ = Lambda.implementation(lambda)
 
-    expect(Graph.edges(lambda.λ)).to.have.length(5)
-    expectEdge('/-', '@output', lambda.λ)
-    expectNoEdge('/+', '@output', lambda.λ)
+    expect(Graph.nodes(λ)).to.have.length(2)
+
+    expect(Graph.node('/+', λ)).exists
+    expect(Graph.node('/-', λ)).exists
+
+    expect(Graph.edges(λ)).to.have.length(5)
+    expectEdge('/-', '@output', λ)
+    expectNoEdge('/+', '@output', λ)
   })
 })
