@@ -5,14 +5,18 @@ import { getTypeName } from '../typing/type'
 export default function (ednObject, { graph, context }) {
   const type = getTypeName(ednObject.val[1])
 
-  graph = Graph.addNode({
-    componentId: `${type.type}#${type.genericArguments.join('#')}`,
+  const compName = `${type.type}` + ((type.genericArguments && type.genericArguments.length > 0) ? `#${type.genericArguments.join('#')}` : ``)
+  graph = Graph.addComponent({
+    componentId: compName,
     metaInformation: {
       type: {
         type: getTypeDefinition(ednObject.val[1]),
         definition: getTypeDefinition(ednObject.val[2])
       }
-    }
+    },
+    version: '0.0.0',
+    ports: [{port: 'constructor', kind: 'output', type: compName}],
+    type: true
   }, graph)
 
   return { graph, context }

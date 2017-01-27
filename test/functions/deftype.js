@@ -8,7 +8,7 @@ describe('deftype', () => {
   it('should define types', () => {
     const { graph } = compile(parse('(deftype (List a) [NIL (Cons a (List a))])'))
 
-    let node = Graph.node('/List#a', graph)
+    let node = Graph.component('List#a', graph)
     expect(node).to.exist
 
     let meta = Graph.meta(node)
