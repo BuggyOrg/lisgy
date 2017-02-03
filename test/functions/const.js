@@ -24,6 +24,6 @@ describe('const', () => {
 
     let meta = Graph.meta(node)
     expect(meta).to.exist
-    expect(meta).to.be.deep.equal({parameters: {type: 'string', value: 'hallo'}})
+    expect(meta).to.be.deep.equal({parameters: {type: 'STRING', value: 'hallo'}})
   })
 })
