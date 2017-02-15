@@ -10,7 +10,6 @@ function parseCompileCode (code) {
   const compiled = compile(parsed)
   const graph = Graph.toJSON(compiled.graph)
   console.log(JSON.stringify(graph, null, 2))
-  process.exit(0)
 }
 
 const version = require('../package.json').version
@@ -26,7 +25,7 @@ const argv = yargs
       parseCompileCode(argv.code)
     } catch (err) {
       console.log('ERROR:', err.message)
-      process.exit(1)
+      process.exitCode = 1
     }
   })
   .command(['input [file]'], 'Use the stdin input as lisgy code or if none is given open an editor', {}, (argv) => {
@@ -35,13 +34,13 @@ const argv = yargs
     }
     cli.input(argv.file, {fileType: '.clj'}).then(parseCompileCode).catch((err) => {
       console.log('ERROR:', err.message)
-      process.exit(1)
+      process.exitCode = 1
     })
   })
   .command(['edit [file]', 'e [file]'], 'Opens an editor to edit the file [file] and use its content as lisgy code', {}, (argv) => {
     cli.edit(argv.file).then(parseCompileCode).catch((err) => {
       console.log('ERROR:', err.message)
-      process.exit(1)
+      process.exitCode = 1
     })
   })
   .help()
@@ -52,6 +51,6 @@ var firstArg = argv._[0]
 if (firstArg !== 'pc' && firstArg !== 'input' && firstArg !== 'edit' && firstArg !== 'edit' && firstArg !== 'e') {
   cli.input(firstArg, {fileType: '.clj'}).then(parseCompileCode).catch((err) => {
     console.log('ERROR:', err.message)
-    process.exit(1)
+    process.exitCode = 1
   })
 }
