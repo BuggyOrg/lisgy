@@ -3,7 +3,7 @@ import chai from 'chai'
 import chaiSubset from 'chai-subset'
 import { parse } from '../../src/parser'
 import { compile, CompilationError } from '../../src/compiler'
-import { Graph, expectEdge, expectNoEdge, expectToThrow } from './utils.js'
+import { Graph, expectEdge, expectNoEdge, expectToThrow } from './utils_e.js'
 
 chai.use(chaiSubset)
 let expect = chai.expect

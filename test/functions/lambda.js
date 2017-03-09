@@ -2,7 +2,7 @@
 import { expect } from 'chai'
 import { parse } from '../../src/parser'
 import { compile } from '../../src/compiler'
-import { Graph, expectEdge, expectNoEdge } from './utils.js'
+import { Graph, expectEdge, expectNoEdge } from './utils_e'
 
 const Lambda = Graph.Lambda
 

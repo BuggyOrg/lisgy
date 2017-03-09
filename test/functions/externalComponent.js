@@ -1,7 +1,7 @@
 /* global describe, it */
 import { expect } from 'chai'
 import { createPort } from '../../src/util/graph'
-import { Graph, defaultContext, expectEdge } from './utils'
+import { Graph, defaultContext, expectEdge } from './utils_e'
 import { parse } from '../../src/parser'
 import { compile } from '../../src/compiler'
 
