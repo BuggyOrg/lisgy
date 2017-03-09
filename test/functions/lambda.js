@@ -12,7 +12,7 @@ describe('lambda', () => {
     const compiled = compile(parsed)
 
     expect(Graph.nodes(compiled)).to.have.length(1) // One lambda node
-    expect(Graph.edges(compiled)).to.have.length(3)
+    expect(Graph.edgesDeep(compiled)).to.have.length(3)
     expect(Graph.components(compiled)).to.have.length(0)
 
     var lambda = Graph.node('/functional/lambda', compiled)
@@ -45,7 +45,7 @@ describe('lambda', () => {
     const compiled = compile(parsed)
 
     expect(Graph.nodes(compiled)).to.have.length(1) // One lambda node
-    expect(Graph.edges(compiled)).to.have.length(5)
+    expect(Graph.edgesDeep(compiled)).to.have.length(5)
     expect(Graph.components(compiled)).to.have.length(0)
 
     var lambda = Graph.node('/functional/lambda', compiled)
