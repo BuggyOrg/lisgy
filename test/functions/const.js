@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import { isConstValue } from '../../src/functions/const'
 import { parse } from '../../src/parser'
 import { compile } from '../../src/compiler'
-import { Graph } from './utils.js'
+import { Graph } from './utils_e.js'
 
 describe('const', () => {
   it('should check if we have a const value', () => {
@@ -24,6 +24,6 @@ describe('const', () => {
 
     let meta = Graph.meta(node)
     expect(meta).to.exist
-    expect(meta).to.be.deep.equal({parameters: {type: 'string', value: 'hallo'}})
+    expect(meta).to.be.deep.equal({parameters: {type: 'STRING', value: 'hallo'}})
   })
 })

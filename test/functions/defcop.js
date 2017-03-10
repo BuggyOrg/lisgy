@@ -2,7 +2,7 @@
 import { expect } from 'chai'
 import { parse } from '../../src/parser'
 import { compile } from '../../src/compiler'
-import { Graph } from './utils.js'
+import { Graph } from './utils_e.js'
 
 describe('defcop', () => {
   it('should define components', () => {
