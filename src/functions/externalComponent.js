@@ -8,7 +8,7 @@ import { log, error, warning } from '../util/log.js'
 export default function (ednObject, { context, compile, graph }) {
   // (FN exprs1 exprs2 ...)
   let split = ednObject.val[0].val.split('@')
-  let name = split[0]
+  const name = split[0]
   const version = split[1]
 
   log('compile external component for', name)
@@ -40,9 +40,9 @@ export default function (ednObject, { context, compile, graph }) {
 
   let result = Graph.addNodeTuple(tempRef, graph)
   let newGraph = result[0]
-  name = result[1]
+  const nodeName = result[1]
 
-  const externalToPortName = name + '@' + (port ? port.port : 0) // TODO: cleanup?
+  const externalToPortName = nodeName + '@' + (port ? port.port : 0) // TODO: cleanup?
   log('external component output port is', externalToPortName)
 
   log('looping over ' + ednObject.val.length + ' exprsns')
@@ -55,7 +55,7 @@ export default function (ednObject, { context, compile, graph }) {
     }
 
     let value = element.val || element
-    let toPortName = `${name}@${inputPorts ? inputPorts[i - 1].port : (i - 1)}`
+    let toPortName = `${nodeName}@${inputPorts ? inputPorts[i - 1].port : (i - 1)}`
 
     if (_.isString(value) && typeof element !== 'string') {
       let v = getContextLets(context, value)
@@ -76,7 +76,7 @@ export default function (ednObject, { context, compile, graph }) {
     const expression = compile(element, context, newGraph)
     // TODO: allow no values returned
     if (!expression.result) {
-      throw compilationError('Component does not return a value', element)
+      throw compilationError(`Argument ${i - 1} of component '${name}' does not return a value`, element)
     }
     const edge = {'from': expression.result.port, 'to': toPortName}
     log('add edge from ' + edge.from + ' to ' + edge.to)
