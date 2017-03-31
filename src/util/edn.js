@@ -1,4 +1,4 @@
-import * as edn from 'jsedn'
+import * as edn from '@buggyorg/jsedn'
 import { cleanPort } from './graph'
 
 export function isInfoObject (ednObject) {
