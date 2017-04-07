@@ -28,12 +28,12 @@ export function constCompile (ednObject, { context, graph }) {
     // Note: Add contextHasVariable check here?
     stdNode = {
       ref: 'std/const',
-      metaInformation: {parameters: {type: 'STRING', value: value}}
+      metaInformation: {parameters: {type: 'String', value: value}}
     }
   } else if (_.isNumber(value)) {
     stdNode = {
       ref: 'std/const',
-      metaInformation: {parameters: {type: 'NUMBER', value: value}}
+      metaInformation: {parameters: {type: 'Number', value: value}}
     }
   } else {
     warning('TODO/NYI const for ' + value)
