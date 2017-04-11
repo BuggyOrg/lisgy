@@ -1,6 +1,6 @@
 {
   "name": "@buggyorg/lisgy",
-  "version": "0.2.0-pre.7",
+  "version": "0.2.0-pre.8",
   "description": "",
   "main": "lib/lisgy.js",
   "bin": {
