@@ -1,2 +1,2 @@
 export {parse} from './parser'
-export {compile} from './compile'
+export {compile} from './compiler'
