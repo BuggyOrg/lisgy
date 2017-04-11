@@ -8,12 +8,12 @@
     "lisgy-check": "./lib/valid.js"
   },
   "scripts": {
-    "build": "babel src -d lib",
+    "build": "rm -rf lib && babel src -d lib",
     "pretest": "npm run build",
     "test": "dot-only-hunter && nyc mocha --compilers js:babel-register --timeout 15000 --recursive && standard src/**/*.js",
     "test:dev": "nyc mocha --compilers js:babel-register --timeout 15000 --recursive && standard src/**/*.js",
     "test:watch": "mocha --compilers js:babel-register --timeout 15000 --recursive --watch",
-    "prepublish": "babel src -d lib",
+    "prepublish": "rm -rf lib && babel src -d lib",
     "report": "nyc report",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
