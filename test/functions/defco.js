@@ -199,7 +199,7 @@ describe('defco', () => {
   })
 
   describe('(defco ... [(type name typename) ...] ...)', () => {
-    it('should add a type info to the variables', () => {
+    it('should add type info to the variables', () => {
       const parsed = parse(`(defco inc [(type x Number) (type y Lumber)] (+ x y))`)
       const compiled = compile(parsed)
       let inc = Graph.components(compiled)[0]
@@ -207,7 +207,7 @@ describe('defco', () => {
       expect(ports).to.have.length(3)
       expect(ports[0]).to.containSubset({type: 'Number', port: 'x'})
       expect(ports[1]).to.containSubset({type: 'Lumber', port: 'y'})
-      expect(ports[2]).to.containSubset({type: 'generic', port: 'value'})
+      expect(ports[2]).to.containSubset({type: 'generic2', port: 'value'})
     })
 
     it('should throw a error if the typename is missing', () => {

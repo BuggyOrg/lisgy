@@ -18,7 +18,7 @@ export default function (ednObject, { context, compile, graph }) {
   const version = split[1] || '0.0.0'
   log('defco creating new component ' + name)
 
-  let allPorts = ednObject.val[2].val.map((port) => createPort(port.val, 'input', 'generic'))
+  let allPorts = ednObject.val[2].val.map((port, idx) => createPort(port.val, 'input', 'generic' + idx))
   let inputPorts = allPorts.map((port) => port.port)
 
   const newNode = {
@@ -39,7 +39,7 @@ export default function (ednObject, { context, compile, graph }) {
   // defco with defaul output
   if (ednObject.val[3].val[0].val[0] !== ':') {
     log('defco with default output port \'value\'')
-    let outPort = createPort('value', 'output', 'generic')
+    let outPort = createPort('value', 'output', 'generic' + allPorts.length)
     cmpt.ports.push(outPort)
 
     newContext.toPortName = outPort.name
@@ -65,7 +65,7 @@ export default function (ednObject, { context, compile, graph }) {
         continue
       }
 
-      let outPort = createPort(outputs[i].val, 'output', 'generic')
+      let outPort = createPort(outputs[i].val, 'output', 'generic' + (i + allPorts.length))
       cmpt.ports.push(outPort)
       i++
       let next = outputs[i]
