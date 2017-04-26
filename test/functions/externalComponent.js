@@ -65,7 +65,7 @@ describe('external components', () => {
   })
 
   it('can parse comments', () => {
-    const compiled = compile(parse(`(+ 1 2);commend`))
+    const compiled = compile(parse(`(+ 1 2) ;comment`))
     expect(Graph.node('/+', compiled)).exists
     expect(Graph.node('/std/const', compiled)).exists
 
@@ -76,6 +76,12 @@ describe('external components', () => {
     expect(compile(parse('(+ 1 2)'))).to.be.defined
     expect(compile(parse('(add "Hello" " World")'))).to.be.defined
     expect(compile(parse('(add "Hello" " World")'))).to.be.defined
+  })
+
+  it('supports array expressions', () => {
+    // after parsing lisgy thinks `[1 2 3]` is a call like `(1 2 3)` perhaps
+    // we could solve this by converting `[1 2 3]` into `(Array 1 2 3)`?
+    expect(compile(parse('(first [1 2 3])'))).to.be.defined
   })
 
   it('throws a error if a undefined variable is used', () => {
