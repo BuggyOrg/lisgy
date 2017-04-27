@@ -39,4 +39,32 @@ describe('deftype', () => {
       }
     })
   })
+
+  it('can handle types that are not defined in the first line', () => {
+    const { graph: graphC } = compile(parse('(deftype A (B c))'))
+    const { graph } = compile(parse('\n(deftype A (B c))'))
+
+    const type = Graph.component('A', graph)
+    const typeC = Graph.component('A', graphC)
+    expect(type).to.exist
+
+    let meta = Graph.meta(type)
+    let metaC = Graph.meta(typeC)
+    expect(meta).to.exist
+    expect(meta.type).to.eql(metaC.type)
+  })
+
+  it('can handle types with line breaks', () => {
+    const { graph: graphC } = compile(parse('(deftype A (B c))'))
+    const { graph } = compile(parse('(deftype A\n  (B c))'))
+
+    const type = Graph.component('A', graph)
+    const typeC = Graph.component('A', graphC)
+    expect(type).to.exist
+
+    let meta = Graph.meta(type)
+    let metaC = Graph.meta(typeC)
+    expect(meta).to.exist
+    expect(meta.type).to.eql(metaC.type)
+  })
 })
