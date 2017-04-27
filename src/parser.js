@@ -31,6 +31,12 @@ export function parse (code, { moduleName = 'main' } = {}) {
   }
 
   return mapEachEdnObject(ednObject, (obj) => {
+    // don't modify numbers and strings
+    if (typeof obj !== 'object') {
+      return obj
+    }
+
+    // unwrap Sets from their outer tag
     if (obj._tag != null && obj._obj instanceof edn.Set) {
       obj = obj._obj
     }
