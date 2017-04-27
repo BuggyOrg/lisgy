@@ -31,6 +31,10 @@ export function parse (code, { moduleName = 'main' } = {}) {
   }
 
   return mapEachEdnObject(ednObject, (obj) => {
+    if (obj._tag != null && obj._obj instanceof edn.Set) {
+      obj = obj._obj
+    }
+
     const newObj = Object.assign({}, obj, {
       isList: obj instanceof edn.List,
       isVector: obj instanceof edn.Vector,

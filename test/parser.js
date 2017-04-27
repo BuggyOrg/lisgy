@@ -58,9 +58,29 @@ describe('the parser', () => {
     expect(edn).to.be.defined
   })
 
-  it('should support tags', () => {
+  it('should support tags for lists', () => {
     const edn = parse('#(add %1 %1)')
     expect(edn.val[0]._tag.namespace).to.equal('')
     expect(edn.val[0]._obj.val).to.have.length(3)
+  })
+
+  it('should drop the empty tag of a sets', () => {
+    const edn = parse('#{1 2 3}')
+    expect(edn.val[0]._tag).to.be.undefined
+    expect(edn.val[0].val).to.have.length(3)
+  })
+
+  it('should set isList, isVector and isSet', () => {
+    expect(parse('(1 2 3)').val[0].isList).to.be.true
+    expect(parse('(1 2 3)').val[0].isVector).to.be.false
+    expect(parse('(1 2 3)').val[0].isSet).to.be.false
+
+    expect(parse('[1 2 3]').val[0].isList).to.be.false
+    expect(parse('[1 2 3]').val[0].isVector).to.be.true
+    expect(parse('[1 2 3]').val[0].isSet).to.be.false
+
+    expect(parse('#{1 2 3}').val[0].isList).to.be.false
+    expect(parse('#{1 2 3}').val[0].isVector).to.be.false
+    expect(parse('#{1 2 3}').val[0].isSet).to.be.true
   })
 })
