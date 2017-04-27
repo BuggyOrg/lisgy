@@ -78,10 +78,13 @@ describe('external components', () => {
     expect(compile(parse('(add "Hello" " World")'))).to.be.defined
   })
 
-  it('supports array expressions', () => {
+  it.only('supports array expressions', () => {
     // after parsing lisgy thinks `[1 2 3]` is a call like `(1 2 3)` perhaps
     // we could solve this by converting `[1 2 3]` into `(Array 1 2 3)`?
     expect(compile(parse('(first [1 2 3])'))).to.be.defined
+
+    // TODO comparing graphs does not work at the moment :(
+    // expect(compile(parse('(first [1 2 3])'))).to.deep.equal(compile(parse('(first (Array 1 2 3))')))
   })
 
   it('throws a error if a undefined variable is used', () => {

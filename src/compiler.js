@@ -10,7 +10,18 @@ function getFunctionHandler (name) {
 
 function compileWithContext (ednObj, context, graph) {
   if (_.isArray(ednObj.val)) {
-    if (_.isString(ednObj.val[0].val)) {
+    if (ednObj.isVector) {
+      return compileWithContext({
+        val: [
+          {
+            ns: null,
+            name: 'Array',
+            val: 'Array'
+          },
+          ...ednObj.val
+        ]
+      }, context, graph)
+    } else if (_.isString(ednObj.val[0].val)) {
       const fn = getFunctionHandler(ednObj.val[0].val)
       const result = fn(ednObj, { context, graph, compile: compileWithContext })
       if (result) {
