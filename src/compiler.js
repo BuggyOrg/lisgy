@@ -8,9 +8,9 @@ function getFunctionHandler (name) {
   return functions[name] || functions.externalComponent
 }
 
-function compileWithContext (ednObj, context, graph) {
+function compileWithContext (ednObj, context, graph, isRoot = false) {
   if (_.isArray(ednObj.val)) {
-    if (ednObj.isVector) {
+    if (ednObj.isVector && !isRoot) {
       return compileWithContext({
         val: [
           {
@@ -61,7 +61,7 @@ function compileWithContext (ednObj, context, graph) {
 }
 
 export function compile (ednObj, context = defaultContext()) {
-  const { graph, context: newContext } = compileWithContext(ednObj, context, Graph.empty())
+  const { graph, context: newContext } = compileWithContext(ednObj, context, Graph.empty(), true)
   // add code meta information from ednObj, if it exists
   if (ednObj.code) {
     // TODO: add input code
