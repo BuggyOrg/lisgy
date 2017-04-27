@@ -67,4 +67,22 @@ describe('deftype', () => {
     expect(meta).to.exist
     expect(meta.type).to.eql(metaC.type)
   })
+
+  it('can handle sets', () => {
+    const { graph } = compile(parse('(deftype A (B #{Number}))'))
+
+    const aType = Graph.component('A', graph)
+    const meta = Graph.meta(aType)
+
+    expect(meta.type.definition.data).to.eql({name: 'Set', type: 'Number'})
+  })
+
+  it('can handle complex sets', () => {
+    const { graph } = compile(parse('(deftype A (B #{(C String)}))'))
+
+    const aType = Graph.component('A', graph)
+    const meta = Graph.meta(aType)
+
+    expect(meta.type.definition.data).to.eql({name: 'Set', type: {name: 'C', data: ['String']}})
+  })
 })
