@@ -74,15 +74,24 @@ describe('deftype', () => {
     const aType = Graph.component('A', graph)
     const meta = Graph.meta(aType)
 
-    expect(meta.type.definition.data).to.eql({name: 'Set', type: 'Number'})
+    expect(meta.type.definition.data[0]).to.eql({name: 'Set', type: 'Number'})
   })
 
-  it('can handle complex sets', () => {
+  it('can handle product types in sets', () => {
     const { graph } = compile(parse('(deftype A (B #{(C String)}))'))
 
     const aType = Graph.component('A', graph)
     const meta = Graph.meta(aType)
 
-    expect(meta.type.definition.data).to.eql({name: 'Set', type: {name: 'C', data: ['String']}})
+    expect(meta.type.definition.data[0]).to.eql({name: 'Set', type: {name: 'C', data: [{type: 'String'}]}})
+  })
+
+  it('can handle variants in sets', () => {
+    const { graph } = compile(parse('(deftype A (B #{[String Number]}))'))
+
+    const aType = Graph.component('A', graph)
+    const meta = Graph.meta(aType)
+
+    expect(meta.type.definition.data[0]).to.eql({name: 'Set', type: {name: 'or', data: [{type: 'String'}, {type: 'Number'}]}})
   })
 })

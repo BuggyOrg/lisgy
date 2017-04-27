@@ -28,6 +28,12 @@ function getTypeDefinition (ednObject) {
       name: 'or',
       data: ednObject.val.map((type) => getTypeDefinition(type))
     }
+  } else if (ednObject.isSet) {
+    return {
+      name: 'Set',
+      type: getTypeDefinition(ednObject.val[0]).type
+      // type: getTypeDefinition(Object.assign({isList: true}, ednObject.val[0]))  parser must add isList.. etc. to things in sets
+    }
   } else if (ednObject.isList) {
     return {
       name: ednObject.val[0].val,

@@ -57,6 +57,9 @@ export function parse (code, { moduleName = 'main' } = {}) {
  * Maps each object of the edn tree. Iteration order is not guaranteed.
  */
 function mapEachEdnObject (ednObject, callback) {
+  if (ednObject._tag != null && ednObject._obj instanceof edn.Set) {
+    ednObject = ednObject._obj
+  }
   if (_.isArray(ednObject.val)) {
     ednObject.val = ednObject.val.map((nested) => mapEachEdnObject(nested, callback))
   }
