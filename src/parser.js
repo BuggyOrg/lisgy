@@ -31,17 +31,15 @@ export function parse (code, { moduleName = 'main' } = {}) {
   }
 
   return mapEachEdnObject(ednObject, (obj) => {
+    const newObj = Object.assign({}, obj, {
+      isList: obj instanceof edn.List,
+      isVector: obj instanceof edn.Vector,
+      isSet: obj instanceof edn.Set
+    })
     if (obj.posLineStart === 1) {
-      const attrs = { posColStart: obj.posColStart - 1 }
-      if (obj instanceof edn.List) {
-        attrs.isList = true
-      }
-      if (obj instanceof edn.Vector) {
-        attrs.isVector = true
-      }
-      return Object.assign({}, obj, attrs)
+      newObj.posColStart = obj.posColStart - 1
     }
-    return obj
+    return newObj
   })
 }
 
