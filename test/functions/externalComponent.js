@@ -78,7 +78,7 @@ describe('external components', () => {
     expect(compile(parse('(add "Hello" " World")'))).to.be.defined
   })
 
-  it.only('supports array expressions', () => {
+  it('supports array expressions', () => {
     // after parsing lisgy thinks `[1 2 3]` is a call like `(1 2 3)` perhaps
     // we could solve this by converting `[1 2 3]` into `(Array 1 2 3)`?
     expect(compile(parse('(first [1 2 3])'))).to.be.defined
