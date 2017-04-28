@@ -31,8 +31,7 @@ function getTypeDefinition (ednObject) {
   } else if (ednObject.isSet) {
     return {
       name: 'Set',
-      type: getTypeDefinition(ednObject.val[0]).type
-      // type: getTypeDefinition(Object.assign({isList: true}, ednObject.val[0]))  parser must add isList.. etc. to things in sets
+      type: getTypeDefinition(ednObject.val[0])
     }
   } else if (ednObject.isList) {
     return {

@@ -74,7 +74,7 @@ describe('deftype', () => {
     const aType = Graph.component('A', graph)
     const meta = Graph.meta(aType)
 
-    expect(meta.type.definition.data[0]).to.eql({name: 'Set', type: 'Number'})
+    expect(meta.type.definition.data[0]).to.eql({name: 'Set', type: {type: 'Number'}})
   })
 
   it('can handle product types in sets', () => {
