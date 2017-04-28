@@ -33,7 +33,7 @@
   "dependencies": {
     "@buggyorg/component-library": "0.3.7",
     "@buggyorg/graphlib2kgraph": "0.1.11",
-    "@buggyorg/graphtools": "0.4.0-pre.28",
+    "@buggyorg/graphtools": "0.4.0-pre.34",
     "@buggyorg/resolve": "0.2.9",
     "chalk": "^1.1.3",
     "cli-ext": "^1.0.0",

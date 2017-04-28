@@ -29,6 +29,7 @@ describe('external components', () => {
   it('adds extra info to a node', () => {
     const parsed = parse(`(defcop math/add [s1 s2] [o1]) (math/add 1 2 {:extraA "info"
                                                                         :extraB {A [1 2 3]}})`)
+
     const compiled = compile(parsed)
     const node = Graph.toJSON(compiled).nodes[0]
     expect(node).to.be.defined
@@ -81,10 +82,12 @@ describe('external components', () => {
   it('supports array expressions', () => {
     // after parsing lisgy thinks `[1 2 3]` is a call like `(1 2 3)` perhaps
     // we could solve this by converting `[1 2 3]` into `(Array 1 2 3)`?
-    expect(compile(parse('(first [1 2 3])'))).to.be.defined
-
+    const arrGraph = compile(parse('(first [1 2 3])'))
+    expect(arrGraph).to.be.defined
     // TODO comparing graphs does not work at the moment :(
-    // expect(compile(parse('(first [1 2 3])'))).to.deep.equal(compile(parse('(first (Array 1 2 3))')))
+    // expect(arrGraph).to.deep.equal(compile(parse('(first (Array 1 2 3))')))
+
+    expect(Graph.getNodeMetaKey('length', '/Array', arrGraph)).to.equal(3)
   })
 
   it('throws a error if a undefined variable is used', () => {

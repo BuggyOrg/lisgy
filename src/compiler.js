@@ -8,6 +8,17 @@ function getFunctionHandler (name) {
   return functions[name] || functions.externalComponent
 }
 
+function arrayLength (len) {
+  return {
+    val: false,
+    keys: [ 'metaInformation.length' ],
+    vals: [ 3 ],
+    isList: false,
+    isVector: false,
+    isSet: false
+  }
+}
+
 function compileWithContext (ednObj, context, graph, isRoot = false) {
   if (_.isArray(ednObj.val)) {
     if (ednObj.isVector && !isRoot) {
@@ -18,7 +29,8 @@ function compileWithContext (ednObj, context, graph, isRoot = false) {
             name: 'Array',
             val: 'Array'
           },
-          ...ednObj.val
+          ...ednObj.val,
+          arrayLength(ednObj.val.length)
         ]
       }, context, graph)
     } else if (_.isString(ednObj.val[0].val)) {
