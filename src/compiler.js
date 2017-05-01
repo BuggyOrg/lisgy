@@ -12,7 +12,7 @@ function arrayLength (len) {
   return {
     val: false,
     keys: [ 'metaInformation.length' ],
-    vals: [ 3 ],
+    vals: [ len ],
     isList: false,
     isVector: false,
     isSet: false
