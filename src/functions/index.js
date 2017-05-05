@@ -7,6 +7,8 @@ import imports from './import'
 import lambda from './lambda'
 import lets from './let'
 import consts from './const'
+import defprotocol from './defprotocol'
+import extendtype from './extend-type'
 
 export { defco }
 export { defcop }
@@ -17,3 +19,5 @@ export { imports as import }
 export { lambda }
 export { lets as let }
 export { consts as const }
+export { defprotocol }
+export { extendtype }

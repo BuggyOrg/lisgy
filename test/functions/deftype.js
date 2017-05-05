@@ -36,7 +36,8 @@ describe('deftype', () => {
             }]
           }]
         }]
-      }
+      },
+      protocols: []
     })
   })
 
