@@ -19,8 +19,8 @@ export default function lambda (ednObject, { context, compile, graph }) {
 
   const lambdaImplNode = Graph.compound({
     ports: [
-      ...parameters.map((p) => createPort(`in_${p.name}`, 'input', 'generic')),
-      createPort('output', 'output', 'generic')
+      ...parameters.map((p, idx) => createPort(`in_${p.name}`, 'input', 'generic' + idx)),
+      createPort('output', 'output', 'generic_output')
     ]
   })
 
