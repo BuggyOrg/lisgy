@@ -43,14 +43,27 @@ describe('deftype', () => {
       })
     })
 
-    it.skip('should define types with protocols', () => {
+    it('should define types with protocols', () => {
       // (deftype NAME DEFINITION
       //    NAME (NAME [ARGS...] IMPL)))
-      const { graph } = compile(parse('(deftype (List a) [NIL (Cons a (List a))] Abc (def [a b] (+ a b)))'))
+      const { graph } = compile(parse('(deftype (List a) [NIL (Cons a (List a))] Abc (Zyx [a b] (+ a b)) B (C [a] (- a a)))'))
+      const refGraph = compile(parse('(lambda [a b] (+ a b))')).graph
+      var refImpl = Graph.node('/functional/lambda', refGraph)
 
       expect(graph.types).to.exist
       expect(graph.types).to.have.length(1)
-      console.log(graph.types)
+
+      let type = graph.types[0]
+
+      expect(type).to.exist
+      expect(type.protocols).to.have.length(1)
+      expect(type.protocols[0].name).to.equal('Abc')
+      expect(type.protocols[0].fns).to.have.length(1)
+      let fn = type.protocols[0].fns[0]
+      expect(fn.name).to.equal('Zyx')
+      expect(fn.args).to.deep.equal(['a', 'b'])
+      let impl = Graph.Lambda.implementation(fn.impl)
+      expect(Graph.isomorph(impl, Graph.Lambda.implementation(refImpl)), 'Expected created lambda to equal ref lambda')
     })
 
     it('can handle types that are not defined in the first line', () => {

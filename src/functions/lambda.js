@@ -9,10 +9,15 @@ const Lambda = Graph.Lambda
  * (lambda [p1 p2 ...] (fn ...))
  */
 export default function lambda (ednObject, { context, compile, graph }) {
-  const transformed = transformClosures(ednObject, (context.letvars || []).map((v) => v.varName))
+  if (!graph) {
+    // TODO: warning or not?
+  }
+  let graphIn = graph || Graph.empty()
+
+  const transformed = transformClosures(ednObject, ((context && context.letvars) || []).map((v) => v.varName))
 
   if (transformed !== ednObject) {
-    return compile(transformed, context, graph)
+    return compile(transformed, context, graphIn)
   }
 
   const parameters = ednObject.val[1].val
@@ -25,10 +30,10 @@ export default function lambda (ednObject, { context, compile, graph }) {
   })
 
   const expressions = ednObject.val.slice(2, -1)
-  let compiledImplementation = expressions.reduce((graph, expression) => compile(
+  let compiledImplementation = expressions.reduce((graphIn, expression) => compile(
     expression,
     Object.assign({}, context, {
-      graph,
+      graph: graphIn,
       letvars: [
         ...(context.letvars || []),
         ...parameters.map((p) => ({
@@ -40,14 +45,14 @@ export default function lambda (ednObject, { context, compile, graph }) {
         }))
       ]
     }),
-    graph
+    graphIn
   ).graph, lambdaImplNode)
 
   const returnedExpression = ednObject.val[ednObject.val.length - 1]
   compiledImplementation = compile(
     returnedExpression,
     Object.assign({}, context, {
-      graph,
+      graph: graphIn,
       letvars: [
         ...(context.letvars || []),
         ...parameters.map((p) => ({
@@ -72,7 +77,7 @@ export default function lambda (ednObject, { context, compile, graph }) {
   }, compiledImplementation.graph)
 
   const [newGraph, lambdaId] = Graph.addNodeTuple(
-    Lambda.createLambda(compiledImplementation.graph), graph)
+    Lambda.createLambda(compiledImplementation.graph), graphIn)
 
   // console.log(JSON.stringify(newGraph, null, 2))
 
@@ -86,16 +91,16 @@ export default function lambda (ednObject, { context, compile, graph }) {
   }
 }
 
-export function createLambda (parameters, ednObject, { context = defaultContext(), compile, graph = Graph.empty() }) {
+export function createLambdaNode (parameters, ednObject, { context = defaultContext(), compile, graph = Graph.empty() }) {
   let newEdnObject = {
     val: [{
       val: [
-        { name: 'lambda' },
-        { val: parameters.map(p => { return { name: p } }) },
+        { name: 'lambda', val: 'lambda' },
+        { val: parameters.map(p => { return { name: p, val: p } }) },
         ednObject
       ]
     }]
   }
 
-  return lambda(newEdnObject, {context, compile, graph}).graph
+  return compile(newEdnObject, {context, compile, graph}).graph.nodes[0]
 }

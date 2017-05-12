@@ -1,7 +1,7 @@
 import _ from 'lodash'
 import * as Graph from '@buggyorg/graphtools'
 import { getTypeName } from '../typing/type'
-import lambda from './lambda'
+import { createLambdaNode } from './lambda'
 
 export default function (ednObject, { context, compile, graph }) {
   let temp = oldDeftype(ednObject, {context, compile, graph})
@@ -79,8 +79,6 @@ function getTypeProtocols (ednObjects, { context, compile, graph }) {
     return []
   }
 
-  console.error('This is not yet fully implemented!')
-
   let name = ednObjects[3].val
   let protocols = []
   let protocol = {
@@ -93,22 +91,9 @@ function getTypeProtocols (ednObjects, { context, compile, graph }) {
     let name = ednObject[0].val
     let args = ednObject[1].val.map(o => o.val[0])
 
-    // alternative ednObject to lisgy string + add lambda
-    // let args = ednObject[1].val.map(o => o.val[0].val).join(' ') // expects e.g. [(a Type) (b Type)] => ['a', 'b']
-    // let fnc = edn.encode(edn.toJS(ednObject[2]))
-    // let impl = parseCompile(`(lambda [` + args + `] ` + fnc + `)`)
+    let impl = createLambdaNode(args, ednObject[2], {context, compile, graph})
 
-    // NOTE: Verry Hacky!!!
-    let lambdaEdn = {
-      val: [{ val: 'lambda' }, { val: args, isVector: true }, ednObject[2]],
-      isList: true
-    }
-
-    console.log(ednObject[2])
-    console.log(lambdaEdn)
-    let impl = compile(lambdaEdn, { context, compile, graph: Graph.empty() })
-    console.log(impl)
-    // protocol.fns.push({ name, impl })
+    protocol.fns.push({ name, args, impl })
   }
 
   protocols.push(protocol)

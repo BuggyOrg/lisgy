@@ -1,4 +1,5 @@
 import _ from 'lodash'
+import { createLambdaNode } from './lambda'
 
 /**
  * Based on: Clojures extend-type, see https://clojure.org/reference/protocols
@@ -6,26 +7,44 @@ import _ from 'lodash'
  * `(extendtype NAME_TO_BE_EXTENDED PROTOCOL_NAME (NAME [ARGS*] IMPL) ...)`
  *
  */
-export default function (ednObject, { context, graph }) {
-  if (ednObject.val.length < 4) {
+export default function (ednObjects, { compile, context, graph }) {
+  if (ednObjects.val.length < 4) {
     console.log('this should not happen, extendtype used wrongly')
   }
 
-  // let className = ednObject.val[1].val
-  // let protocolName = ednObject.val[2].val
+  let className = ednObjects.val[1].val
+  let protocolName = ednObjects.val[2].val
+
+  let extendedProtocolType = {
+    type: 'protocol',
+    class: className,
+    name: protocolName,
+    fns: []
+  }
 
   let newGraph = _.clone(graph) // Do we need the clone here?
   if (newGraph.types && newGraph.types.length > 0) {
-    // let obj = ednObject.val[3].val
-    // let fnName = obj[0].val
-    // let args = obj[1].val.map(o => o.val[0].val)
-    // let impl = obj[2].val // TODO: parse edn object to Graph
-    // TODO: add new Type
+    // search for allready defined types
+    let found = newGraph.types.find(t => t.name === protocolName)
+    if (found) {
+      console.log('Type was already defined once:', found)
+      console.log('NYI')
+    }
   } else {
     newGraph.types = []
-    // TODO: add new Type
-    // newGraph.types.push()
   }
+
+  {
+    let ednObject = ednObjects[3].val
+    let name = ednObject[0].val
+    let args = ednObject[1].val.map(o => o.val[0])
+
+    let impl = createLambdaNode(args, ednObject[2], {compile, context, graph})
+
+    extendedProtocolType.fns.push({ name, args, impl })
+  }
+
+  newGraph.types.push(extendedProtocolType)
 
   return {
     context,

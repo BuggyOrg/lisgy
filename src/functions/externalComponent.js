@@ -15,7 +15,10 @@ export default function (ednObject, { context, compile, graph }) {
 
   let port
   let inputPorts
-  let component = _.cloneDeep(context.components[name])
+  let component
+  if (context.components) {
+    component = _.cloneDeep(context.components[name])
+  }
   if (!component) {
     // throw compilationError(`Undefined component "${name}"`, ednObject.val[0])
     warning(`Undefined component "${name}"`, ednObject.val[0])
