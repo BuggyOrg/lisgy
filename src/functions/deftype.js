@@ -4,6 +4,40 @@ import { getTypeName } from '../typing/type'
 import lambda from './lambda'
 
 export default function (ednObject, { context, compile, graph }) {
+  let temp = oldDeftype(ednObject, {context, compile, graph})
+
+  let newGraph = temp.graph
+  let newContext = temp.context
+
+  if (!newGraph.types) {
+    newGraph.types = []
+  }
+
+  const type = getTypeName(ednObject.val[1])
+
+  const compName =
+    `${type.type}` +
+    (type.genericArguments && type.genericArguments.length > 0
+      ? `#${type.genericArguments.join('#')}`
+      : ``)
+
+  let newType = {
+    name: compName,
+    type: getTypeDefinition(ednObject.val[1]),
+    definition: getTypeDefinition(ednObject.val[2]),
+    protocols: getTypeProtocols(ednObject.val, {
+      context,
+      compile,
+      graph
+    })
+  }
+  // TODO: find if type was already defined
+  newGraph.types.push(newType)
+
+  return { graph: newGraph, context: newContext }
+}
+
+function oldDeftype (ednObject, { context, compile, graph }) {
   const type = getTypeName(ednObject.val[1])
 
   const compName =
@@ -70,9 +104,11 @@ function getTypeProtocols (ednObjects, { context, compile, graph }) {
       isList: true
     }
 
-    let impl = lambda(lambdaEdn, { context, compile, graph: Graph.empty() })
-      .graph.nodes[0]
-    protocol.fns.push({ name, impl })
+    console.log(ednObject[2])
+    console.log(lambdaEdn)
+    let impl = compile(lambdaEdn, { context, compile, graph: Graph.empty() })
+    console.log(impl)
+    // protocol.fns.push({ name, impl })
   }
 
   protocols.push(protocol)

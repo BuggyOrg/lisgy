@@ -2,6 +2,7 @@
 import { expect } from 'chai'
 import { parse } from '../../src/parser'
 import { compile } from '../../src/compiler'
+import { createLambda } from '../../src/functions/lambda'
 import { Graph, expectEdge, expectNoEdge } from './utils_e'
 
 const Lambda = Graph.Lambda
@@ -10,6 +11,54 @@ describe('lambda', () => {
   it('should create a simple lambda node', () => {
     const parsed = parse('(lambda [p1 p2] (+ p1 p2))')
     const compiled = compile(parsed)
+
+    expect(Graph.nodes(compiled)).to.have.length(1) // One lambda node
+    expect(Graph.edgesDeep(compiled)).to.have.length(3)
+    expect(Graph.components(compiled)).to.have.length(0)
+
+    var lambda = Graph.node('/functional/lambda', compiled)
+    expect(lambda).exists
+
+    expect(Lambda.isValid(lambda)).to.be.true
+
+    const λ = Lambda.implementation(lambda)
+
+    expect(Graph.edges(λ)).to.have.length(3)
+    expectEdge('@in_p1', '/+', λ)
+    expectEdge('@in_p2', '/+', λ)
+    expectEdge('/+', '@output', λ)
+  })
+
+  it.skip('should create a simple lambda based on object', () => {
+    const parsed = parse('(lambda [p1 p2] (+ p1 p2))')
+    const part = parse('(+ p1 p2)')
+    const compiledRef = compile(parsed)
+
+    console.log(parsed.val[0].val[0])
+    console.log(parsed.val[0].val[1])
+    console.log(parsed.val[0].val[2])
+
+    const obj = {
+      val: [ {
+        val: [
+          {name: 'lambda'},
+          {val: [
+            {name: 'p1'},
+            {name: 'p2'}]
+          },
+          part.val[0]
+        ]
+      }]
+    }
+
+    const objC = createLambda(['p1', 'p2'], part, {compile})
+
+    console.log(objC)
+
+    const compiled = compile(obj)
+
+    console.log(compiled)
+    console.log(compiledRef)
 
     expect(Graph.nodes(compiled)).to.have.length(1) // One lambda node
     expect(Graph.edgesDeep(compiled)).to.have.length(3)

@@ -5,94 +5,195 @@ import { parse } from '../../src/parser'
 import { compile } from '../../src/compiler'
 
 describe('deftype', () => {
-  it('should define types', () => {
-    const { graph } = compile(parse('(deftype (List a) [NIL (Cons a (List a))])'))
+  describe('rewrite', () => {
+    it('should define types', () => {
+      const { graph } = compile(parse('(deftype (List a) [NIL (Cons a (List a))])'))
 
-    let node = Graph.component('List#a', graph)
-    expect(node).to.exist
+      expect(graph.types).to.exist
+      expect(graph.types).to.have.length(1)
 
-    let meta = Graph.meta(node)
+      let meta = graph.types[0]
 
-    expect(meta).to.exist
-    expect(meta.type).to.be.deep.equal({
-      type: {
-        name: 'List',
-        data: [{
-          type: 'a'
-        }]
-      },
-      definition: {
-        name: 'or',
-        data: [{
-          type: 'NIL'
-        }, {
-          name: 'Cons',
+      expect(meta).to.exist
+      expect(meta).to.be.deep.equal({
+        name: 'List#a',
+        type: {
+          name: 'List',
           data: [{
             type: 'a'
+          }]
+        },
+        definition: {
+          name: 'or',
+          data: [{
+            type: 'NIL'
           }, {
-            name: 'List',
+            name: 'Cons',
             data: [{
               type: 'a'
+            }, {
+              name: 'List',
+              data: [{
+                type: 'a'
+              }]
             }]
           }]
-        }]
-      },
-      protocols: []
+        },
+        protocols: []
+      })
+    })
+
+    it.skip('should define types with protocols', () => {
+      // (deftype NAME DEFINITION
+      //    NAME (NAME [ARGS...] IMPL)))
+      const { graph } = compile(parse('(deftype (List a) [NIL (Cons a (List a))] Abc (def [a b] (+ a b)))'))
+
+      expect(graph.types).to.exist
+      expect(graph.types).to.have.length(1)
+      console.log(graph.types)
+    })
+
+    it('can handle types that are not defined in the first line', () => {
+      const { graph: graphC } = compile(parse('(deftype A (B c))'))
+      const { graph } = compile(parse('\n(deftype A (B c))'))
+
+      expect(graph.types).to.exist
+      expect(graphC.types).to.exist
+
+      let meta = graph.types[0]
+      let metaC = graphC.types[0]
+      expect(meta).to.exist
+      expect(metaC).to.exist
+      expect(meta.type).to.eql(metaC.type)
+      expect(meta).to.eql(metaC)
+    })
+
+    it('can handle types with line breaks', () => {
+      const { graph: graphC } = compile(parse('(deftype A (B c))'))
+      const { graph } = compile(parse('(deftype A\n  (B c))'))
+
+      let meta = graph.types[0]
+      let metaC = graphC.types[0]
+      expect(meta).to.exist
+      expect(meta.type).to.eql(metaC.type)
+      expect(meta).to.eql(metaC)
+    })
+
+    it('can handle sets', () => {
+      const { graph } = compile(parse('(deftype A (B #{Number}))'))
+
+      let meta = graph.types[0]
+
+      expect(meta.definition.data[0]).to.eql({name: 'Set', type: {type: 'Number'}})
+    })
+
+    it('can handle product types in sets', () => {
+      const { graph } = compile(parse('(deftype A (B #{(C String)}))'))
+
+      let meta = graph.types[0]
+
+      expect(meta.definition.data[0]).to.eql({name: 'Set', type: {name: 'C', data: [{type: 'String'}]}})
+    })
+
+    it('can handle variants in sets', () => {
+      const { graph } = compile(parse('(deftype A (B #{[String Number]}))'))
+
+      let meta = graph.types[0]
+
+      expect(meta.definition.data[0]).to.eql({name: 'Set', type: {name: 'or', data: [{type: 'String'}, {type: 'Number'}]}})
     })
   })
 
-  it('can handle types that are not defined in the first line', () => {
-    const { graph: graphC } = compile(parse('(deftype A (B c))'))
-    const { graph } = compile(parse('\n(deftype A (B c))'))
+  describe('old (will be removed soon)', () => {
+    it('should define types', () => {
+      const { graph } = compile(parse('(deftype (List a) [NIL (Cons a (List a))])'))
 
-    const type = Graph.component('A', graph)
-    const typeC = Graph.component('A', graphC)
-    expect(type).to.exist
+      let node = Graph.component('List#a', graph)
+      expect(node).to.exist
 
-    let meta = Graph.meta(type)
-    let metaC = Graph.meta(typeC)
-    expect(meta).to.exist
-    expect(meta.type).to.eql(metaC.type)
-  })
+      let meta = Graph.meta(node)
 
-  it('can handle types with line breaks', () => {
-    const { graph: graphC } = compile(parse('(deftype A (B c))'))
-    const { graph } = compile(parse('(deftype A\n  (B c))'))
+      expect(meta).to.exist
+      expect(meta.type).to.be.deep.equal({
+        type: {
+          name: 'List',
+          data: [{
+            type: 'a'
+          }]
+        },
+        definition: {
+          name: 'or',
+          data: [{
+            type: 'NIL'
+          }, {
+            name: 'Cons',
+            data: [{
+              type: 'a'
+            }, {
+              name: 'List',
+              data: [{
+                type: 'a'
+              }]
+            }]
+          }]
+        },
+        protocols: []
+      })
+    })
 
-    const type = Graph.component('A', graph)
-    const typeC = Graph.component('A', graphC)
-    expect(type).to.exist
+    it('can handle types that are not defined in the first line', () => {
+      const { graph: graphC } = compile(parse('(deftype A (B c))'))
+      const { graph } = compile(parse('\n(deftype A (B c))'))
 
-    let meta = Graph.meta(type)
-    let metaC = Graph.meta(typeC)
-    expect(meta).to.exist
-    expect(meta.type).to.eql(metaC.type)
-  })
+      const type = Graph.component('A', graph)
+      const typeC = Graph.component('A', graphC)
+      expect(type).to.exist
 
-  it('can handle sets', () => {
-    const { graph } = compile(parse('(deftype A (B #{Number}))'))
+      let meta = Graph.meta(type)
+      let metaC = Graph.meta(typeC)
+      expect(meta).to.exist
+      expect(meta.type).to.eql(metaC.type)
+    })
 
-    const aType = Graph.component('A', graph)
-    const meta = Graph.meta(aType)
+    it('can handle types with line breaks', () => {
+      const { graph: graphC } = compile(parse('(deftype A (B c))'))
+      const { graph } = compile(parse('(deftype A\n  (B c))'))
 
-    expect(meta.type.definition.data[0]).to.eql({name: 'Set', type: {type: 'Number'}})
-  })
+      const type = Graph.component('A', graph)
+      const typeC = Graph.component('A', graphC)
+      expect(type).to.exist
 
-  it('can handle product types in sets', () => {
-    const { graph } = compile(parse('(deftype A (B #{(C String)}))'))
+      let meta = Graph.meta(type)
+      let metaC = Graph.meta(typeC)
+      expect(meta).to.exist
+      expect(meta.type).to.eql(metaC.type)
+    })
 
-    const aType = Graph.component('A', graph)
-    const meta = Graph.meta(aType)
+    it('can handle sets', () => {
+      const { graph } = compile(parse('(deftype A (B #{Number}))'))
 
-    expect(meta.type.definition.data[0]).to.eql({name: 'Set', type: {name: 'C', data: [{type: 'String'}]}})
-  })
+      const aType = Graph.component('A', graph)
+      const meta = Graph.meta(aType)
 
-  it('can handle variants in sets', () => {
-    const { graph } = compile(parse('(deftype A (B #{[String Number]}))'))
+      expect(meta.type.definition.data[0]).to.eql({name: 'Set', type: {type: 'Number'}})
+    })
 
-    const aType = Graph.component('A', graph)
-    const meta = Graph.meta(aType)
+    it('can handle product types in sets', () => {
+      const { graph } = compile(parse('(deftype A (B #{(C String)}))'))
 
-    expect(meta.type.definition.data[0]).to.eql({name: 'Set', type: {name: 'or', data: [{type: 'String'}, {type: 'Number'}]}})
+      const aType = Graph.component('A', graph)
+      const meta = Graph.meta(aType)
+
+      expect(meta.type.definition.data[0]).to.eql({name: 'Set', type: {name: 'C', data: [{type: 'String'}]}})
+    })
+
+    it('can handle variants in sets', () => {
+      const { graph } = compile(parse('(deftype A (B #{[String Number]}))'))
+
+      const aType = Graph.component('A', graph)
+      const meta = Graph.meta(aType)
+
+      expect(meta.type.definition.data[0]).to.eql({name: 'Set', type: {name: 'or', data: [{type: 'String'}, {type: 'Number'}]}})
+    })
   })
 })

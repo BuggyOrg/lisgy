@@ -1,6 +1,6 @@
 import * as Graph from '@buggyorg/graphtools'
 import { createPort } from '../util/graph'
-import { compilationError } from '../compiler'
+import { compilationError, defaultContext } from '../compiler'
 import { transformClosures } from './closures'
 
 const Lambda = Graph.Lambda
@@ -84,4 +84,18 @@ export default function lambda (ednObject, { context, compile, graph }) {
       port: `${lambdaId}@fn`
     }
   }
+}
+
+export function createLambda (parameters, ednObject, { context = defaultContext(), compile, graph = Graph.empty() }) {
+  let newEdnObject = {
+    val: [{
+      val: [
+        { name: 'lambda' },
+        { val: parameters.map(p => { return { name: p } }) },
+        ednObject
+      ]
+    }]
+  }
+
+  return lambda(newEdnObject, {context, compile, graph}).graph
 }
