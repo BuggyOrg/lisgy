@@ -128,4 +128,36 @@ describe('let', () => {
     expect(Graph.edges(compiled)).to.have.length(4)
     expect(Graph.components(compiled)).to.have.length(0)
   })
+
+  it('allows to use previously defined letvars as value', () => {
+    const parsed = parse(`
+      (let [a 21 b a] (add a b))
+    `)
+    const compiled = compile(parsed)
+
+    expect(Graph.nodes(compiled)).to.have.length(2) // the 21 node is used twice
+    expect(Graph.edges(compiled)).to.have.length(2)
+  })
+
+  it('allows to use previously defined nested letvars as value', () => {
+    const parsed = parse(`
+      (let [a 21] (let [b a] (add a b)))
+    `)
+    const compiled = compile(parsed)
+
+    expect(Graph.nodes(compiled)).to.have.length(2) // the 21 node is used twice
+    expect(Graph.edges(compiled)).to.have.length(2)
+  })
+
+  it('allows to use previously defined variables as value', () => {
+    const parsed = parse(`
+      (defco foo [a]
+        (let [b a] (math/add a b))
+      )
+    `)
+    const compiled = compile(parsed)
+
+    expect(Graph.nodes(Graph.component('foo', compiled))).to.have.length(1) // the 21 node is used twice
+    expect(Graph.edges(Graph.component('foo', compiled))).to.have.length(3)
+  })
 })

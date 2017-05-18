@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import { log } from '../util/log.js'
 import { constCompile, isConstValue } from './const'
+import { contextHasVariable, getContextLets } from '../util/graph'
 
 /**
  * (let [VAR0 EXPR0 VAR1 EXPR1...] EXPRS)
@@ -23,11 +24,20 @@ export default function (ednObject, { context, compile, graph }) {
 
     if (isConstValue(expr)) {
       out = constCompile(expr, {context: newContext, graph: newGraph})
+      newGraph = out.graph
+      newContext.letvars.push({varName: varName, source: out.result})
+    } else if (_.isString(expr.val) && typeof expr !== 'string') {
+      let v = getContextLets(newContext, expr.val) // use newContext to allow using previously defined variables
+      if (v) {
+        newContext.letvars.push({varName: varName, source: v})
+      } else if (contextHasVariable(context, expr.val)) {
+        newContext.letvars.push({varName: varName, source: {port: `@${expr.val}`}})
+      }
     } else {
       out = compile(expr, newContext, newGraph)
+      newGraph = out.graph
+      newContext.letvars.push({varName: varName, source: out.result})
     }
-    newGraph = out.graph
-    newContext.letvars.push({varName: varName, source: out.result})
   })
 
   log('with ' + varexprs.length + ' variable(s)')
