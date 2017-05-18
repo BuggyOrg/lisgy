@@ -5,6 +5,9 @@ import anonymousLambda from './functions/anonymousLambda'
 import { isConstValue } from './functions/const'
 
 function getFunctionHandler (name) {
+  if (name === '->') {
+    return functions.pipe
+  }
   return functions[name] || functions.externalComponent
 }
 
