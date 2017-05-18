@@ -14,7 +14,10 @@ export default function lambda (ednObject, { context, compile, graph }) {
   }
   let graphIn = graph || Graph.empty()
 
-  const transformed = transformClosures(ednObject, ((context && context.letvars) || []).map((v) => v.varName))
+  const transformed = transformClosures(ednObject, [
+    ...(context ? context.letvars.map((v) => v.varName) : []),
+    ...(context ? context.variables : [])
+  ])
 
   if (transformed !== ednObject) {
     return compile(transformed, context, graphIn)
