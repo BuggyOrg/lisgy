@@ -46,9 +46,16 @@ describe('deftype', () => {
     it('should define types with protocols', () => {
       // (deftype NAME DEFINITION
       //    NAME (NAME [ARGS...] IMPL)))
-      const { graph } = compile(parse('(deftype (List a) [NIL (Cons a (List a))] Abc (Zyx [a b] (+ a b)) B (C [a] (- a a)))'))
-      const refGraph = compile(parse('(lambda [a b] (+ a b))')).graph
-      var refImpl = Graph.node('/functional/lambda', refGraph)
+      const { graph } = compile(parse(`
+      (deftype (List a)
+        [NIL (Cons a (List a))]
+        Abc (Zyx [a b] (+ a b)) (C [a] (- a a))
+      )`))
+      const refGraphA = compile(parse('(lambda [a b] (+ a b))')).graph
+      var refImplA = Graph.node('/functional/lambda', refGraphA)
+
+      const refGraphB = compile(parse('(lambda [a] (- a a))')).graph
+      var refImplB = Graph.node('/functional/lambda', refGraphB)
 
       expect(graph.types).to.exist
       expect(graph.types).to.have.length(1)
@@ -58,12 +65,18 @@ describe('deftype', () => {
       expect(type).to.exist
       expect(type.protocols).to.have.length(1)
       expect(type.protocols[0].name).to.equal('Abc')
-      expect(type.protocols[0].fns).to.have.length(1)
+      expect(type.protocols[0].fns).to.have.length(2)
       let fn = type.protocols[0].fns[0]
       expect(fn.name).to.equal('Zyx')
       expect(fn.args).to.deep.equal(['a', 'b'])
-      let impl = Graph.Lambda.implementation(fn.impl)
-      expect(Graph.isomorph(impl, Graph.Lambda.implementation(refImpl)), 'Expected created lambda to equal ref lambda')
+      let implA = Graph.Lambda.implementation(fn.impl)
+      expect(Graph.isomorph(implA, Graph.Lambda.implementation(refImplA)), 'Expected created lambda to equal ref lambda')
+
+      fn = type.protocols[0].fns[1]
+      expect(fn.name).to.equal('C')
+      expect(fn.args).to.deep.equal(['a'])
+      let implB = Graph.Lambda.implementation(fn.impl)
+      expect(Graph.isomorph(implB, Graph.Lambda.implementation(refImplB)), 'Expected created lambda to equal ref lambda')
     })
 
     it('can handle types that are not defined in the first line', () => {
