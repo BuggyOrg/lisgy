@@ -86,10 +86,10 @@ function getTypeProtocols (ednObjects, { context, compile, graph }) {
     fns: []
   }
 
-  {
-    let ednObject = ednObjects[4].val
+  for (let i = 4; i < 5; i++) {
+    let ednObject = ednObjects[i].val
     let name = ednObject[0].val
-    let args = ednObject[1].val.map(o => o.val[0])
+    let args = ednObject[1].val.map(o => o.val[0].val || o.val[0])
 
     let impl = createLambdaNode(args, ednObject[2], {context, compile, graph})
 

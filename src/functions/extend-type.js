@@ -34,8 +34,8 @@ export default function (ednObjects, { compile, context, graph }) {
     newGraph.types = []
   }
 
-  {
-    let ednObject = ednObjects.val[3].val
+  for (let j = 3; j < ednObjects.val.length; j++) {
+    let ednObject = ednObjects.val[j].val
     let name = ednObject[0].val
     let args = ednObject[1].val.map(o => o.val[0].val) // TODO: save Type from e.g. `(a Type)`
 
