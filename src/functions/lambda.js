@@ -95,11 +95,12 @@ export default function lambda (ednObject, { context, compile, graph }) {
 }
 
 export function createLambdaNode (parameters, ednObject, { context = defaultContext(), compile, graph = Graph.empty() }) {
+  let args = parameters.map(p => { return { name: p, val: p } })
   let newEdnObject = {
     val: [{
       val: [
         { name: 'lambda', val: 'lambda' },
-        { val: parameters.map(p => { return { name: p, val: p } }) },
+        { val: args },
         ednObject
       ]
     }]

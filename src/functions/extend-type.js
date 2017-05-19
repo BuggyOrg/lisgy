@@ -35,9 +35,9 @@ export default function (ednObjects, { compile, context, graph }) {
   }
 
   {
-    let ednObject = ednObjects[3].val
+    let ednObject = ednObjects.val[3].val
     let name = ednObject[0].val
-    let args = ednObject[1].val.map(o => o.val[0])
+    let args = ednObject[1].val.map(o => o.val[0].val) // TODO: save Type from e.g. `(a Type)`
 
     let impl = createLambdaNode(args, ednObject[2], {compile, context, graph})
 

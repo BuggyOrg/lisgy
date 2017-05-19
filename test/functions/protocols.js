@@ -30,6 +30,20 @@ describe('Protocols', () => {
   })
 
   describe.skip('deftype with protocols', () => {
+    it('should parse & compile without a error', () => {
+      const input = `
+        (deftype
+          NameA
+          (Def Type Type)
+          Protocol
+          (NameB 
+            [(a TypeB) (b TypeB)]
+            (implFN (de-TypeB-0 a) (de-TypeB-1 a) (de-TypeB-0 b))))
+      `
+      const { graph } = api.parseCompile(input)
+      expect(graph).to.be.defined
+    })
+
     it('should be possible to add a protocol to a type', () => {
       const input = `
         (defprotocol Ord (less [a b]))
@@ -68,7 +82,20 @@ describe('Protocols', () => {
     })
   })
 
-  describe.skip('extend-type', () => {
+  describe('extend-type', () => {
+    it('should parse & compile', () => {
+      const input = `
+        (extendtype 
+          NameA 
+          Protocol 
+          (NameB 
+            [(a TypeA) (b TypeB)] 
+            (implem (de-TypeA-0 a) (de-TypeA-1 a) (de-TypeB-0 b))))
+      `
+      const { graph } = api.parseCompile(input)
+      expect(graph).to.be.defined
+    })
+
     it('should extend a exisiting type', () => {
       const input = `
         (deftype Color (RGB Number Number Number))
@@ -78,13 +105,22 @@ describe('Protocols', () => {
           (less [(c1 Color) (c2 Color)]
                 (math/less (de-Color-0 c1) (de-Color-0 c2))))`
       const { graph } = api.parseCompile(input)
-
-      const ordProtocol = { type: 'protocol', name: 'Ord', fns: [{ name: 'less', args: ['a', 'b'] }] }
+      const implRef = api.parseCompile(`(lambda [c1 c2] (math/less (de-Color-0 c1) (de-Color-0 c2)))`).graph.nodes[0]
+      const ordProtocol = { type: 'protocol', name: 'Ord', fns: [{ name: 'less', args: ['c1', 'c2'] }] }
 
       expect(graph.types).to.be.defined
       expect(graph.types).to.have.length(2)
       // TODO: check graph.types[0] === (deftype Color ...)
-      expect(graph.types[1]).to.deep.equal(ordProtocol)
+      expect(graph.types[1].type).to.deep.equal(ordProtocol.type)
+      expect(graph.types[1].name).to.deep.equal(ordProtocol.name)
+      expect(graph.types[1].fns.length).to.deep.equal(ordProtocol.fns.length)
+      expect(graph.types[1].fns[0].name).to.deep.equal(ordProtocol.fns[0].name)
+      expect(graph.types[1].fns[0].args).to.deep.equal(ordProtocol.fns[0].args)
+
+      let created = Graph.Lambda.implementation(graph.types[1].fns[0].impl)
+      let ref = Graph.Lambda.implementation(implRef)
+
+      expect(Graph.isomorph(ref, created)).to.be.true
     })
   })
 })
