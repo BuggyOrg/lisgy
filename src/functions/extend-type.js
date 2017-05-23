@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import { createLambdaNode } from './lambda'
+import { compilationError } from '../compiler'
 
 /**
  * Based on: Clojures extend-type, see https://clojure.org/reference/protocols
@@ -16,7 +17,7 @@ export default function (ednObjects, { compile, context, graph }) {
   let protocolName = ednObjects.val[2].val
 
   let extendedProtocolType = {
-    type: 'protocol',
+    type: 'protocol-impl',
     class: className,
     name: protocolName,
     fns: []
@@ -25,10 +26,9 @@ export default function (ednObjects, { compile, context, graph }) {
   let newGraph = _.clone(graph) // Do we need the clone here?
   if (newGraph.types && newGraph.types.length > 0) {
     // search for allready defined types
-    let found = newGraph.types.find(t => t.name === protocolName)
+    let found = newGraph.types.find(t => t.class && t.type === extendedProtocolType.type && t.name === protocolName && t.class === className)
     if (found) {
-      console.log('Type was already defined once:', found)
-      console.log('NYI')
+      throw compilationError(`Protocol \`${protocolName}\` for \`${className}\` was already defined`, found)
     }
   } else {
     newGraph.types = []

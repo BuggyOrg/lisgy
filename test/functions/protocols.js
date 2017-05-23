@@ -16,6 +16,18 @@ describe('Protocols', () => {
       expect(graph.types[0]).to.deep.equal(ordProtocol)
     })
 
+    it('should define multiple protocols', () => {
+      const input = `(defprotocol OrdA (less [a b])) (defprotocol OrdB (more [c d]))`
+      const { graph } = api.parseCompile(input)
+      const ordProtocolA = { type: 'protocol', name: 'OrdA', fns: [{ name: 'less', args: ['a', 'b'] }] }
+      const ordProtocolB = { type: 'protocol', name: 'OrdB', fns: [{ name: 'more', args: ['c', 'd'] }] }
+
+      expect(graph.types).to.be.defined
+      expect(graph.types).to.have.length(2)
+      expect(graph.types[0]).to.deep.equal(ordProtocolA)
+      expect(graph.types[1]).to.deep.equal(ordProtocolB)
+    })
+
     it('should throw a error if defprotocol is used multiple times for the same functions inside one protocol', () => {
       const input = `(defprotocol Ord (less [a b])) (defprotocol Ord (less [a b c]))`
       let failed = false
@@ -79,6 +91,94 @@ describe('Protocols', () => {
 
       expect(Graph.isomorph(ref, created)).to.be.true
     })
+
+    it('should be possible to add multiple protocol fns to a type', () => {
+      const input = `
+        (defprotocol Ord (less [a b]) (more [a b c]))
+        (deftype Color (RGB Number Number Number)
+          Ord
+          (less
+            [(c1 Color) (c2 Color)]
+            (math/less (de-Color-0 c1) (de-Color-0 c2)))
+          (more
+            [(c1 Color) (c2 Color) (c3 Color)]
+            (math/more (de-Color-0 c1) (math/more (de-Color-0 c2) (de-Color-0 c3)))))`
+      const { graph } = api.parseCompile(input)
+      const refImplLess = api.parseCompile(`(lambda [c1 c2] (math/less (de-Color-0 c1) (de-Color-0 c2)))`).graph.nodes[0]
+      const refImplMore = api.parseCompile(`(lambda [c1 c2 c3] (math/more (de-Color-0 c1) (math/more (de-Color-0 c2) (de-Color-0 c3))))`).graph.nodes[0]
+
+      const ordProtocol = { type: 'protocol', name: 'Ord', fns: [{ name: 'less', args: ['a', 'b'] }, { name: 'more', args: ['a', 'b', 'c'] }] }
+      const ColorTypeWithProtocol = { protocols: [{name: 'Ord', fns: [{name: 'less', impl: refImplLess}, {name: 'more', impl: refImplMore}]}] }
+
+      expect(graph.types).to.be.defined
+      expect(graph.types).to.have.length(2)
+      expect(graph.types[0]).to.deep.equal(ordProtocol)
+      expect(graph.types[1].protocols[0].name).to.equal(ColorTypeWithProtocol.protocols[0].name)
+      expect(graph.types[1].protocols[0].fns.length).to.equal(ColorTypeWithProtocol.protocols[0].fns.length)
+      expect(graph.types[1].protocols[0].fns[0].name).to.equal(ColorTypeWithProtocol.protocols[0].fns[0].name)
+
+      let created = Graph.Lambda.implementation(graph.types[1].protocols[0].fns[0].impl)
+      expect(Graph.isomorph(Graph.Lambda.implementation(refImplLess), created)).to.be.true
+      created = Graph.Lambda.implementation(graph.types[1].protocols[0].fns[1].impl)
+      expect(Graph.isomorph(Graph.Lambda.implementation(refImplMore), created)).to.be.true
+    })
+
+    it('should be possible to add multiple protocols to a type', () => {
+      const input = `
+        (defprotocol OrdA (less [a b]))
+        (defprotocol OrdB (more [a b c]))
+        (deftype Color (RGB Number Number Number)
+          OrdA
+          (less
+            [(c1 Color) (c2 Color)]
+            (math/less (de-Color-0 c1) (de-Color-0 c2)))
+          OrdB
+          (more
+            [(c1 Color) (c2 Color) (c3 Color)]
+            (math/more (de-Color-0 c1) (math/more (de-Color-0 c2) (de-Color-0 c3)))))`
+      const { graph } = api.parseCompile(input)
+      const refImplLess = api.parseCompile(`(lambda [c1 c2] (math/less (de-Color-0 c1) (de-Color-0 c2)))`).graph.nodes[0]
+      const refImplMore = api.parseCompile(`(lambda [c1 c2 c3] (math/more (de-Color-0 c1) (math/more (de-Color-0 c2) (de-Color-0 c3))))`).graph.nodes[0]
+
+      const ordProtocolA = { type: 'protocol', name: 'OrdA', fns: [{ name: 'less', args: ['a', 'b'] }] }
+      const ordProtocolB = { type: 'protocol', name: 'OrdB', fns: [{ name: 'more', args: ['a', 'b', 'c'] }] }
+      const ColorTypeWithProtocol = { protocols: [
+        {name: 'OrdA', fns: [{name: 'less', impl: refImplLess}]},
+        {name: 'OrdB', fns: [{name: 'more', impl: refImplMore}]}] }
+
+      expect(graph.types).to.be.defined
+      expect(graph.types).to.have.length(3)
+      expect(graph.types[0]).to.deep.equal(ordProtocolA)
+      expect(graph.types[1]).to.deep.equal(ordProtocolB)
+      expect(graph.types[2].protocols).to.have.lengthOf(2)
+      expect(graph.types[2].protocols[0].fns).to.have.lengthOf(1)
+      expect(graph.types[2].protocols[1].fns).to.have.lengthOf(1)
+
+      expect(graph.types[2].protocols[0].name).to.equal(ColorTypeWithProtocol.protocols[0].name)
+      expect(graph.types[2].protocols[0].fns.length).to.equal(ColorTypeWithProtocol.protocols[0].fns.length)
+      expect(graph.types[2].protocols[0].fns[0].name).to.equal(ColorTypeWithProtocol.protocols[0].fns[0].name)
+
+      let created = Graph.Lambda.implementation(graph.types[2].protocols[0].fns[0].impl)
+      expect(Graph.isomorph(Graph.Lambda.implementation(refImplLess), created)).to.be.true
+      created = Graph.Lambda.implementation(graph.types[2].protocols[1].fns[0].impl)
+      expect(Graph.isomorph(Graph.Lambda.implementation(refImplMore), created)).to.be.true
+    })
+
+    it.skip('should throw a error if multiple extendtype\'s are used for one type', () => {
+      const input = `
+        (defprotocol Ord (less [a b]) (more [a b]))
+        (deftype Color (RGB Number Number Number)
+          Ord (less [(c1 Color) (c2 Color)] (math/less (de-Color-0 c1) (de-Color-0 c2)))
+          Ord (less [(c1 Color) (c2 Color)] (math/less (de-Color-0 c1) (de-Color-0 c2))))`
+      let failed = false
+      try {
+        api.parseCompile(input)
+      } catch (err) {
+        expect(err.message).to.contain('`Ord` for `Color` was already defined')
+        failed = true
+      }
+      expect(failed).to.be.true
+    })
   })
 
   describe('extend-type', () => {
@@ -98,7 +198,7 @@ describe('Protocols', () => {
     it('should extend a exisiting type', () => {
       const input = `
         (deftype Color (RGB Number Number Number))
-        (defprotocol Ord (less [a b]))
+        (defprotocol Ord (less [c1 c2]))
         (extendtype
           Color Ord   ; Color will be extended with the Ord protocol
           (less [(c1 Color) (c2 Color)]
@@ -108,15 +208,17 @@ describe('Protocols', () => {
       const ordProtocol = { type: 'protocol', name: 'Ord', fns: [{ name: 'less', args: ['c1', 'c2'] }] }
 
       expect(graph.types).to.be.defined
-      expect(graph.types).to.have.length(2)
+      expect(graph.types).to.have.length(3)
       // TODO: check graph.types[0] === (deftype Color ...)
-      expect(graph.types[1].type).to.deep.equal(ordProtocol.type)
-      expect(graph.types[1].name).to.deep.equal(ordProtocol.name)
-      expect(graph.types[1].fns.length).to.deep.equal(ordProtocol.fns.length)
-      expect(graph.types[1].fns[0].name).to.deep.equal(ordProtocol.fns[0].name)
-      expect(graph.types[1].fns[0].args).to.deep.equal(ordProtocol.fns[0].args)
+      expect(graph.types[1]).to.deep.equal(ordProtocol)
+      expect(graph.types[2].type).to.deep.equal('protocol-impl')
+      expect(graph.types[2].name).to.deep.equal('Ord')
+      expect(graph.types[2].class).to.deep.equal('Color')
+      expect(graph.types[2].fns.length).to.deep.equal(ordProtocol.fns.length)
+      expect(graph.types[2].fns[0].name).to.deep.equal(ordProtocol.fns[0].name)
+      expect(graph.types[2].fns[0].args).to.deep.equal(ordProtocol.fns[0].args)
 
-      let created = Graph.Lambda.implementation(graph.types[1].fns[0].impl)
+      let created = Graph.Lambda.implementation(graph.types[2].fns[0].impl)
       let ref = Graph.Lambda.implementation(implRef)
 
       expect(Graph.isomorph(ref, created)).to.be.true
@@ -136,7 +238,7 @@ describe('Protocols', () => {
       const { graph } = api.parseCompile(input)
       const implRef = api.parseCompile(`(lambda [c1 c2] (math/less (de-Color-0 c1) (de-Color-0 c2)))`).graph.nodes[0]
       const ordProtocol = {
-        type: 'protocol',
+        type: 'protocol-impl',
         name: 'Ord',
         fns: [
           { name: 'less', args: ['c1', 'c2'] },
@@ -144,20 +246,42 @@ describe('Protocols', () => {
         ]}
 
       expect(graph.types).to.be.defined
-      expect(graph.types).to.have.length(2)
+      expect(graph.types).to.have.length(3)
       // TODO: check graph.types[0] === (deftype Color ...)
-      expect(graph.types[1].type).to.deep.equal(ordProtocol.type)
-      expect(graph.types[1].name).to.deep.equal(ordProtocol.name)
-      expect(graph.types[1].fns.length).to.deep.equal(ordProtocol.fns.length)
-      expect(graph.types[1].fns[0].name).to.deep.equal(ordProtocol.fns[0].name)
-      expect(graph.types[1].fns[0].args).to.deep.equal(ordProtocol.fns[0].args)
-      expect(graph.types[1].fns[1].name).to.deep.equal(ordProtocol.fns[1].name)
-      expect(graph.types[1].fns[1].args).to.deep.equal(ordProtocol.fns[1].args)
+      expect(graph.types[2].type).to.deep.equal(ordProtocol.type)
+      expect(graph.types[2].name).to.deep.equal(ordProtocol.name)
+      expect(graph.types[2].fns.length).to.deep.equal(ordProtocol.fns.length)
+      expect(graph.types[2].fns[0].name).to.deep.equal(ordProtocol.fns[0].name)
+      expect(graph.types[2].fns[0].args).to.deep.equal(ordProtocol.fns[0].args)
+      expect(graph.types[2].fns[1].name).to.deep.equal(ordProtocol.fns[1].name)
+      expect(graph.types[2].fns[1].args).to.deep.equal(ordProtocol.fns[1].args)
 
-      let created = Graph.Lambda.implementation(graph.types[1].fns[0].impl)
+      let created = Graph.Lambda.implementation(graph.types[2].fns[0].impl)
       let ref = Graph.Lambda.implementation(implRef)
 
       expect(Graph.isomorph(ref, created)).to.be.true
+    })
+
+    it('should throw a error if multiple extendtype\'s are used for one type', () => {
+      const input = `
+        (deftype Color (RGB Number Number Number))
+        (defprotocol Ord
+          (less [a b])
+          (more [a b]))
+        (extendtype Color Ord 
+          (less [(c1 Color) (c2 Color)]
+                (math/less (de-Color-0 c1) (de-Color-0 c2))))
+        (extendtype Color Ord 
+          (more [(c1 Color) (c2 Color)]
+                (math/more (de-Color-0 c1) (de-Color-0 c2))))`
+      let failed = false
+      try {
+        api.parseCompile(input)
+      } catch (err) {
+        expect(err.message).to.contain('`Ord` for `Color` was already defined')
+        failed = true
+      }
+      expect(failed).to.be.true
     })
   })
 })

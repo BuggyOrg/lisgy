@@ -59,7 +59,6 @@ export default function (ednObject, { context, graph }) {
         old.fns.some(a =>
           newProtocol.fns.some(b => {
             if (a.name === b.name) {
-              console.log('FOUND')
               dupName = a.name
               return true
             }
@@ -72,6 +71,8 @@ export default function (ednObject, { context, graph }) {
       }
 
       newProtocol.fns.forEach(fn => old.fns.push(fn))
+    } else {
+      newGraph.types.push(newProtocol)
     }
   } else {
     newGraph.types = []

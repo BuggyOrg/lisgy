@@ -88,6 +88,15 @@ function getTypeProtocols (ednObjects, { context, compile, graph }) {
 
   for (let i = 4; i < ednObjects.length; i++) {
     let ednObject = ednObjects[i].val
+    if (typeof ednObject === 'string') {
+      // new protocol starts
+      protocols.push(protocol)
+      protocol = {
+        name: ednObject,
+        fns: []
+      }
+      continue
+    }
     let name = ednObject[0].val
     let args = ednObject[1].val.map(o => o.val[0].val || o.val[0])
 
