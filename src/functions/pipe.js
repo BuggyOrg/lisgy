@@ -100,8 +100,8 @@ export function transformToLet (ednObject) {
 }
 
 /**
- * (-> [EXPRS] EXPRS)
- * e.g. (-> [IO] (input) (print)) ; echo function
+ * (-> EXPR EXPRS)
+ * e.g. (-> IO (input) (print)) ; echo function
  */
 export default function (ednObject, env) {
   return compileLet(transformToLet(ednObject), env)
