@@ -94,6 +94,21 @@ describe('deftype', () => {
       expect(meta).to.eql(metaC)
     })
 
+    it('should throw a error if multiple deftype\'s are used with the same name', () => {
+      const input = `
+        (deftype Color (RGB Number Number Number))
+        (deftype Color (RGB Number Number Number))
+        `
+      let failed = false
+      try {
+        compile(parse(input))
+      } catch (err) {
+        expect(err.message).to.contain('deftype for `Color` was already defined')
+        failed = true
+      }
+      expect(failed).to.be.true
+    })
+
     it('can handle types with line breaks', () => {
       const { graph: graphC } = compile(parse('(deftype A (B c))'))
       const { graph } = compile(parse('(deftype A\n  (B c))'))

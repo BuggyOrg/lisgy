@@ -2,8 +2,21 @@ import _ from 'lodash'
 import * as Graph from '@buggyorg/graphtools'
 import { getTypeName } from '../typing/type'
 import { createLambdaNode } from './lambda'
+import { compilationError } from '../compiler'
 
 export default function (ednObject, { context, compile, graph }) {
+  const type = getTypeName(ednObject.val[1])
+
+  const compName =
+    `${type.type}` +
+    (type.genericArguments && type.genericArguments.length > 0
+      ? `#${type.genericArguments.join('#')}`
+      : ``)
+
+  if (graph.types && graph.types.find(t => t.name === compName)) {
+    throw compilationError(`Error deftype for \`${compName}\` was already defined`, ednObject)
+  }
+
   let temp = oldDeftype(ednObject, {context, compile, graph})
 
   let newGraph = temp.graph
@@ -12,14 +25,6 @@ export default function (ednObject, { context, compile, graph }) {
   if (!newGraph.types) {
     newGraph.types = []
   }
-
-  const type = getTypeName(ednObject.val[1])
-
-  const compName =
-    `${type.type}` +
-    (type.genericArguments && type.genericArguments.length > 0
-      ? `#${type.genericArguments.join('#')}`
-      : ``)
 
   let newType = {
     name: compName,
@@ -56,7 +61,7 @@ function oldDeftype (ednObject, { context, compile, graph }) {
             context,
             compile,
             graph
-          })
+          }, compName)
         }
       },
       version: '0.0.0',
@@ -73,7 +78,7 @@ function oldDeftype (ednObject, { context, compile, graph }) {
  * (deftype NAME DEFINITION
  *    NAME (NAME [ARGS...] IMPL)))
  */
-function getTypeProtocols (ednObjects, { context, compile, graph }) {
+function getTypeProtocols (ednObjects, { context, compile, graph }, compName) {
   // [{name, fns: [{name, impl: Graph.empty()}]}]
   if (ednObjects.length <= 3) {
     return []
@@ -94,6 +99,9 @@ function getTypeProtocols (ednObjects, { context, compile, graph }) {
       protocol = {
         name: ednObject,
         fns: []
+      }
+      if (protocols.find(p => p.name === protocol.name)) {
+        throw compilationError(`Error \`${protocol.name}\` for \`${compName}\` was already defined`, ednObjects)
       }
       continue
     }

@@ -164,9 +164,9 @@ describe('Protocols', () => {
       expect(Graph.isomorph(Graph.Lambda.implementation(refImplMore), created)).to.be.true
     })
 
-    it.skip('should throw a error if multiple extendtype\'s are used for one type', () => {
+    it('should throw a error if multiple extendtype\'s are used for one type', () => {
       const input = `
-        (defprotocol Ord (less [a b]) (more [a b]))
+        ;(defprotocol Ord (less [a b]) (more [a b]))
         (deftype Color (RGB Number Number Number)
           Ord (less [(c1 Color) (c2 Color)] (math/less (de-Color-0 c1) (de-Color-0 c2)))
           Ord (less [(c1 Color) (c2 Color)] (math/less (de-Color-0 c1) (de-Color-0 c2))))`
