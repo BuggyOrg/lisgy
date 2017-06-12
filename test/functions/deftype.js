@@ -49,7 +49,7 @@ describe('deftype', () => {
       const { graph } = compile(parse(`
       (deftype (List a)
         [NIL (Cons a (List a))]
-        Abc (Zyx [(a Type) (b Type)] (+ a b)) (C [(a Type)] (- a a))
+        Abc (Zyx [(a TypeA) (b TypeB)] (+ a b)) (C [(a TypeC)] (- a a))
       )`))
       const refGraphA = compile(parse('(lambda [a b] (+ a b))')).graph
       var refImplA = Graph.node('/functional/lambda', refGraphA)
@@ -68,13 +68,13 @@ describe('deftype', () => {
       expect(type.protocols[0].fns).to.have.length(2)
       let fn = type.protocols[0].fns[0]
       expect(fn.name).to.equal('Zyx')
-      expect(fn.args).to.deep.equal(['a', 'b'])
+      expect(fn.args).to.deep.equal([{name: 'a', type: 'TypeA'}, {name: 'b', type: 'TypeB'}])
       let implA = Graph.Lambda.implementation(fn.impl)
       expect(Graph.isomorph(implA, Graph.Lambda.implementation(refImplA)), 'Expected created lambda to equal ref lambda')
 
       fn = type.protocols[0].fns[1]
       expect(fn.name).to.equal('C')
-      expect(fn.args).to.deep.equal(['a'])
+      expect(fn.args).to.deep.equal([{name: 'a', type: 'TypeC'}])
       let implB = Graph.Lambda.implementation(fn.impl)
       expect(Graph.isomorph(implB, Graph.Lambda.implementation(refImplB)), 'Expected created lambda to equal ref lambda')
     })

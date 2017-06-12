@@ -251,6 +251,7 @@ describe('Protocols', () => {
       const { graph } = api.parseCompile(input)
       const implRef = api.parseCompile(`(lambda [c1 c2] (math/less (de-Color-0 c1) (de-Color-0 c2)))`).graph.nodes[0]
       const ordProtocol = { type: 'protocol', name: 'Ord', fns: [{ name: 'less', args: ['c1', 'c2'] }] }
+      const lessProtocol = { name: 'less', args: [{ name: 'c1', type: 'Color' }, { name: 'c2', type: 'Color' }] }
 
       expect(graph.types).to.be.defined
       expect(graph.types).to.have.length(3)
@@ -260,8 +261,8 @@ describe('Protocols', () => {
       expect(graph.types[2].name).to.deep.equal('Ord')
       expect(graph.types[2].class).to.deep.equal('Color')
       expect(graph.types[2].fns.length).to.deep.equal(ordProtocol.fns.length)
-      expect(graph.types[2].fns[0].name).to.deep.equal(ordProtocol.fns[0].name)
-      expect(graph.types[2].fns[0].args).to.deep.equal(ordProtocol.fns[0].args)
+      expect(graph.types[2].fns[0].name).to.deep.equal(lessProtocol.name)
+      expect(graph.types[2].fns[0].args).to.deep.equal(lessProtocol.args)
 
       let created = Graph.Lambda.implementation(graph.types[2].fns[0].impl)
       let ref = Graph.Lambda.implementation(implRef)
@@ -289,6 +290,10 @@ describe('Protocols', () => {
           { name: 'less', args: ['c1', 'c2'] },
           { name: 'add', args: ['cA', 'cB'] }
         ]}
+      const protocolFns = [
+        { name: 'less', args: [{ name: 'c1', type: 'Color' }, { name: 'c2', type: 'Color' }] },
+        { name: 'add', args: [{ name: 'cA', type: 'Color' }, { name: 'cB', type: 'Color' }] }
+      ]
 
       expect(graph.types).to.be.defined
       expect(graph.types).to.have.length(3)
@@ -296,10 +301,10 @@ describe('Protocols', () => {
       expect(graph.types[2].type).to.deep.equal(ordProtocol.type)
       expect(graph.types[2].name).to.deep.equal(ordProtocol.name)
       expect(graph.types[2].fns.length).to.deep.equal(ordProtocol.fns.length)
-      expect(graph.types[2].fns[0].name).to.deep.equal(ordProtocol.fns[0].name)
-      expect(graph.types[2].fns[0].args).to.deep.equal(ordProtocol.fns[0].args)
-      expect(graph.types[2].fns[1].name).to.deep.equal(ordProtocol.fns[1].name)
-      expect(graph.types[2].fns[1].args).to.deep.equal(ordProtocol.fns[1].args)
+      expect(graph.types[2].fns[0].name).to.deep.equal(protocolFns[0].name)
+      expect(graph.types[2].fns[0].args).to.deep.equal(protocolFns[0].args)
+      expect(graph.types[2].fns[1].name).to.deep.equal(protocolFns[1].name)
+      expect(graph.types[2].fns[1].args).to.deep.equal(protocolFns[1].args)
 
       let created = Graph.Lambda.implementation(graph.types[2].fns[0].impl)
       let ref = Graph.Lambda.implementation(implRef)

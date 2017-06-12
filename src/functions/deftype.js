@@ -112,7 +112,7 @@ function getTypeProtocols (ednObjects, { context, compile, graph }, compName) {
     } else if (ednObject.length < 3) {
       throw compilationError(`Error: inside deftype for the protocol \`${protocolName + ':' + name}\` of \`${compName}\`; No implementation.`, ednObjects)
     }
-    let args = ednObject[1].val.map(o => typeof o.val === 'string' ? { fail: o.val } : o.val[0].val || o.val[0])
+    let args = ednObject[1].val.map(o => typeof o.val === 'string' ? { fail: o.val } : { name: o.val[0].val || o.val[0], type: o.val[1].val || o.val[1] })
     let failed = args.find(a => a.fail)
     if (failed) {
       throw compilationError(`Error: inside deftype for the protocol \`${protocolName + ':' + name}\` of \`${compName}\`; Arg \`${failed.fail}\` has no type.`, ednObjects)
@@ -120,7 +120,7 @@ function getTypeProtocols (ednObjects, { context, compile, graph }, compName) {
 
     let impl
     try {
-      impl = createLambdaNode(args, ednObject[2], {context, compile, graph})
+      impl = createLambdaNode(args.map(a => a.name), ednObject[2], {context, compile, graph})
     } catch (error) {
       throw compilationError(`Error: inside deftype for the protocol \`${protocolName + ':' + name}\` of \`${compName}\`; Implementation error \`${error}\`.`, ednObjects)
     }
