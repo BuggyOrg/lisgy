@@ -179,6 +179,51 @@ describe('Protocols', () => {
       }
       expect(failed).to.be.true
     })
+
+    it('should throw a error if types for the args are missing', () => {
+      const input = `
+        ;(defprotocol Ord (less [a b]) (more [a b]))
+        (deftype Color (RGB Number Number Number)
+          Ord (less [c1 c2] (math/less (de-Color-0 c1) (de-Color-0 c2))))`
+      let failed = false
+      try {
+        api.parseCompile(input)
+      } catch (err) {
+        expect(err.message).to.contain('deftype for the protocol `Ord:less` of `Color`; Arg `c1` has no type.')
+        failed = true
+      }
+      expect(failed).to.be.true
+    })
+
+    it('should throw a error if implementation is wrong', () => {
+      const input = `
+        ;(defprotocol Ord (less [a b]) (more [a b]))
+        (deftype Color (RGB Number Number Number)
+          Ord (less [(c1 Color) (c2 Color)] (math/less a b)))`
+      let failed = false
+      try {
+        api.parseCompile(input)
+      } catch (err) {
+        expect(err.message).to.contain('inside deftype for the protocol `Ord:less` of `Color`; Implementation error ')
+        failed = true
+      }
+      expect(failed).to.be.true
+    })
+
+    it('should throw a error if implementation is fully missing', () => {
+      const input = `
+        ;(defprotocol Ord (less [a b]) (more [a b]))
+        (deftype Color (RGB Number Number Number)
+          Ord (less [(c1 Color) (c2 Color)]))`
+      let failed = false
+      try {
+        api.parseCompile(input)
+      } catch (err) {
+        expect(err.message).to.contain('deftype for the protocol `Ord:less` of `Color`; No implementation')
+        failed = true
+      }
+      expect(failed).to.be.true
+    })
   })
 
   describe('extend-type', () => {
@@ -279,6 +324,54 @@ describe('Protocols', () => {
         api.parseCompile(input)
       } catch (err) {
         expect(err.message).to.contain('`Ord` for `Color` was already defined')
+        failed = true
+      }
+      expect(failed).to.be.true
+    })
+
+    it('should throw a error if types for the args are missing', () => {
+      const input = `
+        ;(deftype Color (RGB Number Number Number))
+        ;(defprotocol Ord (less [a b]) (more [a b]))
+        (extendtype Color Ord 
+          (less [(c1 Color) c2] (math/less (de-Color-0 c1) (de-Color-0 c2))))`
+      let failed = false
+      try {
+        api.parseCompile(input)
+      } catch (err) {
+        expect(err.message).to.contain('extendtype for the protocol `Ord:less` of `Color`; Arg `c2` has no type.')
+        failed = true
+      }
+      expect(failed).to.be.true
+    })
+
+    it('should throw a error if implementation is wrong', () => {
+      const input = `
+        ;(deftype Color (RGB Number Number Number))
+        ;(defprotocol Ord (less [a b]) (more [a b]))
+        (extendtype Color Ord
+          (less [(c1 Color) (c2 Color)] (math/less a b)))`
+      let failed = false
+      try {
+        api.parseCompile(input)
+      } catch (err) {
+        expect(err.message).to.contain('extendtype for the protocol `Ord:less` of `Color`; Implementation error ')
+        failed = true
+      }
+      expect(failed).to.be.true
+    })
+
+    it('should throw a error if implementation is fully missing', () => {
+      const input = `
+        ;(deftype Color (RGB Number Number Number))
+        ;(defprotocol Ord (less [a b]) (more [a b]))
+        (extendtype Color Ord
+          (less [(c1 Color) (c2 Color)]))`
+      let failed = false
+      try {
+        api.parseCompile(input)
+      } catch (err) {
+        expect(err.message).to.contain('extendtype for the protocol `Ord:less` of `Color`; No implementation')
         failed = true
       }
       expect(failed).to.be.true

@@ -84,10 +84,10 @@ function getTypeProtocols (ednObjects, { context, compile, graph }, compName) {
     return []
   }
 
-  let name = ednObjects[3].val
+  let protocolName = ednObjects[3].val
   let protocols = []
   let protocol = {
-    name,
+    name: protocolName,
     fns: []
   }
 
@@ -106,9 +106,24 @@ function getTypeProtocols (ednObjects, { context, compile, graph }, compName) {
       continue
     }
     let name = ednObject[0].val
-    let args = ednObject[1].val.map(o => o.val[0].val || o.val[0])
 
-    let impl = createLambdaNode(args, ednObject[2], {context, compile, graph})
+    if (ednObject.length < 2) {
+      throw compilationError(`Error: inside deftype for the protocol \`${protocolName + ':' + name}\` of \`${compName}\`; No args and implementation.`, ednObjects)
+    } else if (ednObject.length < 3) {
+      throw compilationError(`Error: inside deftype for the protocol \`${protocolName + ':' + name}\` of \`${compName}\`; No implementation.`, ednObjects)
+    }
+    let args = ednObject[1].val.map(o => typeof o.val === 'string' ? { fail: o.val } : o.val[0].val || o.val[0])
+    let failed = args.find(a => a.fail)
+    if (failed) {
+      throw compilationError(`Error: inside deftype for the protocol \`${protocolName + ':' + name}\` of \`${compName}\`; Arg \`${failed.fail}\` has no type.`, ednObjects)
+    }
+
+    let impl
+    try {
+      impl = createLambdaNode(args, ednObject[2], {context, compile, graph})
+    } catch (error) {
+      throw compilationError(`Error: inside deftype for the protocol \`${protocolName + ':' + name}\` of \`${compName}\`; Implementation error \`${error}\`.`, ednObjects)
+    }
 
     protocol.fns.push({ name, args, impl })
   }

@@ -49,7 +49,7 @@ describe('deftype', () => {
       const { graph } = compile(parse(`
       (deftype (List a)
         [NIL (Cons a (List a))]
-        Abc (Zyx [a b] (+ a b)) (C [a] (- a a))
+        Abc (Zyx [(a Type) (b Type)] (+ a b)) (C [(a Type)] (- a a))
       )`))
       const refGraphA = compile(parse('(lambda [a b] (+ a b))')).graph
       var refImplA = Graph.node('/functional/lambda', refGraphA)

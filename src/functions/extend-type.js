@@ -37,9 +37,24 @@ export default function (ednObjects, { compile, context, graph }) {
   for (let j = 3; j < ednObjects.val.length; j++) {
     let ednObject = ednObjects.val[j].val
     let name = ednObject[0].val
-    let args = ednObject[1].val.map(o => o.val[0].val) // TODO: save Type from e.g. `(a Type)`
+    if (ednObject.length < 2) {
+      throw compilationError(`Error: inside extendtype for the protocol \`${protocolName + ':' + name}\` of \`${className}\`; No args and implementation.`, ednObjects)
+    } else if (ednObject.length < 3) {
+      throw compilationError(`Error: inside extendtype for the protocol \`${protocolName + ':' + name}\` of \`${className}\`; No implementation.`, ednObjects)
+    }
+    // TODO: save Type from e.g. `(a Type)`
+    let args = ednObject[1].val.map(o => typeof o.val === 'string' ? { fail: o.val } : o.val[0].val)
+    let failed = args.find(a => a.fail || !a)
+    if (failed) {
+      throw compilationError(`Error: inside extendtype for the protocol \`${protocolName + ':' + name}\` of \`${className}\`; Arg \`${failed.fail || '???'}\` has no type.`, ednObjects)
+    }
 
-    let impl = createLambdaNode(args, ednObject[2], {compile, context, graph})
+    let impl
+    try {
+      impl = createLambdaNode(args, ednObject[2], {context, compile, graph})
+    } catch (error) {
+      throw compilationError(`Error: inside extendtype for the protocol \`${protocolName + ':' + name}\` of \`${className}\`; Implementation error \`${error}\`.`, ednObjects)
+    }
 
     extendedProtocolType.fns.push({ name, args, impl })
   }
