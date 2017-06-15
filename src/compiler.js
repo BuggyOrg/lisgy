@@ -5,12 +5,38 @@ import anonymousLambda from './functions/anonymousLambda'
 import { isConstValue } from './functions/const'
 
 function getFunctionHandler (name) {
+  if (name === '->') {
+    return functions.pipe
+  }
   return functions[name] || functions.externalComponent
 }
 
-function compileWithContext (ednObj, context, graph) {
+function arrayLength (len) {
+  return {
+    val: false,
+    keys: [ 'metaInformation.length' ],
+    vals: [ len ],
+    isList: false,
+    isVector: false,
+    isSet: false
+  }
+}
+
+function compileWithContext (ednObj, context, graph, isRoot = false) {
   if (_.isArray(ednObj.val)) {
-    if (_.isString(ednObj.val[0].val)) {
+    if (ednObj.isVector && !isRoot) {
+      return compileWithContext({
+        val: [
+          {
+            ns: null,
+            name: 'Array',
+            val: 'Array'
+          },
+          ...ednObj.val,
+          arrayLength(ednObj.val.length)
+        ]
+      }, context, graph)
+    } else if (_.isString(ednObj.val[0].val)) {
       const fn = getFunctionHandler(ednObj.val[0].val)
       const result = fn(ednObj, { context, graph, compile: compileWithContext })
       if (result) {
@@ -50,7 +76,7 @@ function compileWithContext (ednObj, context, graph) {
 }
 
 export function compile (ednObj, context = defaultContext()) {
-  const { graph, context: newContext } = compileWithContext(ednObj, context, Graph.empty())
+  const { graph, context: newContext } = compileWithContext(ednObj, context, Graph.empty(), true)
   // add code meta information from ednObj, if it exists
   if (ednObj.code) {
     // TODO: add input code

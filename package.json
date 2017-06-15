@@ -1,6 +1,6 @@
 {
   "name": "@buggyorg/lisgy",
-  "version": "0.2.0-pre.6",
+  "version": "0.2.0-pre.14",
   "description": "",
   "main": "lib/lisgy.js",
   "bin": {
@@ -8,12 +8,12 @@
     "lisgy-check": "./lib/valid.js"
   },
   "scripts": {
-    "build": "babel src -d lib",
+    "build": "rm -rf lib && babel src -d lib",
     "pretest": "npm run build",
     "test": "dot-only-hunter && nyc mocha --compilers js:babel-register --timeout 15000 --recursive && standard src/**/*.js",
     "test:dev": "nyc mocha --compilers js:babel-register --timeout 15000 --recursive && standard src/**/*.js",
     "test:watch": "mocha --compilers js:babel-register --timeout 15000 --recursive --watch",
-    "prepublish": "babel src -d lib",
+    "prepublish": "rm -rf lib && babel src -d lib",
     "report": "nyc report",
     "coverage": "nyc report --reporter=text-lcov | coveralls"
   },
@@ -33,14 +33,14 @@
   "dependencies": {
     "@buggyorg/component-library": "0.3.7",
     "@buggyorg/graphlib2kgraph": "0.1.11",
-    "@buggyorg/graphtools": "0.4.0-pre.28",
+    "@buggyorg/graphtools": "^0.4.0-pre.34",
+    "@buggyorg/jsedn": "^0.4.0",
     "@buggyorg/resolve": "0.2.9",
     "chalk": "^1.1.3",
     "cli-ext": "^1.0.0",
     "commander": "^2.9.0",
     "get-stdin": "^5.0.1",
     "graphlib": "^2.1.0",
-    "@buggyorg/jsedn": "^0.4.0",
     "lodash": "^4.8.2",
     "pegjs": "^0.10.0",
     "tempfile": "^1.1.1",
@@ -49,6 +49,7 @@
   },
   "devDependencies": {
     "babel-cli": "^6.4.5",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
     "babel-preset-es2015": "^6.3.13",
     "babel-register": "^6.4.3",
     "chai": "^3.4.0",

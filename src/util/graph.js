@@ -23,9 +23,11 @@ export function getContextLets (context, variable) {
   if (!context.letvars) {
     return false
   }
-
   _.forEachRight(context.letvars, (v) => {
-    if (v.varName === variable) {
+    if (v.varName.val) {
+      console.log('warning got endObject inside letvars!')
+    }
+    if (v.varName === variable || v.varName.val === variable) {
       source = v.source
       return false
     }

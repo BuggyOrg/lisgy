@@ -2,6 +2,7 @@
 import { expect } from 'chai'
 import { parse } from '../../src/parser'
 import { compile } from '../../src/compiler'
+import { createLambdaNode } from '../../src/functions/lambda'
 import { Graph, expectEdge, expectNoEdge } from './utils_e'
 
 const Lambda = Graph.Lambda
@@ -16,6 +17,28 @@ describe('lambda', () => {
     expect(Graph.components(compiled)).to.have.length(0)
 
     var lambda = Graph.node('/functional/lambda', compiled)
+    expect(lambda).exists
+
+    expect(Lambda.isValid(lambda)).to.be.true
+
+    const λ = Lambda.implementation(lambda)
+
+    expect(Graph.edges(λ)).to.have.length(3)
+    expectEdge('@in_p1', '/+', λ)
+    expectEdge('@in_p2', '/+', λ)
+    expectEdge('/+', '@output', λ)
+  })
+
+  it('should create a simple lambda based on object', () => {
+    compile(parse('(lambda [p1 p2] (+ p1 p2))')) // ref
+    const prased = parse('(+ p1 p2)')
+    const newLambdaNode = createLambdaNode(['p1', 'p2'], prased.val[0], {compile})
+
+    expect(Graph.nodes(newLambdaNode)).to.have.length(1) // One lambda node
+    expect(Graph.edgesDeep(newLambdaNode)).to.have.length(3)
+    expect(Graph.components(newLambdaNode)).to.have.length(0)
+
+    var lambda = newLambdaNode
     expect(lambda).exists
 
     expect(Lambda.isValid(lambda)).to.be.true
