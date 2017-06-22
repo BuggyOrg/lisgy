@@ -1,5 +1,6 @@
 import * as Graph from '@buggyorg/graphtools'
-import { createPort } from '../util/graph'
+import _ from 'lodash'
+import { createPort, contextHasVariable } from '../util/graph'
 import { extraInfosAdded } from '../util/edn.js'
 import { log, warning } from '../util/log.js'
 import { compilationError } from '../compiler'
@@ -30,31 +31,41 @@ export default function (ednObject, { context, compile, graph }) {
 
   let newContext = Object.assign({}, context, {
     parent: newNode,
-    variables: inputPorts, // TODO: cleanup | currently it is used inside of contextHasVariable
+    variables: inputPorts, // TODO: cleanup | currently it is used inside of contextHasVariable and inside externalComponent
     toPortName: ''
   })
 
   let cmpt = Graph.compound(newNode)
 
-  // defco with defaul output
-  if (ednObject.val[3].val[0].val[0] !== ':') {
+  // defco with default output (i.e. value)
+  if (ednObject.val[3].val[0].val == null || ednObject.val[3].val[0].val[0] !== ':') {
     log('defco with default output port \'value\'')
     let outPort = createPort('value', 'output', 'generic' + allPorts.length)
     cmpt.ports.push(outPort)
 
     newContext.toPortName = outPort.name
     let next = ednObject.val[3]
-    let out = compile(next, newContext, cmpt)
-    cmpt = out.graph
-    if (out.context.toPortName) {
-      warning('Depricated?!')
-    } else {
-      let edge = {from: out.result.port, to: '@value'}
-      log('defco adding edge from ' + edge.from + ' to ' + edge.to)
-      cmpt = Graph.addEdge(edge, cmpt)
-    }
 
-    extraInfosAdded(cmpt, ednObject.val[4])
+    if (_.isString(next.name) && _.isString(next.val)) { // only returns a variable
+      if (contextHasVariable(newContext, next.val)) {
+        cmpt = Graph.addEdge({ from: `@${next.val}`, to: '@value' }, cmpt)
+      } else {
+        throw compilationError(`Variable '${next.val}' returned by defco-ed component '${ednObject.val[1].val}' is unknown`, ednObject)
+      }
+    } else {
+      let out = compile(next, newContext, cmpt)
+
+      cmpt = out.graph
+      if (out.context.toPortName) {
+        warning('Depricated?!')
+      } else {
+        let edge = {from: out.result.port, to: '@value'}
+        log('defco adding edge from ' + edge.from + ' to ' + edge.to)
+        cmpt = Graph.addEdge(edge, cmpt)
+      }
+
+      extraInfosAdded(cmpt, ednObject.val[4])
+    }
   } else {
     log('defco with named output ports')
     // defco with defined ports
@@ -68,12 +79,21 @@ export default function (ednObject, { context, compile, graph }) {
       let outPort = createPort(outputs[i].val, 'output', 'generic' + (i + allPorts.length))
       cmpt.ports.push(outPort)
       i++
-      let next = outputs[i]
-      let out = compile(next, newContext, cmpt)
+      const next = outputs[i]
 
-      let edge = {from: out.result.port, to: '@' + outPort.port}
-      log('defco adding edge from ' + edge.from + ' to ' + edge.to)
-      cmpt = Graph.addEdge(edge, out.graph)
+      if (_.isString(next.name) && _.isString(next.val)) { // only returns a variable
+        if (contextHasVariable(newContext, next.val)) {
+          cmpt = Graph.addEdge({ from: `@${next.val}`, to: `@${outPort.port}` }, cmpt)
+        } else {
+          throw compilationError(`Variable '${next.val}' returned by defco-ed component '${ednObject.val[1].val}' is unknown`, ednObject)
+        }
+      } else {
+        let out = compile(next, newContext, cmpt)
+
+        let edge = {from: out.result.port, to: `@${outPort.port}`}
+        log('defco adding edge from ' + edge.from + ' to ' + edge.to)
+        cmpt = Graph.addEdge(edge, out.graph)
+      }
     }
   }
 

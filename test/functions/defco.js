@@ -248,4 +248,18 @@ describe('defco', () => {
       expect(e).to.be.instanceOf(CompilationError)
     })
   })
+
+  it('supports using an argument as output value', () => {
+    const { graph } = compile(parse('(defco id [x] x)'))
+    expect(Graph.components(graph)).to.have.length(1)
+    const idGraph = Graph.components(graph)[0]
+    expectEdge('@x', '@value', idGraph)
+  })
+
+  it('supports using an argument as output value for a named output port', () => {
+    const { graph } = compile(parse('(defco id [x] [:theSame x])'))
+    expect(Graph.components(graph)).to.have.length(1)
+    const idGraph = Graph.components(graph)[0]
+    expectEdge('@x', '@theSame', idGraph)
+  })
 })
